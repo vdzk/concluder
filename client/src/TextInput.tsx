@@ -1,6 +1,6 @@
 import { Component, Show } from "solid-js";
 import { etv } from "./utils";
-import { Button } from "./Button";
+import { Button } from "./Buttons";
 
 export const TextInput: Component<{
   value: string

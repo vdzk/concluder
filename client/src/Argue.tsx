@@ -5,6 +5,8 @@ import { createStore } from "solid-js/store"
 import { Statement, StatementDataRow } from "./Statement"
 import { Argument } from "./Argument"
 import { ScoreChanges } from "../../shared/types"
+import { IconButton } from "./Buttons"
+import { ArgumentForm } from "./ArgumentForm"
 
 export interface Step {
   index: number
@@ -22,6 +24,8 @@ export const Argue: Component = () => {
     statement: {},
     argument: {}
   })
+  const [argumentFormId, setArgumentFormId] = createSignal<number>()
+  const [saving, setSaving] = createSignal(false)
 
   onMount(async () => {
     if (!params.id) return
@@ -35,7 +39,13 @@ export const Argue: Component = () => {
     }])
   })
 
+  const onShowArgumentForm = (step: Step) => {
+    onHideArguments(step)
+    setArgumentFormId(step.statementId)
+  }
+
   const onShowArguments = async (step: Step, argumentId?: number) => {
+    setArgumentFormId()
     // Load arguments
     const _arguments = await rpc(
       'getArgumentsByClaimId',
@@ -56,6 +66,11 @@ export const Argue: Component = () => {
         setPath(step.index, 'argumentIndex', newArgumentIndex)
       }
     }
+  }
+
+  const onHideArguments = (step: Step) => {
+    setPath(prev => prev.slice(0, step.index + 1))
+    setPath(step.index, 'argumentIndex', undefined)
   }
 
   const onShowPremises = async (step: Step) => {
@@ -88,6 +103,10 @@ export const Argue: Component = () => {
     }
   }
 
+  const onHidePremises = (step: Step) => {
+    setPath(prev => prev.slice(0, step.index + 1))
+  }
+
   const onShiftPremise = (step: Step, premiseIndexDelta: number) => {
     const newPremiseIndex = step.premiseIndex! + premiseIndexDelta
     setPath(step.index, 'premiseIndex', newPremiseIndex)
@@ -102,32 +121,135 @@ export const Argue: Component = () => {
     })
   }
 
+  const submitArgument = async (step: Step, text: string) => {
+    setSaving(true)
+    const data = await rpc('addArgument', {
+      claim_id: step.statementId,
+      text
+    })
+    await onShowArguments(step, data.savedId)
+    setScoreChanges(data.scoreChanges)
+    setArgumentFormId()
+    setSaving(false)
+  }
+
+
   const getArgumentByStep = (step: Step) => statements[step.statementId]
     .arguments![step.argumentIndex!]
 
   return (
     <main>
-      <div class="max-w-lg mx-auto pt-2">
-        <div class="">
-          <A
-            href="/"
-            class="text-sky-700 hover:underline"
-          >{'<'} All claims</A>
+      <div class="max-w-lg mx-auto pb-16">
+        <div class="flex justify-center">
+          {/* TODO: refactor this hack */}
+          <A href="/">
+            <IconButton
+              iconName="home"
+              onClick={() => {}}
+              label="all claims"
+            />
+          </A>
         </div>
         <For each={path}>
-          {step => (
+          {(step, index) => (
             <>
               <Statement
                 {...{ step, onShowArguments, setScoreChanges }}
                 statement={statements[step.statementId]}
                 scoreChange={scoreChanges().statement[step.statementId]}
+                parentPremiseIndex={index() > 0 ? path[index() - 1].premiseIndex : undefined}
               />
+              <div class="flex select-none">
+                <div class="w-[calc(50%-18px)]" />
+                <Show when={
+                  step.argumentIndex === undefined &&
+                  statements[step.statementId].hasArgument
+                }>
+                  <IconButton
+                    label="show arguments"
+                    iconName="chevron-down"
+                    onClick={() => onShowArguments(step)}
+                  />
+                </Show>
+                <Show when={step.argumentIndex !== undefined}>
+                  <IconButton
+                    label="hide arguments"
+                    iconName="chevron-up"
+                    onClick={() => onHideArguments(step)}
+                  />
+                </Show>
+                <Show when={
+                  step.argumentIndex !== undefined &&
+                  (statements[step.statementId].arguments?.length ?? 0) > 1
+                }>
+                  <IconButton
+                    iconName="arrow-left"
+                    onClick={() => { }}
+                  />
+                  <IconButton
+                    iconName="arrow-right"
+                    onClick={() => { }}
+                  />
+                </Show>
+                <Show when={argumentFormId() !== step.statementId}>
+                  <IconButton
+                    label="add argument"
+                    iconName="plus"
+                    onClick={() => onShowArgumentForm(step)}
+                  />
+                </Show>
+                <Show when={argumentFormId() === step.statementId}>
+                  <IconButton
+                    label="cancel"
+                    iconName="minus"
+                    onClick={() => setArgumentFormId()}
+                  />
+                </Show>
+              </div>
+              <Show when={argumentFormId() === step.statementId}>
+                <ArgumentForm
+                  saving={saving()}
+                  onSubmitArgument={(text) => submitArgument(step, text)}
+                />
+              </Show>
               <Show when={step.argumentIndex !== undefined}>
                 <Argument
                   {...{ step, onShowPremises, onShiftPremise }}
                   argument={getArgumentByStep(step)}
                   scoreChange={scoreChanges().argument[getArgumentByStep(step).id]}
                 />
+                <div class="flex select-none">
+                  <div class="w-[calc(50%-18px)]" />
+                  <Show when={index() === path.length - 1}>
+                    <IconButton
+                      label="show premises"
+                      iconName="chevron-down"
+                      onClick={() => onShowPremises(step)}
+                    />
+                  </Show>
+                  <Show when={index() < path.length - 1}>
+                    <IconButton
+                      label="hide premises"
+                      iconName="chevron-up"
+                      onClick={() => onHidePremises(step)}
+                    />
+                  </Show>
+                  <Show when={
+                    index() + 1 < path.length &&
+                    (statements[step.statementId].arguments![step.argumentIndex!].premises?.length ?? 0) > 1
+                  }>
+                    <IconButton
+                      iconName="arrow-left"
+                      onClick={() => onShiftPremise(step, -1)}
+                      disabled={step.premiseIndex === 0}
+                    />
+                    <IconButton
+                      iconName="arrow-right"
+                      onClick={() => onShiftPremise(step, 1)}
+                      disabled={step.premiseIndex === (statements[step.statementId].arguments![step.argumentIndex!].premises?.length ?? 0) - 1}
+                    />
+                  </Show>
+                </div>
               </Show>
             </>
           )}
