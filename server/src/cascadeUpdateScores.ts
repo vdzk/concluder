@@ -49,9 +49,8 @@ export const cascadeUpdateScores = async (
   }
 
   // update parent argument strength
-  const siblingPremises = await sql<(Premise & {argument_id: number, statement_id: number})[]>`
+  const siblingPremises = await sql<(Premise & {argument_id: number})[]>`
     SELECT DISTINCT
-      sibling_premise.statement_id,
       sibling_premise.argument_id,
       sibling_premise.invert,
       statement.likelihood
@@ -65,13 +64,11 @@ export const cascadeUpdateScores = async (
 
   if (siblingPremises.length > 0) {
     const parentArguments: Record<number, Premise[]> = {}
-    const parentClaimIds = new Set<number>()
     for (const premise of siblingPremises) {
       if (!parentArguments[premise.argument_id]) {
         parentArguments[premise.argument_id] = []
       }
       parentArguments[premise.argument_id].push(premise)
-      parentClaimIds.add(premise.statement_id)
     }
     const newParentArgumentStrengths: [number, number][] = []
     for (const parentArgumentId in parentArguments) {
@@ -80,6 +77,7 @@ export const cascadeUpdateScores = async (
         calcArgumentStrength(parentArguments[parentArgumentId])
       ])
     }
+
     const parentArgumentDiffs = await sql`
       UPDATE argument AS argument_new
       SET strength = update_data.strength::real
@@ -94,6 +92,7 @@ export const cascadeUpdateScores = async (
         argument_old.strength AS old_strength,
         argument_new.strength AS new_strength
     `.catch(onError)
+
     for (const diff of parentArgumentDiffs) {
       scoreChanges.argument[diff.argument_id] = {
         old: diff.old_strength,
@@ -102,12 +101,22 @@ export const cascadeUpdateScores = async (
     }
 
     // cascade updates
-    const parentScoreChanges = await Promise.all(
-      [...parentClaimIds].map(cascadeUpdateScores)
-    )
-    for (const diffs of parentScoreChanges) {
-      Object.assign(scoreChanges.statement, diffs.statement)
-      Object.assign(scoreChanges.argument, diffs.argument)
+    const parentArgumentResults = await sql`
+      SELECT DISTINCT argument.claim_id
+      FROM argument
+      JOIN premise
+        ON premise.argument_id = argument.id
+      WHERE premise.statement_id = ${claimId}
+    `.catch(onError)
+    if (parentArgumentResults.length > 0) {
+      const parentClaimIds = parentArgumentResults.map(argument => argument.claim_id)
+      const parentScoreChanges = await Promise.all(
+        [...parentClaimIds].map(cascadeUpdateScores)
+      )
+      for (const diffs of parentScoreChanges) {
+        Object.assign(scoreChanges.statement, diffs.statement)
+        Object.assign(scoreChanges.argument, diffs.argument)
+      }
     }
   }
   

@@ -41,8 +41,8 @@ export const Argument: Component<{
           title="strength of the argument"
         >
           <Show when={props.scoreChange}>
-            {getPercent(props.scoreChange!.new)}
             <Delta {...props.scoreChange!} />
+            {getPercent(props.scoreChange!.new)}
           </Show>
           <Show when={!props.scoreChange}>
             {getPercent(props.argument.strength)}

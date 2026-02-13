@@ -121,6 +121,15 @@ export const Argue: Component = () => {
     })
   }
 
+  const onShiftArgument = (step: Step, argumentIndexDelta: number) => {
+    const newArgumentIndex = step.argumentIndex! + argumentIndexDelta
+    setPath(prevPath => [ ...prevPath.slice(0, step.index), {
+        ...step,
+        argumentIndex: newArgumentIndex,
+        premiseIndex: undefined
+    }])
+  }
+
   const submitArgument = async (step: Step, text: string) => {
     setSaving(true)
     const data = await rpc('addArgument', {
@@ -184,11 +193,13 @@ export const Argue: Component = () => {
                 }>
                   <IconButton
                     iconName="arrow-left"
-                    onClick={() => { }}
+                    onClick={() => onShiftArgument(step, -1)}
+                    disabled={step.argumentIndex === 0}
                   />
                   <IconButton
                     iconName="arrow-right"
-                    onClick={() => { }}
+                    onClick={() => onShiftArgument(step, 1)}
+                    disabled={step.argumentIndex! === (statements[step.statementId].arguments?.length ?? 0) - 1 }
                   />
                 </Show>
                 <Show when={argumentFormId() !== step.statementId}>

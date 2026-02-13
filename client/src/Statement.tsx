@@ -39,8 +39,8 @@ export const Statement: Component<{
           title="likelihood that this statement is true"
         >
           <Show when={props.scoreChange}>
-            {getPercent(props.scoreChange!.new)}
             <Delta {...props.scoreChange!} />
+            {getPercent(props.scoreChange!.new)}
           </Show>
           <Show when={!props.scoreChange}>
             {getPercent(props.statement.likelihood)}

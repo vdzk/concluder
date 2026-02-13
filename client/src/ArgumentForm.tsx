@@ -1,5 +1,6 @@
 import { Component, createSignal, onMount } from "solid-js"
 import { IconButton } from "./Buttons"
+import { etv } from "./utils"
 
 export const ArgumentForm: Component<{
   saving: boolean
@@ -29,7 +30,7 @@ export const ArgumentForm: Component<{
           rows={3}
           placeholder="type here..."
           class="text-lg px-2 py-1 focus:outline-none block w-full"
-          onChange={setNewArgumentText}
+          onChange={etv(setNewArgumentText)}
           value={newArgumentText()}
         />
       </div>

@@ -8,7 +8,7 @@ export const Delta: Component<{
   const delta = () => props.new - props.old
   return (
     <span
-      class="inline-block pl-1"
+      class="inline-block px-1"
       classList={{
         'text-green-700': delta()! > 0,
         'text-red-700': delta()! < 0
