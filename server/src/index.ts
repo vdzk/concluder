@@ -15,7 +15,7 @@ app.post('/api/addClaim', async (req, res) => {
 })
 
 const getStatementsByIds = (statementIds: number[]) => sql`
-  SELECT id, text, likelihood, justification,
+  SELECT id, text, likelihood,
     EXISTS (
       SELECT 1
       FROM argument
@@ -85,7 +85,7 @@ app.post('/api/addArgument', async (req, res) => {
 
   const statements = await sql`
     INSERT INTO statement
-    ${sql(analysis.premises, 'text', 'justification', 'likelihood')}
+    ${sql(analysis.premises, 'text', 'likelihood')}
     RETURNING id
   `.catch(onError)
 

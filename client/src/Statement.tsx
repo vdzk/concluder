@@ -8,7 +8,6 @@ export interface StatementDataRow {
   id: number,
   text: string,
   likelihood: number,
-  justification: string,
   hasArgument: boolean,
   arguments?: ArgumentDataRow[]
 }
