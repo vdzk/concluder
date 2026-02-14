@@ -15,6 +15,7 @@ export interface ArgumentDataRow {
   text: string,
   pro: boolean,
   strength: number,
+  hasPremise: boolean,
   premises?: Premise[]
 }
 

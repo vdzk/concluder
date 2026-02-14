@@ -4,9 +4,10 @@ import { rpc } from "./utils"
 import { createStore } from "solid-js/store"
 import { Statement, StatementDataRow } from "./Statement"
 import { Argument } from "./Argument"
-import { ScoreChanges } from "../../shared/types"
+import { ArgumentFormData, PremiseFormData, ScoreChanges } from "../../shared/types"
 import { IconButton } from "./Buttons"
 import { ArgumentForm } from "./ArgumentForm"
+import { PremiseForm } from "./PremiseForm"
 
 export interface Step {
   index: number
@@ -25,7 +26,9 @@ export const Argue: Component = () => {
     argument: {}
   })
   const [argumentFormId, setArgumentFormId] = createSignal<number>()
-  const [saving, setSaving] = createSignal(false)
+  const [savingArgument, setSavingArgument] = createSignal(false)
+  const [premiseFormId, setPremiseFormId] = createSignal<number>()
+  const [savingPremise, setSavingPremise] = createSignal(false)
 
   onMount(async () => {
     if (!params.id) return
@@ -42,6 +45,11 @@ export const Argue: Component = () => {
   const onShowArgumentForm = (step: Step) => {
     onHideArguments(step)
     setArgumentFormId(step.statementId)
+  }
+
+  const onShowPremiseForm = (step: Step) => {
+    onHidePremises(step)
+    setPremiseFormId(step.statementId)
   }
 
   const onShowArguments = async (step: Step, argumentId?: number) => {
@@ -73,7 +81,7 @@ export const Argue: Component = () => {
     setPath(step.index, 'argumentIndex', undefined)
   }
 
-  const onShowPremises = async (step: Step) => {
+  const onShowPremises = async (step: Step, premiseId?: number) => {
     const claim = statements[step.statementId]
     if (step.argumentIndex === undefined) return
     const argument = claim.arguments![step.argumentIndex]
@@ -94,17 +102,27 @@ export const Argue: Component = () => {
       premises = premisesData.premises
     }
     if (premises?.length) {
-      setPath(step.index, 'premiseIndex', 0)
-      const newStepIndex = step.index + 1
-      setPath(newStepIndex, {
-        index: newStepIndex,
-        statementId: premises[0].statement_id
-      })
+      let newPremiseIndex = -1
+      if (premiseId) {
+        newPremiseIndex = premises.findIndex(p => p.id === premiseId)
+      }
+      if (newPremiseIndex === -1 && step.premiseIndex === undefined) {
+        newPremiseIndex = 0
+      }
+      if (newPremiseIndex !== -1) {
+        setPath(step.index, 'premiseIndex', newPremiseIndex)
+        const newStepIndex = step.index + 1
+        setPath(newStepIndex, {
+          index: newStepIndex,
+          statementId: premises[newPremiseIndex].statement_id
+        })
+      }
     }
   }
 
   const onHidePremises = (step: Step) => {
     setPath(prev => prev.slice(0, step.index + 1))
+    setPath(step.index, 'premiseIndex', undefined)
   }
 
   const onShiftPremise = (step: Step, premiseIndexDelta: number) => {
@@ -123,28 +141,43 @@ export const Argue: Component = () => {
 
   const onShiftArgument = (step: Step, argumentIndexDelta: number) => {
     const newArgumentIndex = step.argumentIndex! + argumentIndexDelta
-    setPath(prevPath => [ ...prevPath.slice(0, step.index), {
-        ...step,
-        argumentIndex: newArgumentIndex,
-        premiseIndex: undefined
+    setPath(prevPath => [...prevPath.slice(0, step.index), {
+      ...step,
+      argumentIndex: newArgumentIndex,
+      premiseIndex: undefined
     }])
   }
 
-  const submitArgument = async (step: Step, text: string) => {
-    setSaving(true)
+  const submitArgument = async (step: Step, argumentFormData: ArgumentFormData) => {
+    setSavingArgument(true)
     const data = await rpc('addArgument', {
       claim_id: step.statementId,
-      text
+      ...argumentFormData
     })
     await onShowArguments(step, data.savedId)
     setScoreChanges(data.scoreChanges)
     setArgumentFormId()
-    setSaving(false)
+    setSavingArgument(false)
+  }
+
+  const submitPremise = async (step: Step, premiseFormData: PremiseFormData) => {
+    setSavingPremise(true)
+    const argumentId = statements[step.statementId].arguments![step.argumentIndex!].id
+    const data = await rpc('addPremise', {
+      argument_id: argumentId,
+      ...premiseFormData
+    })
+    await onShowPremises(step, data.savedId)
+    setScoreChanges(data.scoreChanges)
+    setPremiseFormId()
+    setSavingPremise(false)
   }
 
 
   const getArgumentByStep = (step: Step) => statements[step.statementId]
     .arguments![step.argumentIndex!]
+  const getNumPremises = (step: Step) => (statements[step.statementId].arguments![step.argumentIndex!].premises?.length ?? 0)
+  const hasPremise = (step: Step) => (statements[step.statementId].arguments![step.argumentIndex!].hasPremise)
 
   return (
     <main>
@@ -154,7 +187,7 @@ export const Argue: Component = () => {
           <A href="/">
             <IconButton
               iconName="home"
-              onClick={() => {}}
+              onClick={() => { }}
               label="all claims"
             />
           </A>
@@ -199,7 +232,7 @@ export const Argue: Component = () => {
                   <IconButton
                     iconName="arrow-right"
                     onClick={() => onShiftArgument(step, 1)}
-                    disabled={step.argumentIndex! === (statements[step.statementId].arguments?.length ?? 0) - 1 }
+                    disabled={step.argumentIndex! === (statements[step.statementId].arguments?.length ?? 0) - 1}
                   />
                 </Show>
                 <Show when={argumentFormId() !== step.statementId}>
@@ -219,8 +252,8 @@ export const Argue: Component = () => {
               </div>
               <Show when={argumentFormId() === step.statementId}>
                 <ArgumentForm
-                  saving={saving()}
-                  onSubmitArgument={(text) => submitArgument(step, text)}
+                  saving={savingArgument()}
+                  onSubmitArgument={(data) => submitArgument(step, data)}
                 />
               </Show>
               <Show when={step.argumentIndex !== undefined}>
@@ -231,23 +264,25 @@ export const Argue: Component = () => {
                 />
                 <div class="flex select-none">
                   <div class="w-[calc(50%-18px)]" />
-                  <Show when={index() === path.length - 1}>
-                    <IconButton
-                      label="show premises"
-                      iconName="chevron-down"
-                      onClick={() => onShowPremises(step)}
-                    />
-                  </Show>
-                  <Show when={index() < path.length - 1}>
-                    <IconButton
-                      label="hide premises"
-                      iconName="chevron-up"
-                      onClick={() => onHidePremises(step)}
-                    />
+                  <Show when={hasPremise(step)}>
+                    <Show when={step.premiseIndex === undefined}>
+                      <IconButton
+                        label="show premises"
+                        iconName="chevron-down"
+                        onClick={() => onShowPremises(step)}
+                      />
+                    </Show>
+                    <Show when={step.premiseIndex !== undefined}>
+                      <IconButton
+                        label="hide premises"
+                        iconName="chevron-up"
+                        onClick={() => onHidePremises(step)}
+                      />
+                    </Show>
                   </Show>
                   <Show when={
                     index() + 1 < path.length &&
-                    (statements[step.statementId].arguments![step.argumentIndex!].premises?.length ?? 0) > 1
+                    getNumPremises(step) > 1
                   }>
                     <IconButton
                       iconName="arrow-left"
@@ -257,10 +292,30 @@ export const Argue: Component = () => {
                     <IconButton
                       iconName="arrow-right"
                       onClick={() => onShiftPremise(step, 1)}
-                      disabled={step.premiseIndex === (statements[step.statementId].arguments![step.argumentIndex!].premises?.length ?? 0) - 1}
+                      disabled={step.premiseIndex === getNumPremises(step) - 1}
+                    />
+                  </Show>
+                  <Show when={premiseFormId() !== step.statementId}>
+                    <IconButton
+                      label="add premise"
+                      iconName="plus"
+                      onClick={() => onShowPremiseForm(step)}
+                    />
+                  </Show>
+                  <Show when={premiseFormId() === step.statementId}>
+                    <IconButton
+                      label="cancel"
+                      iconName="minus"
+                      onClick={() => setArgumentFormId()}
                     />
                   </Show>
                 </div>
+                <Show when={premiseFormId() === step.statementId}>
+                  <PremiseForm
+                    saving={savingPremise()}
+                    onSubmitPremise={(data) => submitPremise(step, data)}
+                  />
+                </Show>
               </Show>
             </>
           )}

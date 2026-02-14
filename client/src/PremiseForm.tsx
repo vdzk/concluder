@@ -1,21 +1,19 @@
 import { Component, createSignal } from "solid-js"
 import { IconButton } from "./Buttons"
 import { etv } from "./utils"
-import { ArgumentFormData } from "../../shared/types"
+import { PremiseFormData } from "../../shared/types"
 
-export const ArgumentForm: Component<{
+export const PremiseForm: Component<{
   saving: boolean
-  onSubmitArgument: (a: ArgumentFormData) => void
+  onSubmitPremise: (p: PremiseFormData) => void
 }> = props => {
-  const [pro, setPro] = createSignal(true)
-  const [strength, setStrength] = createSignal('50.0')
+  const [likelihood, setLikelihood] = createSignal('50.0')
   const [text, setText] = createSignal('')
 
   const onSave = () => {
     // TODO: validate user inputs
-    props.onSubmitArgument({
-      pro: pro(),
-      strength: parseFloat(strength()) / 100,
+    props.onSubmitPremise({
+      likelihood: parseFloat(likelihood()) / 100,
       text: text()
     })
   }
@@ -25,27 +23,23 @@ export const ArgumentForm: Component<{
       <div class="overflow-hidden border rounded bg-white">
         <div class="flex-1 px-2 py-1 border-b flex">
           <div class="flex-1">
-            <select
-              class="border rounded py-0.5"
-              onChange={etv((strVal) => setPro(strVal === 'true'))}
-            >
-              <option value="true" selected={pro()}>Pro</option>
-              <option value="false" selected={!pro()}>Con</option>
-            </select>
+            <span class="font-bold text-gray-700 pr-1">
+              New premise
+            </span>
           </div>
           <div>
-            strength: 
+            likelihood: 
             <input
               type="text"
               class="w-10 border rounded pl-0.5"
-              value={strength()}
-              onChange={etv(setStrength)}
+              value={likelihood()}
+              onChange={etv(setLikelihood)}
             /> %
           </div>
         </div>
         <textarea
           rows={3}
-          placeholder="Type an argument here..."
+          placeholder="Type a premise here..."
           class="text-lg px-2 py-1 focus:outline-none block w-full"
           onChange={etv(setText)}
           value={text()}
