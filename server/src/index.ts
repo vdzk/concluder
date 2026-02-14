@@ -1,6 +1,5 @@
 import express from 'express'
 import { onError, sql } from "./db.ts"
-import { analyseArgument } from './analyseArgument.ts'
 import { cascadeUpdateScores } from './cascadeUpdateScores.ts'
 const app = express()
 const port = 3001
@@ -32,7 +31,12 @@ app.post('/api/getClaim', async (req, res) => {
 
 app.post('/api/getArgumentsByClaimId', async (req, res) => {
   const results = await sql`
-    SELECT id, claim_id, text, pro, strength
+    SELECT id, claim_id, text, pro, strength,
+      EXISTS (
+        SELECT 1
+        FROM premise
+        WHERE premise.argument_id = argument.id
+      ) AS "hasPremise"
     FROM argument
     WHERE claim_id = ${req.body.claimId}
   `.catch(onError)
@@ -52,54 +56,43 @@ app.post('/api/getPremisesByArgumentId', async (req, res) => {
 
 app.post('/api/addArgument', async (req, res) => {
   const claimId = req.body.claim_id
-  const claims = await sql`
-    SELECT id, text
-    FROM statement
-    WHERE id = ${claimId}
-  `.catch(onError)
-
-  const analysis = await analyseArgument(claims[0].text, req.body.text)
-
-  if (!analysis) {
-    res.sendStatus(500).json({
-      error: 'Argument analysis failed'
-    })
-    return
-  }
-
-  const strength = analysis.premises.reduce(
-    (acc, premise) => acc * premise.likelihood,
-    1
-  )
 
   const results = await sql`
-    INSERT INTO argument ${sql({
-    ...req.body,
-    pro: analysis.pro,
-    strength
-  })}
+    INSERT INTO argument ${sql(req.body)}
     RETURNING id
   `.catch(onError)
 
   const argumentId = results[0].id
 
-  const statements = await sql`
-    INSERT INTO statement
-    ${sql(analysis.premises, 'text', 'likelihood')}
-    RETURNING id
-  `.catch(onError)
-
-  const premises = statements.map(statement => ({
-    argument_id: argumentId,
-    statement_id: statement.id,
-    // TODO: if there will be automatic deduplication, a new premise may turn out to be an inverse of an existing statement
-    invert: false
-  }))
-  await sql`INSERT INTO premise ${sql(premises)}`
-
   const scoreChanges = await cascadeUpdateScores(claimId)
 
   res.json({ savedId: argumentId, scoreChanges })
+})
+
+app.post('/api/addPremise', async (req, res) => {
+  const statementResults = await sql`
+    INSERT INTO statement ${sql({
+      text: req.body.text,
+      likelihood: req.body.likelihood
+    })}
+    RETURNING id
+  `.catch(onError)
+
+  const statementId = statementResults[0].id
+
+  const premiseResults = await sql`
+    INSERT INTO premise ${sql({
+      argument_id: req.body.argument_id,
+      statement_id: statementId
+    })}
+    RETURNING id
+  `.catch(onError)
+
+  const premiseId = premiseResults[0].id
+
+  const scoreChanges = await cascadeUpdateScores(statementId, true)
+
+  res.json({ savedId: premiseId, scoreChanges })
 })
 
 app.listen(port, () => {

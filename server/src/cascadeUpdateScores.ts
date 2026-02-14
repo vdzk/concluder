@@ -4,52 +4,55 @@ import { calcStatementConfidence } from "./statementConfidence.ts"
 import { type ScoreChanges } from "../../shared/types.ts"
 
 export const cascadeUpdateScores = async (
-  claimId: number
+  claimId: number,
+  newClaim?: boolean
 ) => {
   const scoreChanges: ScoreChanges = {
     statement: {},
     argument: {}
   }
 
-  // update the likelihood of the claim
-  const siblingArguments = await sql`
-    SELECT id, pro, strength
-    FROM argument
-    WHERE claim_id = ${claimId}
-  `.catch(onError)
+  if (!newClaim) {
+    // update the likelihood of the claim
+    const siblingArguments = await sql`
+      SELECT id, pro, strength
+      FROM argument
+      WHERE claim_id = ${claimId}
+    `.catch(onError)
 
-  const strengths: [number[], number[]] = [[], []]
-  for (const argument of siblingArguments) {
-    const side = Number(argument.pro)
-    strengths[side].push(argument.strength)
-  }
-  const newClaimLikelihood = calcStatementConfidence(strengths)
+    const strengths: [number[], number[]] = [[], []]
+    for (const argument of siblingArguments) {
+      const side = Number(argument.pro)
+      strengths[side].push(argument.strength)
+    }
+    const newClaimLikelihood = calcStatementConfidence(strengths)
 
-  const claimResults = await sql`
-    WITH old AS (
-      SELECT id, likelihood
-      FROM statement
-      WHERE id = ${claimId}
-    )
-    UPDATE statement
-    SET likelihood = ${newClaimLikelihood}
-    FROM old
-    WHERE statement.id = old.id
-    RETURNING old.likelihood  AS old_likelihood
-  `.catch(onError)
-  const oldClaimLikelihood = claimResults[0].old_likelihood
+    const claimResults = await sql`
+      WITH old AS (
+        SELECT id, likelihood
+        FROM statement
+        WHERE id = ${claimId}
+      )
+      UPDATE statement
+      SET likelihood = ${newClaimLikelihood}
+      FROM old
+      WHERE statement.id = old.id
+      RETURNING old.likelihood  AS old_likelihood
+    `.catch(onError)
+    const oldClaimLikelihood = claimResults[0].old_likelihood
 
-  const deltaLikelihoodIsSignificant = Math.abs(oldClaimLikelihood - newClaimLikelihood) > 0.001
+    const deltaLikelihoodIsSignificant = Math.abs(oldClaimLikelihood - newClaimLikelihood) > 0.001
 
-  if (!deltaLikelihoodIsSignificant) return scoreChanges
+    if (!deltaLikelihoodIsSignificant) return scoreChanges
 
-  scoreChanges.statement[claimId] = {
-    old: oldClaimLikelihood,
-    new: newClaimLikelihood
+    scoreChanges.statement[claimId] = {
+      old: oldClaimLikelihood,
+      new: newClaimLikelihood
+    }
   }
 
   // update parent argument strength
-  const siblingPremises = await sql<(Premise & {argument_id: number})[]>`
+  const siblingPremises = await sql<(Premise & { argument_id: number })[]>`
     SELECT DISTINCT
       sibling_premise.argument_id,
       sibling_premise.invert,
@@ -111,7 +114,7 @@ export const cascadeUpdateScores = async (
     if (parentArgumentResults.length > 0) {
       const parentClaimIds = parentArgumentResults.map(argument => argument.claim_id)
       const parentScoreChanges = await Promise.all(
-        [...parentClaimIds].map(cascadeUpdateScores)
+        [...parentClaimIds].map(parentClaimId => cascadeUpdateScores(parentClaimId))
       )
       for (const diffs of parentScoreChanges) {
         Object.assign(scoreChanges.statement, diffs.statement)
@@ -119,6 +122,6 @@ export const cascadeUpdateScores = async (
       }
     }
   }
-  
+
   return scoreChanges
 }
