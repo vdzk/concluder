@@ -1,21 +1,27 @@
-import { Component, createSignal } from "solid-js"
+import { Component, createSignal, onMount } from "solid-js"
 import { IconButton } from "./Buttons"
 import { etv } from "./utils"
-import { PremiseFormData } from "../../shared/types"
 
-export const PremiseForm: Component<{
+export const ClaimForm: Component<{
   saving: boolean
-  onSubmitPremise: (p: PremiseFormData) => void
+  onSubmitClaim: (text: string) => void
 }> = props => {
-  const [likelihood, setLikelihood] = createSignal('50.0')
+  let textareaRef: HTMLTextAreaElement | undefined
   const [text, setText] = createSignal('')
 
-  const onSave = () => {
-    // TODO: validate user inputs
-    props.onSubmitPremise({
-      likelihood: parseFloat(likelihood()) / 100,
-      text: text()
+  onMount(() => {
+    queueMicrotask(() => {
+      requestAnimationFrame(() => {
+        textareaRef?.focus()
+      })
     })
+  })
+
+  const onSave = () => {
+    const _text = text().trim()
+    if (_text) {
+      props.onSubmitClaim(_text)
+    }
   }
 
   return (
@@ -24,22 +30,14 @@ export const PremiseForm: Component<{
         <div class="flex-1 px-2 py-1 border-b flex">
           <div class="flex-1">
             <span class="font-bold text-gray-700 pr-1">
-              New premise
+              New claim
             </span>
-          </div>
-          <div>
-            confidence: 
-            <input
-              type="text"
-              class="w-10 border rounded pl-0.5"
-              value={likelihood()}
-              onChange={etv(setLikelihood)}
-            /> %
           </div>
         </div>
         <textarea
-          rows={3}
-          placeholder="Type a premise here..."
+          ref={textareaRef}
+          rows={2}
+          placeholder="Type here..."
           class="text-lg px-2 py-1 focus:outline-none block w-full"
           onChange={etv(setText)}
           value={text()}

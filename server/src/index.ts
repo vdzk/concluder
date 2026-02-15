@@ -5,12 +5,35 @@ const app = express()
 const port = 3001
 app.use(express.json())
 
+
+app.post('/api/getTaggedClaims', async (req, res) => {
+  const results = await sql`
+    SELECT s.id, s.text, s.likelihood
+    FROM statement AS s
+    JOIN tagged
+      ON tagged.statement_id = s.id
+    WHERE tagged.tag = ${req.body.tag}
+    ORDER BY s.id
+  `.catch(onError)
+  res.json(results)
+})
+
 app.post('/api/addClaim', async (req, res) => {
   const results = await sql`
-    INSERT INTO statement ${sql(req.body)}
+    INSERT INTO statement ${sql({
+      text: req.body.text
+    })}
     RETURNING *
   `.catch(onError)
-  res.json({ savedId: results[0].id })
+  const savedId = results[0].id
+  await sql`
+    INSERT INTO tagged ${sql({
+      statement_id: savedId,
+      tag: req.body.tag
+    })}
+  `.catch(onError)
+
+  res.json({ savedId })
 })
 
 const getStatementsByIds = (statementIds: number[]) => sql`
@@ -26,7 +49,13 @@ const getStatementsByIds = (statementIds: number[]) => sql`
 
 app.post('/api/getClaim', async (req, res) => {
   const results = await getStatementsByIds([req.body.id])
-  res.json(results[0])
+  const taggedResults = await sql`
+    SELECT tag
+    FROM tagged
+    WHERE statement_id = ${req.body.id}
+  `.catch(onError)
+
+  res.json({...results[0], ...taggedResults[0]})
 })
 
 app.post('/api/getArgumentsByClaimId', async (req, res) => {

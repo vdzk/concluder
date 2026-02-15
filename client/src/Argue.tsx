@@ -8,6 +8,7 @@ import { ArgumentFormData, PremiseFormData, ScoreChanges } from "../../shared/ty
 import { IconButton } from "./Buttons"
 import { ArgumentForm } from "./ArgumentForm"
 import { PremiseForm } from "./PremiseForm"
+import { tabs } from "./Home"
 
 export interface Step {
   index: number
@@ -29,12 +30,15 @@ export const Argue: Component = () => {
   const [savingArgument, setSavingArgument] = createSignal(false)
   const [premiseFormId, setPremiseFormId] = createSignal<number>()
   const [savingPremise, setSavingPremise] = createSignal(false)
+  const [tag, setTag] = createSignal('')
 
   onMount(async () => {
     if (!params.id) return
     const claimId = parseInt(params.id)
     const claim = await rpc('getClaim', { id: claimId })
+    setTag(claim.tag)
     setStatements(claimId, claim)
+    document.title = claim.text
     setPath([{
       index: 0,
       statementId: claimId,
@@ -184,12 +188,11 @@ export const Argue: Component = () => {
       <div class="max-w-lg mx-auto pb-16">
         <div class="flex justify-center">
           {/* TODO: refactor this hack */}
-          <A href="/">
-            <IconButton
-              iconName="home"
-              onClick={() => { }}
-              label="all claims"
-            />
+          <A
+            href={`/tab/${tag()}`}
+            class="font-bold hover:bg-orange-200 px-2 py-1"
+          >
+            {tabs[tag()]?.label}
           </A>
         </div>
         <For each={path}>

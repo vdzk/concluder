@@ -35,7 +35,7 @@ export const Statement: Component<{
         </span>
         <div
           class="ml-auto font-bold text-gray-700"
-          title="likelihood that this statement is true"
+          title="confidence in this statement"
         >
           <Show when={props.scoreChange}>
             <Delta {...props.scoreChange!} />

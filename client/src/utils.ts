@@ -9,4 +9,7 @@ export const rpc = async (name: string, data: any) => {
   return response.json()
 }
 
-export const getPercent = (x: number) => (x * 100).toFixed(1) + '%'
+export const getPercent = (
+  x: number,
+  fractionDigits?: number
+) => (x * 100).toFixed(fractionDigits ?? 1) + '%'
