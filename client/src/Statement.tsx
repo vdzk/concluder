@@ -15,7 +15,7 @@ export interface StatementDataRow {
 export const Statement: Component<{
   step: Step
   statement: StatementDataRow
-  scoreChange?: { old: number, new: number }
+  scoreDelta?: number
   parentPremiseIndex?: number
 }> = props => {
 
@@ -37,13 +37,10 @@ export const Statement: Component<{
           class="ml-auto font-bold text-gray-700"
           title="confidence in this statement"
         >
-          <Show when={props.scoreChange}>
-            <Delta {...props.scoreChange!} />
-            {getPercent(props.scoreChange!.new)}
+          <Show when={props.scoreDelta}>
+            <Delta delta={props.scoreDelta!} />
           </Show>
-          <Show when={!props.scoreChange}>
-            {getPercent(props.statement.likelihood)}
-          </Show>
+          {getPercent(props.statement.likelihood)}
         </div>
       </div>
       <div class="text-lg px-2 py-1">

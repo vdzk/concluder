@@ -21,7 +21,7 @@ export interface ArgumentDataRow {
 
 export const Argument: Component<{
   argument: ArgumentDataRow
-  scoreChange?: { old: number, new: number }
+  scoreDelta?: number
 }> = props => {
 
   return (
@@ -41,13 +41,10 @@ export const Argument: Component<{
           class="ml-auto font-bold text-gray-700"
           title="strength of the argument"
         >
-          <Show when={props.scoreChange}>
-            <Delta {...props.scoreChange!} />
-            {getPercent(props.scoreChange!.new)}
+          <Show when={props.scoreDelta}>
+            <Delta delta={props.scoreDelta!} />
           </Show>
-          <Show when={!props.scoreChange}>
-            {getPercent(props.argument.strength)}
-          </Show>
+          {getPercent(props.argument.strength)}
         </div>
       </div>
       <div class="text-lg px-2 py-1">

@@ -18,11 +18,19 @@ export interface Step {
   isClaim?: boolean
 }
 
+type ScoreDeltas = Record<'statement' | 'argument', Record<number, number>>
+
+interface ArgumentLocation {
+  statementId: number,
+  argumentIndex: number
+}
+
 export const Argue: Component = () => {
   const params = useParams()
   const [path, setPath] = createStore<Step[]>([])
-  const [statements, setStatements] = createStore<StatementDataRow[]>([])
-  const [scoreChanges, setScoreChanges] = createSignal<ScoreChanges>({
+  const [statements, setStatements] = createStore<Record<number, StatementDataRow>>({})
+  const [argumentLocations, setArgumentLocations] = createStore<Record<number, ArgumentLocation>>({})
+  const [scoreDeltas, setScoreDeltas] = createSignal<ScoreDeltas>({
     statement: {},
     argument: {}
   })
@@ -59,11 +67,18 @@ export const Argue: Component = () => {
   const onShowArguments = async (step: Step, argumentId?: number) => {
     setArgumentFormId()
     // Load arguments
+    const { statementId } = step
     const _arguments = await rpc(
       'getArgumentsByClaimId',
-      { claimId: step.statementId }
+      { claimId: statementId }
     )
     setStatements(step.statementId, 'arguments', _arguments)
+    for (let argumentIndex = 0; argumentIndex < _arguments.length; argumentIndex++) {
+      setArgumentLocations(_arguments[argumentIndex].id, {
+        statementId,
+        argumentIndex
+      })
+    }
 
     // Set argument index
     if (_arguments?.length) {
@@ -152,6 +167,32 @@ export const Argue: Component = () => {
     }])
   }
 
+  const shiftScores = (scoreChanges: ScoreChanges) => {
+    const newScoreDeltas: Record<'statement' | 'argument', Record<number, number>> = {
+      statement: {},
+      argument: {}
+    }
+    for (const entryType of ['statement', 'argument'] as const) {
+      for (const _entryId in scoreChanges[entryType]) {
+        const entryId = parseInt(_entryId)
+        const score = scoreChanges[entryType][entryId]
+        const delta = score.new - score.old
+        newScoreDeltas[entryType][entryId] = delta
+        if (entryType === 'statement') {
+          setStatements(entryId, 'likelihood', score.new)
+        } else {
+          console.log('argumentLocations', JSON.stringify(argumentLocations, null, 2))
+          console.log( 'entryType', entryType, 'entryId', entryId)
+          if (entryId in argumentLocations) {
+            const { statementId, argumentIndex } = argumentLocations[entryId]
+            setStatements(statementId, 'arguments', argumentIndex, 'strength', score.new)
+          }
+        }
+      }
+    }
+    setScoreDeltas(newScoreDeltas)
+  }
+
   const submitArgument = async (step: Step, argumentFormData: ArgumentFormData) => {
     setSavingArgument(true)
     const data = await rpc('addArgument', {
@@ -159,7 +200,7 @@ export const Argue: Component = () => {
       ...argumentFormData
     })
     await onShowArguments(step, data.savedId)
-    setScoreChanges(data.scoreChanges)
+    shiftScores(data.scoreChanges)
     setArgumentFormId()
     setSavingArgument(false)
   }
@@ -172,7 +213,7 @@ export const Argue: Component = () => {
       ...premiseFormData
     })
     await onShowPremises(step, data.savedId)
-    setScoreChanges(data.scoreChanges)
+    shiftScores(data.scoreChanges)
     setPremiseFormId()
     setSavingPremise(false)
   }
@@ -199,9 +240,9 @@ export const Argue: Component = () => {
           {(step, index) => (
             <>
               <Statement
-                {...{ step, onShowArguments, setScoreChanges }}
+                {...{ step, onShowArguments }}
                 statement={statements[step.statementId]}
-                scoreChange={scoreChanges().statement[step.statementId]}
+                scoreDelta={scoreDeltas().statement[step.statementId]}
                 parentPremiseIndex={index() > 0 ? path[index() - 1].premiseIndex : undefined}
               />
               <div class="flex select-none">
@@ -263,7 +304,7 @@ export const Argue: Component = () => {
                 <Argument
                   {...{ step, onShowPremises, onShiftPremise }}
                   argument={getArgumentByStep(step)}
-                  scoreChange={scoreChanges().argument[getArgumentByStep(step).id]}
+                  scoreDelta={scoreDeltas().argument[getArgumentByStep(step).id]}
                 />
                 <div class="flex select-none">
                   <div class="w-[calc(50%-18px)]" />
