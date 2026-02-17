@@ -1,7 +1,7 @@
-import { A, useParams } from "@solidjs/router"
-import { createSignal, For, onMount, Show, type Component } from "solid-js"
+import { A, useNavigate, useParams } from "@solidjs/router"
+import { createEffect, createSignal, For, onMount, Show, type Component } from "solid-js"
 import { rpc } from "./utils"
-import { createStore } from "solid-js/store"
+import { createStore, produce } from "solid-js/store"
 import { Statement, StatementDataRow } from "./Statement"
 import { Argument } from "./Argument"
 import { ArgumentFormData, PremiseFormData, ScoreChanges } from "../../shared/types"
@@ -27,6 +27,7 @@ interface ArgumentLocation {
 
 export const Argue: Component = () => {
   const params = useParams()
+  const navigate = useNavigate()
   const [path, setPath] = createStore<Step[]>([])
   const [statements, setStatements] = createStore<Record<number, StatementDataRow>>({})
   const [argumentLocations, setArgumentLocations] = createStore<Record<number, ArgumentLocation>>({})
@@ -92,20 +93,27 @@ export const Argue: Component = () => {
       if (newArgumentIndex !== -1) {
         setPath(step.index, 'argumentIndex', newArgumentIndex)
       }
+    } else {
+      setStatements(step.statementId, 'hasArgument', false)
     }
   }
 
   const onHideArguments = (step: Step) => {
-    setPath(prev => prev.slice(0, step.index + 1))
-    setPath(step.index, 'argumentIndex', undefined)
+    setPath(prev => [
+      ...prev.slice(0, step.index), {
+        ...step,
+        argumentIndex: undefined,
+        premiseIndex: undefined
+      }
+    ])
   }
 
-  const onShowPremises = async (step: Step, premiseId?: number) => {
+  const onShowPremises = async (step: Step, premiseId?: number, reload?: boolean) => {
     const claim = statements[step.statementId]
     if (step.argumentIndex === undefined) return
     const argument = claim.arguments![step.argumentIndex]
     let premises = argument.premises
-    if (!premises) {
+    if (!premises || reload) {
       const premisesData = await rpc(
         'getPremisesByArgumentId',
         { argumentId: argument.id }
@@ -152,10 +160,12 @@ export const Argue: Component = () => {
       .premises![newPremiseIndex]
       .statement_id
     const newStepIndex = step.index + 1
-    setPath(newStepIndex, {
-      index: newStepIndex,
-      statementId: nextStatementId
-    })
+    setPath(prev => [
+      ...prev.slice(0, newStepIndex), {
+        index: newStepIndex,
+        statementId: nextStatementId
+      }
+    ])
   }
 
   const onShiftArgument = (step: Step, argumentIndexDelta: number) => {
@@ -165,6 +175,41 @@ export const Argue: Component = () => {
       argumentIndex: newArgumentIndex,
       premiseIndex: undefined
     }])
+  }
+
+  const onDeleteStatement = async (step: Step) => {
+    if (confirm(`Delete the ${step.isClaim ? 'claim' : 'premise'} above?`)) {
+      const data = await rpc('deleteStatement', { id: step.statementId })
+      if (step.isClaim) {
+        navigate(`/tab/${tag()}`)
+      } else {
+        const prevStep = path[step.index - 1]
+        setStatements(prevStep.statementId, 'arguments', prevStep.argumentIndex!,
+          (produce(prevArgument => {
+            prevArgument.premises!.splice(prevStep.premiseIndex!, 1)
+            if (prevArgument.premises!.length === 0) {
+              prevArgument.hasPremise = false
+            }
+          }))
+        )
+        shiftScores(data.scoreChanges)
+        setPath(prevPath => prevPath.slice(0, step.index))
+        setPath(step.index - 1, 'premiseIndex', undefined)
+      }
+    }
+  }
+
+  const onDeleteArgument = async (step: Step) => {
+    if (confirm(`Delete the argument above?`)) {
+      const argument = getArgumentByStep(step)
+      const data = await rpc('deleteArgument', { id: argument.id })
+      shiftScores(data.scoreChanges)
+      const newPath = [
+        ...path.slice(0, step.index),
+        { ...step, argumentIndex: undefined, premiseIndex: undefined }
+      ]
+      setPath(newPath)
+    }
   }
 
   const shiftScores = (scoreChanges: ScoreChanges) => {
@@ -181,8 +226,6 @@ export const Argue: Component = () => {
         if (entryType === 'statement') {
           setStatements(entryId, 'likelihood', score.new)
         } else {
-          console.log('argumentLocations', JSON.stringify(argumentLocations, null, 2))
-          console.log( 'entryType', entryType, 'entryId', entryId)
           if (entryId in argumentLocations) {
             const { statementId, argumentIndex } = argumentLocations[entryId]
             setStatements(statementId, 'arguments', argumentIndex, 'strength', score.new)
@@ -200,6 +243,7 @@ export const Argue: Component = () => {
       ...argumentFormData
     })
     await onShowArguments(step, data.savedId)
+    setStatements(step.statementId, 'hasArgument', true)
     shiftScores(data.scoreChanges)
     setArgumentFormId()
     setSavingArgument(false)
@@ -212,15 +256,21 @@ export const Argue: Component = () => {
       argument_id: argumentId,
       ...premiseFormData
     })
-    await onShowPremises(step, data.savedId)
-    shiftScores(data.scoreChanges)
     setPremiseFormId()
     setSavingPremise(false)
+    setStatements(step.statementId, 'arguments', step.argumentIndex!, 'hasPremise', true)
+    await onShowPremises(step, data.savedId, true)
+    shiftScores(data.scoreChanges)
   }
 
 
   const getArgumentByStep = (step: Step) => statements[step.statementId]
     .arguments![step.argumentIndex!]
+  const getSideIndexByStep = (step: Step) => {
+    const pro = getArgumentByStep(step).pro
+    return statements[step.statementId].arguments!.slice(0, step.argumentIndex!)
+      .filter(a => a.pro === pro).length
+  }
   const getNumPremises = (step: Step) => (statements[step.statementId].arguments![step.argumentIndex!].premises?.length ?? 0)
   const hasPremise = (step: Step) => (statements[step.statementId].arguments![step.argumentIndex!].hasPremise)
 
@@ -272,11 +322,13 @@ export const Argue: Component = () => {
                     iconName="arrow-left"
                     onClick={() => onShiftArgument(step, -1)}
                     disabled={step.argumentIndex === 0}
+                    label="prev. argument"
                   />
                   <IconButton
                     iconName="arrow-right"
                     onClick={() => onShiftArgument(step, 1)}
                     disabled={step.argumentIndex! === (statements[step.statementId].arguments?.length ?? 0) - 1}
+                    label="next argument"
                   />
                 </Show>
                 <Show when={argumentFormId() !== step.statementId}>
@@ -293,6 +345,13 @@ export const Argue: Component = () => {
                     onClick={() => setArgumentFormId()}
                   />
                 </Show>
+                <Show when={statements[step.statementId].editable}>
+                  <IconButton
+                    label="delete"
+                    iconName="delete"
+                    onClick={() => onDeleteStatement(step)}
+                  />
+                </Show>
               </div>
               <Show when={argumentFormId() === step.statementId}>
                 <ArgumentForm
@@ -305,6 +364,7 @@ export const Argue: Component = () => {
                   {...{ step, onShowPremises, onShiftPremise }}
                   argument={getArgumentByStep(step)}
                   scoreDelta={scoreDeltas().argument[getArgumentByStep(step).id]}
+                  sideIndex={getSideIndexByStep(step)}
                 />
                 <div class="flex select-none">
                   <div class="w-[calc(50%-18px)]" />
@@ -332,11 +392,13 @@ export const Argue: Component = () => {
                       iconName="arrow-left"
                       onClick={() => onShiftPremise(step, -1)}
                       disabled={step.premiseIndex === 0}
+                      label="prev. premise"
                     />
                     <IconButton
                       iconName="arrow-right"
                       onClick={() => onShiftPremise(step, 1)}
                       disabled={step.premiseIndex === getNumPremises(step) - 1}
+                      label="next premise"
                     />
                   </Show>
                   <Show when={premiseFormId() !== step.statementId}>
@@ -350,7 +412,14 @@ export const Argue: Component = () => {
                     <IconButton
                       label="cancel"
                       iconName="minus"
-                      onClick={() => setArgumentFormId()}
+                      onClick={() => setPremiseFormId()}
+                    />
+                  </Show>
+                  <Show when={getArgumentByStep(step).editable}>
+                    <IconButton
+                      label="delete"
+                      iconName="delete"
+                      onClick={() => onDeleteArgument(step)}
                     />
                   </Show>
                 </div>

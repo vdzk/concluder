@@ -9,7 +9,8 @@ export interface StatementDataRow {
   text: string,
   likelihood: number,
   hasArgument: boolean,
-  arguments?: ArgumentDataRow[]
+  arguments?: ArgumentDataRow[],
+  editable: boolean | null
 }
 
 export const Statement: Component<{

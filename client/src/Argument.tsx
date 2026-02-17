@@ -16,12 +16,14 @@ export interface ArgumentDataRow {
   pro: boolean,
   strength: number,
   hasPremise: boolean,
+  editable: boolean,
   premises?: Premise[]
 }
 
 export const Argument: Component<{
   argument: ArgumentDataRow
   scoreDelta?: number
+  sideIndex: number
 }> = props => {
 
   return (
@@ -35,6 +37,8 @@ export const Argument: Component<{
           }}
         >
           {props.argument.pro ? 'Pro' : 'Con'}
+          {' '}
+          {props.sideIndex + 1}
         </span>
 
         <div
