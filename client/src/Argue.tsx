@@ -9,6 +9,7 @@ import { IconButton } from "./Buttons"
 import { ArgumentForm } from "./ArgumentForm"
 import { PremiseForm } from "./PremiseForm"
 import { tabs } from "./Home"
+import { countries } from '../../shared/constants'
 
 export interface Step {
   index: number
@@ -40,12 +41,14 @@ export const Argue: Component = () => {
   const [premiseFormId, setPremiseFormId] = createSignal<number>()
   const [savingPremise, setSavingPremise] = createSignal(false)
   const [tag, setTag] = createSignal('')
+  const [countryCode, setCountryCode] = createSignal('')
 
   onMount(async () => {
     if (!params.id) return
     const claimId = parseInt(params.id)
     const claim = await rpc('getClaim', { id: claimId })
     setTag(claim.tag)
+    setCountryCode(claim.country_code)
     setStatements(claimId, claim)
     document.title = claim.text
     setPath([{
@@ -280,10 +283,14 @@ export const Argue: Component = () => {
         <div class="flex justify-center">
           {/* TODO: refactor this hack */}
           <A
-            href={`/tab/${tag()}`}
+            href={`/tab/${tag()}${countryCode() ? '/' + countryCode() : ''}`}
             class="font-bold hover:bg-orange-200 px-2 py-1"
           >
             {tabs[tag()]?.label}
+            <Show when={countryCode()}>
+              {' - '}
+              {countries[countryCode()]}
+            </Show>
           </A>
         </div>
         <For each={path}>

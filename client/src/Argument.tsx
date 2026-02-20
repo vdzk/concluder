@@ -1,6 +1,7 @@
 import { Component, Show } from "solid-js"
-import { getPercent } from "./utils"
+import { getPercent, getShortNumber } from "./utils"
 import { Delta } from "./Delta"
+import { A } from "@solidjs/router"
 
 export interface Premise {
   id: number
@@ -15,6 +16,7 @@ export interface ArgumentDataRow {
   text: string,
   pro: boolean,
   strength: number,
+  wtp?: number,
   hasPremise: boolean,
   editable: boolean,
   premises?: Premise[]
@@ -41,14 +43,27 @@ export const Argument: Component<{
           {props.sideIndex + 1}
         </span>
 
-        <div
-          class="ml-auto font-bold text-gray-700"
-          title="strength of the argument"
-        >
-          <Show when={props.scoreDelta}>
-            <Delta delta={props.scoreDelta!} />
+        <div class="ml-auto font-bold text-gray-700">
+          <Show when={props.argument.wtp}>
+            <A
+              class="hover:underline"
+              href={`/wtp/${props.argument.id}`}
+              title="willingness to pay estimate"
+              target="_blank"
+            >
+              {getShortNumber(props.argument.wtp!)}$
+            </A>
+            {' × '}
           </Show>
-          {getPercent(props.argument.strength)}
+          <span title={!props.argument.wtp
+            ? 'strength of the argument'
+            : 'certainty of the consequence'
+          }>
+            <Show when={props.scoreDelta}>
+              <Delta delta={props.scoreDelta!} />
+            </Show>
+            {getPercent(props.argument.strength)}
+          </span>
         </div>
       </div>
       <div class="text-lg px-2 py-1">

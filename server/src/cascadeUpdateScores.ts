@@ -18,17 +18,40 @@ export const cascadeUpdateScores = async (
   if (!newClaim) {
     // update the likelihood of the claim
     const siblingArguments = await sql`
-      SELECT id, pro, strength
+      SELECT id, pro, strength, consequence.wtp
       FROM argument
+      LEFT JOIN consequence ON consequence.argument_id = argument.id
       WHERE claim_id = ${claimId}
     `.catch(onError)
 
-    const strengths: [number[], number[]] = [[], []]
-    for (const argument of siblingArguments) {
-      const side = Number(argument.pro)
-      strengths[side].push(argument.strength)
+    let newClaimLikelihood
+    const isPrescriptive = siblingArguments.some(a => !!a.wtp)
+    if (isPrescriptive) {
+      const weightedSums = [0, 0]
+      for (const argument of siblingArguments) {
+        const side = Number(argument.pro)
+        // If wtp is negative assume that the argument is for prevention of a negative consequence
+        const wtp = Math.abs((argument.wtp ?? 0))
+        const expectedValue = wtp * argument.strength
+        weightedSums[side] += expectedValue
+      }
+      const totalWeight = weightedSums[0] + weightedSums[1]
+      if (totalWeight === 0) {
+        newClaimLikelihood = 0.5
+      } else {
+        newClaimLikelihood = weightedSums[1] / totalWeight
+      }
+    } else {
+      const strengths: [number[], number[]] = [[], []]
+      for (const argument of siblingArguments) {
+        const side = Number(argument.pro)
+        strengths[side].push(argument.strength)
+      }
+      newClaimLikelihood = calcStatementConfidence(strengths)
     }
-    const newClaimLikelihood = calcStatementConfidence(strengths)
+
+
+
 
     const claimResults = await sql`
       WITH old AS (

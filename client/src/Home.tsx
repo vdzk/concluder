@@ -4,6 +4,7 @@ import { A, useNavigate, useParams } from '@solidjs/router'
 import { Loading } from './Loading'
 import { ClaimForm } from './ClaimForm'
 import { About } from './About'
+import { countries } from '../../shared/constants'
 
 interface Tab {
   label: string
@@ -24,6 +25,8 @@ export const tabs: Record<string, Tab> = {
   }
 }
 
+const countryCodes = Object.keys(countries)
+
 export const Home: Component = () => {
   const navigate = useNavigate()
   const params = useParams()
@@ -31,23 +34,33 @@ export const Home: Component = () => {
   const [saving, setSaving] = createSignal(false)
   const submitClaim = async (text: string) => {
     setSaving(true)
-    const data = await rpc('addClaim', { text, tag: params.tab })
+    const data = await rpc('addClaim', {
+      text, tag: params.tab, countryCode: params.tab2
+    })
     navigate(`/argue/${data.savedId}`)
   }
-  const [statements] = createResource(() => params.tab, (tag) => rpc('getTaggedClaims', { tag }))
+  const [statements] = createResource(
+    () => [params.tab, params.tab2],
+    ([tag, countryCode]) => rpc('getTaggedClaims', { tag, countryCode })
+  )
   createEffect(() => {
     if (params.tab) {
-      document.title = tabs[params.tab].label
+      let title = tabs[params.tab].label
+      if (params.tab === 'politics' && params.tab2) {
+        title += ` - ${countries[params.tab2]}`
+      }
+      document.title = title
     }
   })
+
   return (
     <main>
       <div class="max-w-lg mx-auto pb-16">
-        <div class="flex text-center border-r border-b rounded-b-md overflow-hidden bg-white">
+        <div class="flex text-center divide-x border-x border-b rounded-b-lg overflow-hidden bg-white">
           <For each={Object.keys(tabs)}>
             {tabName => (
               <A
-                class="flex-1 py-0.5 px-2 cursor-pointer border-l"
+                class="flex-1 py-0.5 px-2 cursor-pointer"
                 classList={{
                   'bg-green-200': tabName === params.tab,
                   'hover:bg-orange-200': tabName !== params.tab,
@@ -62,6 +75,29 @@ export const Home: Component = () => {
         <div class="text-center text-4xl pb-5 pt-11">
           {tabs[params.tab!].label}
         </div>
+        <Show when={params.tab === 'politics'}>
+          <div class="flex justify-center">
+            <div class="flex text-center border rounded-full divide-x overflow-hidden bg-white -mt-3 mb-10">
+              <For each={countryCodes}>
+                {(countryCode, index) => (
+                  <A
+                    href={`/tab/politics/${countryCode}`}
+                    class="py-0.5 px-3 cursor-pointer"
+                    classList={{
+                      'bg-green-200': countryCode === params.tab2,
+                      'hover:bg-orange-200': countryCode !== params.tab2,
+                      'pl-4': index() === 0,
+                      'pr-4': index() === countryCodes.length - 1
+                    }}
+                  >
+                    {countries[countryCode]}
+                  </A>
+                )}
+              </For>
+            </div>
+
+          </div>
+        </Show>
         <Show when={params.tab !== 'about'} fallback={<About />}>
           <Suspense fallback={<Loading />}>
             <div class="flex font-bold px-2 pb-1">
