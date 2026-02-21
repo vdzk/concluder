@@ -40,7 +40,7 @@ export const PremiseForm: Component<{
         <textarea
           rows={3}
           placeholder="Type a premise here..."
-          class="text-lg px-2 py-1 focus:outline-none block w-full"
+          class="sm:text-lg px-2 py-1 focus:outline-none block w-full"
           onChange={etv(setText)}
           value={text()}
         />

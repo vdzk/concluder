@@ -66,7 +66,7 @@ export const Argument: Component<{
           </span>
         </div>
       </div>
-      <div class="text-lg px-2 py-1">
+      <div class="sm:text-lg px-2 py-1">
         {props.argument.text}
       </div>
     </div>

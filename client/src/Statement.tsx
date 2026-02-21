@@ -44,7 +44,7 @@ export const Statement: Component<{
           {getPercent(props.statement.likelihood)}
         </div>
       </div>
-      <div class="text-lg px-2 py-1">
+      <div class="sm:text-lg px-2 py-1">
         {props.statement.text}
       </div>
     </div>

@@ -38,7 +38,7 @@ export const ClaimForm: Component<{
           ref={textareaRef}
           rows={2}
           placeholder="Type here..."
-          class="text-lg px-2 py-1 focus:outline-none block w-full"
+          class="sm:text-lg px-2 py-1 focus:outline-none block w-full"
           onChange={etv(setText)}
           value={text()}
         />

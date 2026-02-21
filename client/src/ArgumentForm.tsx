@@ -46,7 +46,7 @@ export const ArgumentForm: Component<{
         <textarea
           rows={3}
           placeholder="Type an argument here..."
-          class="text-lg px-2 py-1 focus:outline-none block w-full"
+          class="sm:text-lg px-2 py-1 focus:outline-none block w-full"
           onChange={etv(setText)}
           value={text()}
         />

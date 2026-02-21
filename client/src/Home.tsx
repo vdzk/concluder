@@ -108,7 +108,7 @@ export const Home: Component = () => {
                 Confidence
               </div>
             </div>
-            <div class="text-lg bg-white border rounded overflow-hidden">
+            <div class="sm:text-lg bg-white border rounded overflow-hidden">
               <For each={statements()}>
                 {statement => (
                   <A
