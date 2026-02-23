@@ -1,7 +1,7 @@
 import { type Component } from 'solid-js'
 import { Navigate, Route, Router } from '@solidjs/router'
 import { Home } from './Home'
-import { Argue } from './Argue'
+import { Argue } from './argue/Argue'
 import { Derivation } from './Derivation'
 
 export const App: Component = () => {

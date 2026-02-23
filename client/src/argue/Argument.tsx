@@ -1,6 +1,6 @@
 import { Component, Show } from "solid-js"
-import { getPercent, getShortNumber } from "./utils"
-import { Delta } from "./Delta"
+import { getPercent, getShortNumber } from "../utils"
+import { Delta } from "../Delta"
 import { A } from "@solidjs/router"
 
 export interface Premise {

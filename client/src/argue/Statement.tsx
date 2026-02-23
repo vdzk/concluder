@@ -1,8 +1,8 @@
 import { Component, Show } from "solid-js"
-import { getPercent } from "./utils"
+import { getPercent } from "../utils"
 import { Step } from "./Argue"
 import { ArgumentDataRow } from "./Argument"
-import { Delta } from "./Delta"
+import { Delta } from "../Delta"
 
 export interface StatementDataRow {
   id: number,
