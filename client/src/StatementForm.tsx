@@ -1,25 +1,24 @@
 import { Component, createSignal } from "solid-js"
 import { IconButton } from "./Buttons"
 import { etv } from "./utils"
-import { ArgumentFormData } from "../../shared/types"
+import { PremiseFormData } from "../../shared/types"
 
-export const ArgumentForm: Component<{
+export const StatementForm: Component<{
   saving: boolean
-  onSubmitArgument: (a: ArgumentFormData) => void
-  initialData?: ArgumentFormData
-  hasPremise?: boolean
+  onSubmitStatement: (p: PremiseFormData) => void
+  initialData?: PremiseFormData
+  hasArgument?: boolean
+  isClaim?: boolean
 }> = props => {
-  const [pro, setPro] = createSignal(props.initialData?.pro ?? true)
-  const [strength, setStrength] = createSignal(
-    props.initialData ? (props.initialData.strength * 100).toFixed(1) : '50.0'
+  const [likelihood, setLikelihood] = createSignal(
+    props.initialData ? (props.initialData.likelihood * 100).toFixed(1) : '50.0'
   )
   const [text, setText] = createSignal(props.initialData?.text ?? '')
 
   const onSave = () => {
     // TODO: validate user inputs
-    props.onSubmitArgument({
-      pro: pro(),
-      strength: parseFloat(strength()) / 100,
+    props.onSubmitStatement({
+      likelihood: parseFloat(likelihood()) / 100,
       text: text()
     })
   }
@@ -27,30 +26,26 @@ export const ArgumentForm: Component<{
   return (
     <>
       <div class="overflow-hidden border rounded bg-white dark:bg-gray-800">
-        <div class="flex-1 px-2 py-1 border-b flex">
+        <div class="flex-1 px-2 py-1 border-b flex items-center">
           <div class="flex-1">
-            <select
-              class="border rounded py-0.5 dark:bg-gray-700"
-              onChange={etv((strVal) => setPro(strVal === 'true'))}
-            >
-              <option value="true" selected={pro()}>Pro</option>
-              <option value="false" selected={!pro()}>Con</option>
-            </select>
+            <span class="font-bold text-gray-700 dark:text-gray-300 pr-1">
+              {props.initialData ? `Edit ${props.isClaim ? 'claim' : 'premise'}` : 'New premise'}
+            </span>
           </div>
           <div>
-            strength: 
+            confidence: 
             <input
               type="text"
               class="w-10 border rounded pl-0.5 disabled:bg-gray-100 disabled:text-gray-400 dark:bg-gray-700 dark:disabled:bg-gray-600 dark:disabled:text-gray-500"
-              value={strength()}
-              onChange={etv(setStrength)}
-              disabled={props.hasPremise}
+              value={likelihood()}
+              onChange={etv(setLikelihood)}
+              disabled={props.hasArgument}
             /> %
           </div>
         </div>
         <textarea
           rows={3}
-          placeholder={`Please write an argument ${pro() ? 'supporting' : 'opposing'} the statement immediately above.`}
+          placeholder="Which assumption does the argument immediately above rely on? Please write it out as an independent statement without referring to the argument itself."
           class="sm:text-lg px-2 py-1 focus:outline-none block w-full dark:bg-gray-800"
           onChange={etv(setText)}
           value={text()}

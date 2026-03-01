@@ -45,6 +45,11 @@ export const processNewArgument = async (
   )
 
   await sql`
+    DELETE FROM consequence
+    WHERE argument_id = ${argumentId}
+  `.catch(onError)
+
+  await sql`
     INSERT INTO consequence ${sql({
       argument_id: argumentId,
       outcome, wtp, derivation

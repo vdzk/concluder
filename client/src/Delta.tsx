@@ -8,8 +8,8 @@ export const Delta: Component<{
     <span
       class="inline-block px-1"
       classList={{
-        'text-green-700': props.delta > 0,
-        'text-red-700': props.delta < 0
+        'text-green-700 dark:text-green-400': props.delta > 0,
+        'text-red-700 dark:text-red-400': props.delta < 0
       }}
     >
       <Show when={props.delta > 0}>+</Show>

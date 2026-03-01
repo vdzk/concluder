@@ -29,13 +29,13 @@ export const Argument: Component<{
 }> = props => {
 
   return (
-    <div class="overflow-hidden border rounded bg-white">
+    <div class="overflow-hidden border rounded bg-white dark:bg-gray-800">
       <div class="flex-1 px-2 py-1 border-b flex">
         <span
           class="font-bold inline-block pr-1"
           classList={{
-            'text-green-700': props.argument.pro,
-            'text-red-700': !props.argument.pro
+            'text-green-700 dark:text-green-400': props.argument.pro,
+            'text-red-700 dark:text-red-400': !props.argument.pro
           }}
         >
           {props.argument.pro ? 'Pro' : 'Con'}
@@ -43,7 +43,7 @@ export const Argument: Component<{
           {props.sideIndex + 1}
         </span>
 
-        <div class="ml-auto font-bold text-gray-700">
+        <div class="ml-auto font-bold text-gray-700 dark:text-gray-300">
           <Show when={props.argument.wtp}>
             <A
               class="hover:underline"

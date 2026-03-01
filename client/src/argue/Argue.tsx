@@ -79,8 +79,8 @@ export const Argue: Component = () => {
   })
 
   return (
-    <main>
-      <div class="max-w-lg mx-auto pb-16">
+    <div class="[scrollbar-gutter:stable] h-dvh overflow-y-auto">
+      <main class="w-lg max-w-full mx-auto pb-16 px-1">
         <ClaimHeader tag={tag} countryCode={countryCode} />
         <For each={path}>
           {(step, index) => (
@@ -125,7 +125,7 @@ export const Argue: Component = () => {
             </>
           )}
         </For>
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }

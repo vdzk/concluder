@@ -1,18 +1,10 @@
 import { Component } from "solid-js";
 
-export const Button: Component<{
-  label: string
-  onClick: () => void
-}> = props => {
-  return (
-    <button
-      class="rounded-lg px-2 inline-block cursor-pointer bg-yellow-400 text-gray-900 hover:bg-yellow-500"
-      onClick={props.onClick}
-    >
-      {props.label}
-    </button>
-  )
-}
+const hasHoverAndFinePointer =
+  typeof window !== "undefined" &&
+  window.matchMedia("(hover: hover) and (pointer: fine)").matches
+
+export const btnClass = ` cursor-pointer ${hasHoverAndFinePointer ? 'hover:bg-orange-200 dark:hover:bg-orange-900' : ''}  `
 
 export const IconButton: Component<{
   iconName: string
@@ -20,9 +12,10 @@ export const IconButton: Component<{
   label?: string
   disabled?: boolean
 }> = props => {
+
   return (
     <button
-      class="px-2 py-2 cursor-pointer hover:bg-orange-200"
+      class={"px-2 py-2" + btnClass}
       classList={{
         'opacity-30 pointer-events-none': props.disabled
       }}
@@ -30,7 +23,7 @@ export const IconButton: Component<{
       title={props.label}
     >
       <img
-        class="h-5 w-5"
+        class="h-5 w-5 dark:invert"
         src={`/${props.iconName}.svg`}
       />
     </button>

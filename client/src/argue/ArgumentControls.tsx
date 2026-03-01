@@ -1,12 +1,14 @@
-import { Show, type Component, type Setter } from "solid-js"
+import { createSignal, Show, type Component, type Setter } from "solid-js"
 import { type SetStoreFunction } from "solid-js/store"
 import { rpc } from "../utils"
-import { PremiseFormData, ScoreChanges } from "../../../shared/types"
+import { ArgumentFormData, PremiseFormData, ScoreChanges } from "../../../shared/types"
 import { IconButton } from "../Buttons"
-import { PremiseForm } from "../PremiseForm"
+import { ArgumentForm } from "../ArgumentForm"
+import { StatementForm } from "../StatementForm"
 import { StatementDataRow } from "./Statement"
 import type { ArgumentDataRow } from "./Argument"
 import type { Step } from "./types"
+import { ReportForm } from "../ReportForm"
 
 export const ArgumentControls: Component<{
   step: Step
@@ -89,6 +91,7 @@ export const ArgumentControls: Component<{
 
   const onShowPremiseForm = (step: Step) => {
     onHidePremises(step)
+    setEditingArgument(false)
     props.setPremiseFormId(step.statementId)
   }
 
@@ -118,6 +121,33 @@ export const ArgumentControls: Component<{
     await onShowPremises(step, data.savedId, true)
     props.shiftScores(data.scoreChanges)
   }
+
+  const [editingArgument, setEditingArgument] = createSignal(false)
+  const [savingEdit, setSavingEdit] = createSignal(false)
+
+  const onEditArgument = (step: Step) => {
+    onHidePremises(step)
+    props.setPremiseFormId()
+    setEditingArgument(true)
+  }
+
+  const submitEditArgument = async (step: Step, argumentFormData: ArgumentFormData) => {
+    setSavingEdit(true)
+    const argument = props.getArgumentByStep(step)
+    const data = await rpc('editArgument', {
+      id: argument.id,
+      ...argumentFormData
+    })
+    props.setStatements(
+      step.statementId, 'arguments', step.argumentIndex!,
+      { text: argumentFormData.text, pro: argumentFormData.pro, strength: argumentFormData.strength }
+    )
+    props.shiftScores(data.scoreChanges)
+    setEditingArgument(false)
+    setSavingEdit(false)
+  }
+
+  const [reportsOpen, setReportsOpen] = createSignal(false)
 
   const step = () => props.step
 
@@ -173,17 +203,65 @@ export const ArgumentControls: Component<{
           />
         </Show>
         <Show when={props.getArgumentByStep(step()).editable}>
+          <Show when={!editingArgument()}>
+            <IconButton
+              label="edit"
+              iconName="edit"
+              onClick={() => onEditArgument(step())}
+            />
+          </Show>
+          <Show when={editingArgument()}>
+            <IconButton
+              label="cancel edit"
+              iconName="edit-cancel"
+              onClick={() => setEditingArgument(false)}
+            />
+          </Show>
           <IconButton
             label="delete"
             iconName="delete"
             onClick={() => onDeleteArgument(step())}
           />
         </Show>
+        <Show when={!props.getArgumentByStep(step()).editable}>
+          <Show when={reportsOpen()}>
+            <IconButton
+              label="close reports"
+              iconName="flag-cancel"
+              onClick={() => setReportsOpen(false)}
+            />
+          </Show>
+          <Show when={!reportsOpen()}>
+            <IconButton
+              label="report a problem"
+              iconName="flag"
+              onClick={() => setReportsOpen(true)}
+            />
+          </Show>
+        </Show>
       </div>
+      <Show when={reportsOpen()}>
+        <ReportForm
+          type={props.getArgumentByStep(step()).pro ? 'pro' : 'con'}
+          id={props.getArgumentByStep(step()).id}
+        />
+      </Show>
+      <Show when={editingArgument()}>
+        <ArgumentForm
+          saving={savingEdit()}
+          onSubmitArgument={(data) => submitEditArgument(step(), data)}
+          initialData={{
+            pro: props.getArgumentByStep(step()).pro,
+            strength: props.getArgumentByStep(step()).strength,
+            text: props.getArgumentByStep(step()).text
+          }}
+          hasPremise={hasPremise(step())}
+        />
+      </Show>
       <Show when={props.premiseFormId() === step().statementId}>
-        <PremiseForm
+        <StatementForm
           saving={props.savingPremise()}
-          onSubmitPremise={(data) => submitPremise(step(), data)}
+          onSubmitStatement={(data) => submitPremise(step(), data)}
         />
       </Show>
     </>

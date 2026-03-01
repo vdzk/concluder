@@ -1,11 +1,13 @@
-import { Show, type Component, type Setter } from "solid-js"
+import { createSignal, Show, type Component, type Setter } from "solid-js"
 import { produce, type SetStoreFunction } from "solid-js/store"
 import { rpc } from "../utils"
-import { ArgumentFormData, ScoreChanges } from "../../../shared/types"
+import { ArgumentFormData, PremiseFormData, ScoreChanges } from "../../../shared/types"
 import { IconButton } from "../Buttons"
 import { ArgumentForm } from "../ArgumentForm"
+import { StatementForm } from "../StatementForm"
 import { StatementDataRow } from "./Statement"
 import type { Step, ArgumentLocation } from "./types"
+import { ReportForm } from "../ReportForm"
 
 export const StatementControls: Component<{
   step: Step
@@ -53,13 +55,9 @@ export const StatementControls: Component<{
   }
 
   const onHideArguments = (step: Step) => {
-    props.setPath(prev => [
-      ...prev.slice(0, step.index), {
-        ...step,
-        argumentIndex: undefined,
-        premiseIndex: undefined
-      }
-    ])
+    props.setPath(prev => prev.slice(0, step.index + 1))
+    props.setPath(step.index, 'argumentIndex', undefined)
+    props.setPath(step.index, 'premiseIndex', undefined)
   }
 
   const onShiftArgument = (step: Step, argumentIndexDelta: number) => {
@@ -73,6 +71,7 @@ export const StatementControls: Component<{
 
   const onShowArgumentForm = (step: Step) => {
     onHideArguments(step)
+    setEditingStatement(false)
     props.setArgumentFormId(step.statementId)
   }
 
@@ -111,72 +110,143 @@ export const StatementControls: Component<{
     props.setSavingArgument(false)
   }
 
-  const step = () => props.step
+  const [editingStatement, setEditingStatement] = createSignal(false)
+  const [savingEdit, setSavingEdit] = createSignal(false)
+
+  const onEditStatement = (step: Step) => {
+    onHideArguments(step)
+    props.setArgumentFormId()
+    setEditingStatement(true)
+  }
+
+  const submitEditStatement = async (step: Step, formData: PremiseFormData) => {
+    setSavingEdit(true)
+    const data = await rpc('editStatement', {
+      id: step.statementId,
+      ...formData
+    })
+    props.setStatements(step.statementId, { text: formData.text, likelihood: formData.likelihood })
+    props.shiftScores(data.scoreChanges)
+    setEditingStatement(false)
+    setSavingEdit(false)
+  }
+
+  const [reportsOpen, setReportsOpen] = createSignal(false)
+
+  const statement = () => props.statements[props.step.statementId]
 
   return (
     <>
       <div class="flex select-none">
         <div class="w-[calc(50%-18px)]" />
         <Show when={
-          step().argumentIndex === undefined &&
-          props.statements[step().statementId].hasArgument
+          props.step.argumentIndex === undefined &&
+          statement().hasArgument
         }>
           <IconButton
             label="show arguments"
             iconName="chevron-down"
-            onClick={() => onShowArguments(step())}
+            onClick={() => onShowArguments(props.step)}
           />
         </Show>
-        <Show when={step().argumentIndex !== undefined}>
+        <Show when={props.step.argumentIndex !== undefined}>
           <IconButton
             label="hide arguments"
             iconName="chevron-up"
-            onClick={() => onHideArguments(step())}
+            onClick={() => onHideArguments(props.step)}
           />
         </Show>
         <Show when={
-          step().argumentIndex !== undefined &&
-          (props.statements[step().statementId].arguments?.length ?? 0) > 1
+          props.step.argumentIndex !== undefined &&
+          (statement().arguments?.length ?? 0) > 1
         }>
           <IconButton
             iconName="arrow-left"
-            onClick={() => onShiftArgument(step(), -1)}
-            disabled={step().argumentIndex === 0}
+            onClick={() => onShiftArgument(props.step, -1)}
+            disabled={props.step.argumentIndex === 0}
             label="prev. argument"
           />
           <IconButton
             iconName="arrow-right"
-            onClick={() => onShiftArgument(step(), 1)}
-            disabled={step().argumentIndex! === (props.statements[step().statementId].arguments?.length ?? 0) - 1}
+            onClick={() => onShiftArgument(props.step, 1)}
+            disabled={props.step.argumentIndex! === (statement().arguments?.length ?? 0) - 1}
             label="next argument"
           />
         </Show>
-        <Show when={props.argumentFormId() !== step().statementId}>
+        <Show when={props.argumentFormId() !== props.step.statementId}>
           <IconButton
             label="add argument"
             iconName="plus"
-            onClick={() => onShowArgumentForm(step())}
+            onClick={() => onShowArgumentForm(props.step)}
           />
         </Show>
-        <Show when={props.argumentFormId() === step().statementId}>
+        <Show when={props.argumentFormId() === props.step.statementId}>
           <IconButton
             label="cancel"
             iconName="minus"
             onClick={() => props.setArgumentFormId()}
           />
         </Show>
-        <Show when={props.statements[step().statementId].editable}>
+        <Show when={statement().editable}>
+          <Show when={!editingStatement()}>
+            <IconButton
+              label={`edit ${props.step.isClaim ? 'claim' : 'premise'}`}
+              iconName="edit"
+              onClick={() => onEditStatement(props.step)}
+            />
+          </Show>
+          <Show when={editingStatement()}>
+            <IconButton
+              label="cancel edit"
+              iconName="edit-cancel"
+              onClick={() => setEditingStatement(false)}
+            />
+          </Show>
           <IconButton
             label="delete"
             iconName="delete"
-            onClick={() => onDeleteStatement(step())}
+            onClick={() => onDeleteStatement(props.step)}
           />
         </Show>
+        <Show when={!statement().editable}>
+          <Show when={reportsOpen()}>
+            <IconButton
+              label="close reports"
+              iconName="flag-cancel"
+              onClick={() => setReportsOpen(false)}
+            />
+          </Show>
+          <Show when={!reportsOpen()}>
+            <IconButton
+              label="report a problem"
+              iconName="flag"
+              onClick={() => setReportsOpen(true)}
+            />
+          </Show>
+        </Show>
       </div>
-      <Show when={props.argumentFormId() === step().statementId}>
+      <Show when={reportsOpen()}>
+        <ReportForm
+          type={props.step.isClaim ? 'claim' : 'premise'}
+          id={props.step.statementId}
+        />
+      </Show>
+      <Show when={editingStatement()}>
+        <StatementForm
+          saving={savingEdit()}
+          onSubmitStatement={(data) => submitEditStatement(props.step, data)}
+          initialData={{
+            text: statement().text,
+            likelihood: statement().likelihood
+          }}
+          hasArgument={statement().hasArgument}
+          isClaim={props.step.isClaim}
+        />
+      </Show>
+      <Show when={props.argumentFormId() === props.step.statementId}>
         <ArgumentForm
           saving={props.savingArgument()}
-          onSubmitArgument={(data) => submitArgument(step(), data)}
+          onSubmitArgument={(data) => submitArgument(props.step, data)}
         />
       </Show>
     </>

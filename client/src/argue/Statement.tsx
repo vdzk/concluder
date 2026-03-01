@@ -21,13 +21,13 @@ export const Statement: Component<{
 }> = props => {
 
   return (
-    <div class="overflow-hidden border rounded bg-white">
+    <div class="overflow-hidden border rounded bg-white dark:bg-gray-800">
       <div class="flex-1 px-2 py-1 border-b flex">
         <span
           class="font-bold inline-block pr-1"
           classList={{
-            'text-purple-700': props.step.isClaim,
-            'text-gray-700': !props.step.isClaim
+            'text-purple-700 dark:text-purple-400': props.step.isClaim,
+            'text-gray-700 dark:text-gray-300': !props.step.isClaim
           }}
         >
           {props.step.isClaim ? 'Claim' : 'Premise'}
@@ -35,7 +35,7 @@ export const Statement: Component<{
           {props.parentPremiseIndex !== undefined ? props.parentPremiseIndex + 1 : ''}
         </span>
         <div
-          class="ml-auto font-bold text-gray-700"
+          class="ml-auto font-bold text-gray-700 dark:text-gray-300"
           title="confidence in this statement"
         >
           <Show when={props.scoreDelta}>

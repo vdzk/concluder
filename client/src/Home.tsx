@@ -3,7 +3,6 @@ import { getPercent, rpc } from './utils'
 import { A, useNavigate, useParams } from '@solidjs/router'
 import { Loading } from './Loading'
 import { ClaimForm } from './ClaimForm'
-import { About } from './About'
 import { countries } from '../../shared/constants'
 
 interface Tab {
@@ -19,9 +18,6 @@ export const tabs: Record<string, Tab> = {
   },
   other: {
     label: 'Other'
-  },
-  about: {
-    label: 'About'
   }
 }
 
@@ -54,97 +50,99 @@ export const Home: Component = () => {
   })
 
   return (
-    <main>
-      <div class="max-w-lg mx-auto pb-16">
-        <div class="flex text-center divide-x border-x border-b rounded-b-lg overflow-hidden bg-white">
-          <For each={Object.keys(tabs)}>
-            {tabName => (
+    <main class="w-lg max-w-full mx-auto pb-16 px-1">
+      <div class="flex text-center divide-x border-x border-b rounded-b-lg overflow-hidden bg-white dark:bg-gray-800">
+        <For each={Object.keys(tabs)}>
+          {tabName => (
+            <A
+              class="flex-1 py-0.5 px-2 cursor-pointer"
+              classList={{
+                'bg-green-200 dark:bg-green-900': tabName === params.tab,
+                'hover:bg-orange-200 dark:hover:bg-orange-700': tabName !== params.tab,
+              }}
+              href={`/tab/${tabName}`}
+            >
+              {tabs[tabName].label}
+            </A>
+          )}
+        </For>
+        <A
+          class="flex-1 py-0.5 px-2 cursor-pointer hover:bg-orange-200 dark:hover:bg-orange-700"
+          href="/tutorial/1"
+        >
+          Tutorial
+        </A>
+      </div>
+      <div class="text-center text-4xl pb-5 pt-11">
+        {tabs[params.tab!].label}
+      </div>
+      <Show when={params.tab === 'politics'}>
+        <div class="flex justify-center">
+          <div class="flex text-center border rounded-full divide-x overflow-hidden bg-white dark:bg-gray-800 -mt-3 mb-10">
+            <For each={countryCodes}>
+              {(countryCode, index) => (
+                <A
+                  href={`/tab/politics/${countryCode}`}
+                  class="py-0.5 px-3 cursor-pointer"
+                  classList={{
+                    'bg-green-200 dark:bg-green-900': countryCode === params.tab2,
+                    'hover:bg-orange-200 dark:hover:bg-orange-700': countryCode !== params.tab2,
+                    'pl-4': index() === 0,
+                    'pr-4': index() === countryCodes.length - 1
+                  }}
+                >
+                  {countries[countryCode]}
+                </A>
+              )}
+            </For>
+          </div>
+
+        </div>
+      </Show>
+      <Suspense fallback={<Loading />}>
+        <div class="flex font-bold px-2 pb-1">
+          <div class="flex-1">
+            Claim
+          </div>
+          <div>
+            Confidence
+          </div>
+        </div>
+        <div class="sm:text-lg bg-white dark:bg-gray-800 border rounded overflow-hidden">
+          <For each={statements()}>
+            {statement => (
               <A
-                class="flex-1 py-0.5 px-2 cursor-pointer"
-                classList={{
-                  'bg-green-200': tabName === params.tab,
-                  'hover:bg-orange-200': tabName !== params.tab,
-                }}
-                href={`/tab/${tabName}`}
+                href={`/argue/${statement.id}`}
+                class="flex px-2 py-1 gap-2
+                    border-b last:border-b-0 hover:bg-orange-200 dark:hover:bg-orange-900"
               >
-                {tabs[tabName].label}
+                <div class="flex-1">
+                  {statement.text}
+                </div>
+                <div class="">
+                  {getPercent(statement.likelihood, 0)}
+                </div>
               </A>
             )}
           </For>
         </div>
-        <div class="text-center text-4xl pb-5 pt-11">
-          {tabs[params.tab!].label}
-        </div>
-        <Show when={params.tab === 'politics'}>
-          <div class="flex justify-center">
-            <div class="flex text-center border rounded-full divide-x overflow-hidden bg-white -mt-3 mb-10">
-              <For each={countryCodes}>
-                {(countryCode, index) => (
-                  <A
-                    href={`/tab/politics/${countryCode}`}
-                    class="py-0.5 px-3 cursor-pointer"
-                    classList={{
-                      'bg-green-200': countryCode === params.tab2,
-                      'hover:bg-orange-200': countryCode !== params.tab2,
-                      'pl-4': index() === 0,
-                      'pr-4': index() === countryCodes.length - 1
-                    }}
-                  >
-                    {countries[countryCode]}
-                  </A>
-                )}
-              </For>
-            </div>
-
-          </div>
+        <button
+          class="px-2 py-2 cursor-pointer hover:bg-orange-200 dark:hover:bg-orange-900 w-full rounded"
+          onClick={() => setShowForm(prev => !prev)}
+          title={showForm() ? 'cancel' : 'add claim'}
+        >
+          <img
+            class="h-5 w-5 mx-auto dark:invert"
+            src={`/${showForm() ? 'minus' : 'plus'}.svg`}
+          />
+        </button>
+        <Show when={showForm()}>
+          <ClaimForm
+            saving={saving()}
+            onSubmitClaim={submitClaim}
+          />
         </Show>
-        <Show when={params.tab !== 'about'} fallback={<About />}>
-          <Suspense fallback={<Loading />}>
-            <div class="flex font-bold px-2 pb-1">
-              <div class="flex-1">
-                Claim
-              </div>
-              <div>
-                Confidence
-              </div>
-            </div>
-            <div class="sm:text-lg bg-white border rounded overflow-hidden">
-              <For each={statements()}>
-                {statement => (
-                  <A
-                    href={`/argue/${statement.id}`}
-                    class="flex px-2 py-1 gap-2
-                    border-b last:border-b-0 hover:bg-orange-200"
-                  >
-                    <div class="flex-1">
-                      {statement.text}
-                    </div>
-                    <div class="">
-                      {getPercent(statement.likelihood, 0)}
-                    </div>
-                  </A>
-                )}
-              </For>
-            </div>
-            <button
-              class="px-2 py-2 cursor-pointer hover:bg-orange-200 w-full rounded"
-              onClick={() => setShowForm(prev => !prev)}
-              title={showForm() ? 'cancel' : 'add claim'}
-            >
-              <img
-                class="h-5 w-5 mx-auto"
-                src={`/${showForm() ? 'minus' : 'plus'}.svg`}
-              />
-            </button>
-            <Show when={showForm()}>
-              <ClaimForm
-                saving={saving()}
-                onSubmitClaim={submitClaim}
-              />
-            </Show>
-          </Suspense>
-        </Show>
-      </div>
+      </Suspense>
     </main>
   )
 }

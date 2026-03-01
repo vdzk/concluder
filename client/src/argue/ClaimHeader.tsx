@@ -8,7 +8,7 @@ export const ClaimHeader: Component<{ tag: Accessor<string>, countryCode: Access
     <div class="flex justify-center">
       <A
         href={`/tab/${props.tag()}${props.countryCode() ? '/' + props.countryCode() : ''}`}
-        class="font-bold hover:bg-orange-200 px-2 py-1"
+        class="font-bold hover:bg-orange-200 dark:hover:bg-orange-900 px-2 py-1"
       >
         {tabs[props.tag()]?.label}
         <Show when={props.countryCode()}>

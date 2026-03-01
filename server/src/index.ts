@@ -106,6 +106,48 @@ app.post('/api/deleteStatement', async (req, res) => {
   res.json({scoreChanges})
 })
 
+app.post('/api/editStatement', async (req, res) => {
+  const { id, text, likelihood } = req.body
+  const hasArgument = await sql`
+    SELECT EXISTS (
+      SELECT 1 FROM argument WHERE claim_id = ${id}
+    ) AS "hasArgument"
+  `.then(r => r[0].hasArgument).catch(onError)
+  await sql`
+    UPDATE statement
+    SET text = ${text},
+      likelihood = ${hasArgument ? sql`likelihood` : sql`${likelihood}`}
+    WHERE id = ${id}
+      AND owner = ${req.cookies.name ?? 'free-for-all'}
+  `.catch(onError)
+  const scoreChanges = await cascadeUpdateScores(id, true)
+  res.json({ scoreChanges })
+})
+
+app.post('/api/editArgument', async (req, res) => {
+  const { id, pro, strength, text } = req.body
+  const hasPremise = await sql`
+    SELECT EXISTS (
+      SELECT 1 FROM premise WHERE argument_id = ${id}
+    ) AS "hasPremise"
+  `.then(r => r[0].hasPremise).catch(onError)
+  const results = await sql`
+    UPDATE argument
+    SET pro = ${pro},
+      strength = ${hasPremise ? sql`strength` : sql`${strength}`},
+      text = ${text}
+    WHERE id = ${id}
+      AND owner = ${req.cookies.name ?? 'free-for-all'}
+    RETURNING claim_id
+  `.catch(onError)
+  const claimId = results[0].claim_id
+  const scoreChanges = await cascadeUpdateScores(claimId)
+  res.json({ scoreChanges })
+
+  // Update or create the associated consequence in the background
+  processNewArgument(claimId, id, text, pro)
+})
+
 app.post('/api/deleteArgument', async (req, res) => {
   const argumentResults = await sql`
     DELETE FROM argument
@@ -239,6 +281,13 @@ app.post('/api/getConsequence', async (req, res) => {
   `.catch(onError)
 
   res.json(results[0])
+})
+
+app.post('/api/reportEntry', async (req, res) => {
+  const results = await sql`
+    INSERT INTO report ${sql(req.body)}
+  `.catch(onError)
+  res.json({})
 })
 
 app.listen(port, () => {
