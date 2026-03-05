@@ -5,6 +5,11 @@ import { cascadeUpdateScores } from './cascadeUpdateScores.ts'
 import { getOrSetUsername } from './utils.ts'
 import { analyseClaim, analyseClaimStakeholders } from './analyse/claim.ts'
 import { processNewArgument } from './processNewArgument.ts'
+import { saveScoreChange } from './saveScoreChange.ts'
+import dotenv from "dotenv"
+import { getClaimScoreHistory } from './getClaimScoreHistory.ts'
+
+dotenv.config()
 const app = express()
 const port = 3001
 app.use(express.json())
@@ -90,23 +95,31 @@ app.post('/api/addClaim', async (req, res) => {
 })
 
 app.post('/api/deleteStatement', async (req, res) => {
+  const owner = req.cookies.name
   const statementId = req.body.id
   // Pretend that the premise/claim is 100% true to update the parent scores properly before delting it
-  await sql`
+  const statementResults = await sql`
     UPDATE statement
     SET likelihood = 1
     WHERE statement.id = ${statementId}
+    RETURNING id, text, likelihood
   `.catch(onError)
   const scoreChanges = await cascadeUpdateScores(statementId, true, true)
   await sql`
     DELETE FROM statement
     WHERE id = ${req.body.id}
-      AND owner = ${req.cookies.name ?? 'free-for-all'}
+      AND owner = ${owner ?? 'free-for-all'}
   `.catch(onError)
   res.json({scoreChanges})
+
+  saveScoreChange(scoreChanges, owner, {
+    type: 'deleteStatement',
+    statement: statementResults[0]
+  })
 })
 
 app.post('/api/editStatement', async (req, res) => {
+  const owner = req.cookies.name
   const { id, text, likelihood } = req.body
   const hasArgument = await sql`
     SELECT EXISTS (
@@ -118,13 +131,19 @@ app.post('/api/editStatement', async (req, res) => {
     SET text = ${text},
       likelihood = ${hasArgument ? sql`likelihood` : sql`${likelihood}`}
     WHERE id = ${id}
-      AND owner = ${req.cookies.name ?? 'free-for-all'}
+      AND owner = ${owner ?? 'free-for-all'}
   `.catch(onError)
   const scoreChanges = await cascadeUpdateScores(id, true)
   res.json({ scoreChanges })
+
+  saveScoreChange(scoreChanges, owner, {
+    type: 'editStatement',
+    statement: req.body
+  })
 })
 
 app.post('/api/editArgument', async (req, res) => {
+  const owner = req.cookies.name
   const { id, pro, strength, text } = req.body
   const hasPremise = await sql`
     SELECT EXISTS (
@@ -137,26 +156,37 @@ app.post('/api/editArgument', async (req, res) => {
       strength = ${hasPremise ? sql`strength` : sql`${strength}`},
       text = ${text}
     WHERE id = ${id}
-      AND owner = ${req.cookies.name ?? 'free-for-all'}
+      AND owner = ${owner ?? 'free-for-all'}
     RETURNING claim_id
   `.catch(onError)
   const claimId = results[0].claim_id
   const scoreChanges = await cascadeUpdateScores(claimId)
   res.json({ scoreChanges })
 
+  saveScoreChange(scoreChanges, owner, {
+    type: 'editArgument',
+    argument: req.body
+  })
+
   // Update or create the associated consequence in the background
   processNewArgument(claimId, id, text, pro)
 })
 
 app.post('/api/deleteArgument', async (req, res) => {
+  const owner = req.cookies.name
   const argumentResults = await sql`
     DELETE FROM argument
     WHERE id = ${req.body.id}
-      AND owner = ${req.cookies.name ?? 'free-for-all'}
-    RETURNING claim_id
+      AND owner = ${owner ?? 'free-for-all'}
+    RETURNING id, claim_id, text, pro, strength
   `.catch(onError)
   const scoreChanges = await cascadeUpdateScores(argumentResults[0].claim_id)
   res.json({scoreChanges})
+
+  saveScoreChange(scoreChanges, owner, {
+    type: 'deleteArgument',
+    argument: argumentResults[0]
+  })
 })
 
 const getStatementsByIds = (statementIds: number[], username?: string) => sql`
@@ -192,6 +222,11 @@ app.post('/api/getClaim', async (req, res) => {
   }
 
   res.json(result)
+})
+
+app.post('/api/getClaimScoreHistory', async (req, res) => {
+  const claimId = req.body.id
+  res.json(await getClaimScoreHistory(claimId))
 })
 
 app.post('/api/getArgumentsByClaimId', async (req, res) => {
@@ -239,6 +274,11 @@ app.post('/api/addArgument', async (req, res) => {
 
   res.json({ savedId: argumentId, scoreChanges })
 
+  saveScoreChange(scoreChanges, owner, {
+    type: 'addArgument',
+    argument: req.body
+  })
+
   // This is done in the background to avoid blocking the user
   processNewArgument(claimId, argumentId, req.body.text, req.body.pro)
 })
@@ -270,6 +310,11 @@ app.post('/api/addPremise', async (req, res) => {
   const scoreChanges = await cascadeUpdateScores(statementId, true)
 
   res.json({ savedId: premiseId, scoreChanges })
+
+  saveScoreChange(scoreChanges, owner, {
+    type: 'addPremise',
+    statement: req.body
+  })
 })
 
 
@@ -284,7 +329,7 @@ app.post('/api/getConsequence', async (req, res) => {
 })
 
 app.post('/api/reportEntry', async (req, res) => {
-  const results = await sql`
+  await sql`
     INSERT INTO report ${sql(req.body)}
   `.catch(onError)
   res.json({})

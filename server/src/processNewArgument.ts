@@ -2,6 +2,7 @@ import { onError, sql } from "./db.ts"
 import { countries } from "../../shared/constants.ts"
 import { analyseConsequence, parseConsequence } from "./analyse/consequence.ts"
 import { cascadeUpdateScores } from "./cascadeUpdateScores.ts"
+import { saveScoreChange } from "./saveScoreChange.ts"
 
 export const processNewArgument = async (
   claimId: number,
@@ -51,10 +52,27 @@ export const processNewArgument = async (
 
   await sql`
     INSERT INTO consequence ${sql({
-      argument_id: argumentId,
-      outcome, wtp, derivation
-    })}
+    argument_id: argumentId,
+    outcome, wtp, derivation
+  })}
   `.catch(onError)
 
-  cascadeUpdateScores(claimId)
+  const scoreChanges = await cascadeUpdateScores(claimId)
+
+  const argumentsResults = await sql`
+    SELECT owner
+    FROM argument
+    WHERE id = ${argumentId}
+  `.catch(onError)
+
+  const owner = argumentsResults[0]?.owner
+
+  saveScoreChange(scoreChanges, owner, {
+    type: 'updateConsequence',
+    argument: {
+      id: argumentId,
+      text: argumentText,
+      pro
+    }
+  })
 }
