@@ -1,8 +1,10 @@
+import { type RequestHandler } from 'express'
 import { minidenticon } from 'minidenticons'
-import { onError, sql } from './db.ts'
+import { onError, sql } from '../db.ts'
 
-export const getClaimScoreHistory = async (claimId: number) => {
-  const scoreHistory = await sql`
+export const getClaimScoreHistory: RequestHandler = async (req, res) => {
+  const claimId = req.body.id
+    const scoreHistory = await sql`
     SELECT id, old, new, timestamp, owner, action_data
     FROM score_change
     WHERE claim_id = ${claimId}
@@ -50,5 +52,5 @@ export const getClaimScoreHistory = async (claimId: number) => {
   }
 
   const avatars = owners.map(owner => avatarByOwner[owner])
-  return { scoreHistory, avatars}
+  res.json({ scoreHistory, avatars})
 }

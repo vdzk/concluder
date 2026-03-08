@@ -27,3 +27,10 @@ export const getShortNumber = (value: number): string => {
 
   return format(value / 1_000_000_000_000, 'T')
 }
+
+export const indexBy = <V extends Record<string, any>, C extends keyof V>(
+  records: V[],
+  colName: C & (V[C] extends string | number ? C : never)
+): Record<V[C] & (string | number), V> => Object.fromEntries(
+  records.map((record) => [record[colName], record])
+)

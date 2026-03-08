@@ -22,6 +22,8 @@ export interface ArgumentDataRow {
   premises?: Premise[]
 }
 
+export const argumentScoreTitle = 'strength of the argument'
+
 export const Argument: Component<{
   argument: ArgumentDataRow
   scoreDelta?: number
@@ -56,7 +58,7 @@ export const Argument: Component<{
             {' × '}
           </Show>
           <span title={!props.argument.wtp
-            ? 'strength of the argument'
+            ? argumentScoreTitle
             : 'certainty of the consequence'
           }>
             <Show when={props.scoreDelta}>

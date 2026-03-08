@@ -4,6 +4,7 @@ import { Home } from './Home'
 import { Argue } from './argue/Argue'
 import { Derivation } from './Derivation'
 import { Tutorial } from './tutorial/Tutorial'
+import { Moves } from './move/Moves'
 
 export const App: Component = () => {
   return (
@@ -14,10 +15,14 @@ export const App: Component = () => {
             : '/tutorial/1'
         } />} />
       <Route path="/tutorial/:page" component={Tutorial} />
-      <Route path="/tab/politics" component={() => <Navigate href="/tab/politics/USA" />} />
+      <Route
+        path="/tab/politics"
+        component={() => <Navigate href="/tab/politics/USA" />}
+      />
       <Route path="/tab/:tab/:tab2?" component={Home} />
       <Route path="/argue/:id" component={Argue} />
       <Route path="/wtp/:argumentId" component={Derivation} />
+      <Route path="/moves/:id" component={Moves} />
     </Router>
   )
 }

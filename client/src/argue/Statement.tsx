@@ -13,6 +13,8 @@ export interface StatementDataRow {
   editable: boolean | null
 }
 
+export const statementScoreTitle = 'confidence in this statement'
+
 export const Statement: Component<{
   step: Step
   statement: StatementDataRow
@@ -36,7 +38,7 @@ export const Statement: Component<{
         </span>
         <div
           class="ml-auto font-bold text-gray-700 dark:text-gray-300"
-          title="confidence in this statement"
+          title={statementScoreTitle}
         >
           <Show when={props.scoreDelta}>
             <Delta delta={props.scoreDelta!} />
