@@ -1,26 +1,22 @@
-import { Component, onMount, Show } from "solid-js";
-import { ArgumentRecord, AvatarRecord, MoveRecord, StatementRecord } from "../../../shared/types";
-import { IconButton } from "../Buttons";
-import { getPercent } from "../utils";
-import { statementScoreTitle } from "../argue/Statement";
-import { argumentScoreTitle } from "../argue/Argument";
+import { Component, onMount, Show } from "solid-js"
+import { ArgumentRecord, AvatarRecord, MoveRecord, StatementRecord } from "../../../shared/types"
+import { getPercent } from "../utils"
+import { Line } from "./Line"
+import { CutGap } from "./CutGap"
 
-const moveTitle: Record<string, string> = {
-  addClaim: 'made a claim',
-  addArgument: 'argued for it'
-}
 const scoreTitle: Record<string, string> = {
-  statement: statementScoreTitle,
-  argument: argumentScoreTitle
+  statement: 'Certainty',
+  argument: 'Strength'
 }
 
 export const Move: Component<{
-  moveIndex: number
-  move: MoveRecord
+  move: MoveRecord & { conversationMoveIndex: number }
   statementsById: Record<number, StatementRecord>
   argumentsById: Record<number, ArgumentRecord>
   avatarsById: Record<number, AvatarRecord>
-  onActionClick: (action?: string, moveId?: number) => void
+  onSelectMove: (moveId: number) => void
+  selected: boolean
+  messageMoveIndex: number
 }> = props => {
   onMount(() => {
     if (props.move.type === 'addClaim') {
@@ -35,8 +31,8 @@ export const Move: Component<{
         score: statement.likelihood,
         type: 'statement'
       }
-    } else if (props.move.argument_id) {
-      const argument = props.argumentsById[props.move.argument_id]
+    } else {
+      const argument = props.argumentsById[props.move.argument_id!]
       return {
         text: argument.text,
         score: argument.strength,
@@ -44,49 +40,60 @@ export const Move: Component<{
       }
     }
   }
-  const avatarSvg = () => props.avatarsById[props.move.avatar_id].svg
   const moveTitle = () => {
     switch (props.move.type) {
       case 'addClaim':
-        return 'made a claim'
+        return 'It is said that'
       case 'addArgument':
         const { pro } = props.argumentsById[props.move.argument_id!]
-        return `argued ${pro ? 'for' : 'against'} it`
+        return pro ? 'This is because' : 'On the other hand'
     }
   }
+  const firstInMessage = () => props.messageMoveIndex === 0
+  const firstInConversation = () => props.move.conversationMoveIndex === 0
   return (
-      <>
-        <div class="flex items-center">
-          <div innerHTML={avatarSvg()} class="w-6 h-6 -ml-0.5 mr-0.5" />
-          {moveTitle()}
-        </div>
-        <div class="border rounded bg-white dark:bg-gray-800 px-2 py-1 sm:text-lg">
-          <span class="font-bold">
-            [{props.moveIndex + 1}] 
-          </span>
-          {entry()?.text}
-        </div>
-        <div class="flex items-center">
-          <div class="flex-1" />
-          <Show when={entry()}>
-            <div
-              class="ml-auto font-bold text-gray-700 dark:text-gray-300 px-1"
-              title={scoreTitle[entry()!.type]}
-            >
-              {getPercent(entry()!.score)}
-            </div>
-          </Show>
-          <IconButton
-            label="Attack"
-            onClick={() => props.onActionClick('attack', props.move.id)}
-            iconName="sword"
+    <>
+      <Show when={firstInMessage() && !firstInConversation()}>
+        <Line class="h-2" />
+        <div class="border-t" />
+        <Line class="h-2" />
+      </Show>
+      <Line head={
+        <Show when={firstInMessage()}>
+          <div
+            innerHTML={props.avatarsById[props.move.avatar_id].svg}
+            class="w-6 h-6"
+            // classList={{
+            //   'invisible': props.selected
+            // }}
           />
-          <IconButton
-            label="Defend"
-            onClick={() => props.onActionClick('defend', props.move.id)}
-            iconName="shield"
-          />
+        </Show>
+      }>
+        <div
+          class="text-sm opacity-70 mt-0.5"
+          // classList={{
+          //   'invisible': props.selected
+          // }}
+        >
+          {moveTitle()}...
         </div>
-      </>
+      </Line>
+      <Show when={props.selected}>
+        <CutGap />
+      </Show>
+      <Line
+        onClick={() => props.onSelectMove(props.move.id)}
+        head={
+          <div class="font-bold text-center">
+            {props.move.conversationMoveIndex + 1}
+          </div>
+        }
+      >
+        {entry().text}
+        <div class="text-sm opacity-70">
+          {scoreTitle[entry().type]}: {getPercent(entry().score)}
+        </div>
+      </Line>
+    </>
   )
 }

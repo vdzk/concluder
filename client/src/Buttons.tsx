@@ -29,3 +29,17 @@ export const IconButton: Component<{
     </button>
   )
 }
+
+export const TextButton: Component<{
+  label: string
+  onClick: () => void
+}> = props => {
+  return (
+    <button
+      onClick={props.onClick}
+      class="px-2 cursor-pointer uppercase hover:bg-orange-200 dark:hover:bg-orange-900"
+    >
+      {props.label}
+    </button>
+  )
+}
