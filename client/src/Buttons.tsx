@@ -32,12 +32,20 @@ export const IconButton: Component<{
 
 export const TextButton: Component<{
   label: string
+  color?: 'red' | 'green'
   onClick: () => void
 }> = props => {
   return (
     <button
       onClick={props.onClick}
-      class="px-2 cursor-pointer uppercase hover:bg-orange-200 dark:hover:bg-orange-900"
+      class="
+        px-2 cursor-pointer text-white rounded
+        opacity-75 hover:opacity-100
+      "
+      classList={{
+        'bg-green-700 dark:bg-green-400': props.color === 'green',
+        'bg-red-700 dark:bg-red-400': props.color === 'red'
+      }}
     >
       {props.label}
     </button>

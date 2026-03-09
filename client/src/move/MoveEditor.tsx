@@ -1,11 +1,9 @@
 import { Component, createSignal, Show } from "solid-js"
 import { etv, rpc } from "../utils"
-import { IconButton, TextButton } from "../Buttons"
+import { TextButton } from "../Buttons"
 import { MoveRecord } from "../../../shared/types"
-import { Line } from "./Line"
-import { CutGap } from "./CutGap"
+import { clickableStyle, Line, LineCustom } from "./Line"
 
-const bulletHead = () => <div class="text-center">●</div>
 const questionHead = () => <div class="font-bold text-center">Q</div>
 
 export const MoveEditor: Component<{
@@ -13,17 +11,42 @@ export const MoveEditor: Component<{
   onSave: () => void
   onCancel: () => void
   mainClaimId: number
+  isLastMove: boolean
 }> = props => {
+  const [inputText, setInputText] = createSignal('')
   const [text, setText] = createSignal('')
   const [score, setScore] = createSignal('50.0')
   const [pro, setPro] = createSignal<boolean>()
   const [touchedText, setTouchedText] = createSignal(false)
-  const onSave = async () => {
+
+  const onBack = () => {
+    if (text()) {
+      setText('')
+    } else if (pro() !== undefined) {
+      setPro()
+    } else {
+      props.onCancel()
+    }
+  }
+
+  const onNext = () => {
+    if (text()) {
+      const strength = parseFloat(score()) / 100
+      if (strength >= 0 && strength <= 1) {
+        save(text(), pro()!, strength)
+      }
+    } else {
+      const trimmedText = inputText().trim()
+      if (trimmedText) {
+        setText(trimmedText)
+      }
+    }
+  }
+
+  const save = async (text: string, pro: boolean, strength: number) => {
     const argument = {
       claim_id: props.targetMove.statement_id,
-      text: text(),
-      pro: pro(),
-      strength: parseFloat(score()) / 100
+      text, pro, strength
     }
     const move = {
       claim_id: props.mainClaimId,
@@ -37,19 +60,24 @@ export const MoveEditor: Component<{
   return (
     <>
       <Line class="h-1" />
-      <Line head={questionHead()}>
-        <div class="font-bold">
-          What's your move?
-        </div>
-      </Line>
-      <Line head={bulletHead()} onClick={() => setPro(false)} >
-        Attack
-      </Line>
-      <Line head={bulletHead()} onClick={() => setPro(true)} >
-        Defend
-      </Line>
-      <Show when={pro() !== undefined} >
-        <Line head={questionHead()} class="font-bold pt-2">
+      <Show when={pro() === undefined}>
+        <Line>
+          <div class="flex gap-2">
+            <TextButton
+              label="Attack"
+              color="red"
+              onClick={() => setPro(false)}
+            />
+            <TextButton
+              label="Defend"
+              color="green"
+              onClick={() => setPro(true)}
+            />
+          </div>
+        </Line>
+      </Show>
+      <Show when={pro() !== undefined && !text()} >
+        <Line head={questionHead()} class="font-bold">
           What's your argument{' '}
           <span
             class="font-bold inline-block pr-1"
@@ -66,12 +94,27 @@ export const MoveEditor: Component<{
           <textarea
             rows={3}
             placeholder="Type here..."
-            class="border px-2 py-1 focus:outline-none block w-full dark:bg-gray-800"
-            onChange={etv(setText)}
-            value={text()}
+            class="mt-0.5 border rounded px-1 focus:outline-none block w-full dark:bg-gray-800 mr-2"
+            onChange={etv(setInputText)}
+            value={inputText()}
           />
         </Line>
-        <Line head={questionHead()} class="pt-2 font-bold">How strong is this argument?</Line>
+      </Show>
+      <Show when={text()}>
+        <Line
+          head={
+            <img
+              class="px-1 py-1 h-6"
+              src={`/${pro() ? 'shield' : 'sword'}.svg`}
+              alt={pro() ? 'shield' : 'sword'}
+            />
+          }
+        >
+          {text()}
+        </Line>
+        <Line head={questionHead()} class="font-bold">
+          How strong is your argument?
+        </Line>
         <Line>
           <input
             type="text"
@@ -81,28 +124,40 @@ export const MoveEditor: Component<{
             class="w-10 border rounded pl-0.5 bg-white dark:bg-gray-700"
           /> %
         </Line>
-        <Line>
-          <IconButton
-            label="save"
-            iconName="save"
-            onClick={onSave}
-            disabled={pro() === undefined || !touchedText()}
-          />
-        </Line>
       </Show>
       <Line class="h-2" />
-      <Line
+      <LineCustom
         class="border-y"
-        onClick={props.onCancel}
-        head={<img
-          src="/arrow-left.svg"
-          class="ml-0.5 mt-0.5 py-1 px-1 h-5"
-        />}
       >
-        Back
-      </Line>
-      <div class="h-4" />
-      <Line class="h-2 border-t " />
+        <div class="flex">
+          <div
+            class={`flex-1 flex ${clickableStyle}`}
+            onClick={onBack}
+          >
+            <img
+              src="/arrow-left.svg"
+              class="ml-1 mr-0.5 my-0.5 py-1 px-1 h-5"
+            />
+            Back
+          </div>
+          <Show when={pro() !== undefined}>
+            <div
+              class={`flex-1 flex justify-end border-l ${clickableStyle}`}
+              onClick={onNext}
+            >
+              Next
+              <img
+                src="/arrow-right.svg"
+                class="mr-1 ml-0.5 my-0.5 py-1 px-1 h-5"
+              />
+            </div>
+          </Show>
+        </div>
+      </LineCustom>
+      <Show when={!props.isLastMove}>
+        <div class="h-4" />
+        <Line class="h-2 border-t " />
+      </Show>
     </>
   )
 }

@@ -50,30 +50,18 @@ export const Move: Component<{
     }
   }
   const firstInMessage = () => props.messageMoveIndex === 0
-  const firstInConversation = () => props.move.conversationMoveIndex === 0
   return (
     <>
-      <Show when={firstInMessage() && !firstInConversation()}>
-        <Line class="h-2" />
-        <div class="border-t" />
-        <Line class="h-2" />
-      </Show>
       <Line head={
         <Show when={firstInMessage()}>
           <div
             innerHTML={props.avatarsById[props.move.avatar_id].svg}
             class="w-6 h-6"
-            // classList={{
-            //   'invisible': props.selected
-            // }}
           />
         </Show>
       }>
         <div
           class="text-sm opacity-70 mt-0.5"
-          // classList={{
-          //   'invisible': props.selected
-          // }}
         >
           {moveTitle()}...
         </div>

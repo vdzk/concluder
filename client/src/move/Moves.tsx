@@ -62,12 +62,16 @@ export const Moves: Component = () => {
 
   return (
     <div class="[scrollbar-gutter:stable] overflow-y-auto">
-      <main class="w-xl max-w-full mx-auto overflow-hidden mt-5">
+      <Show when={selectedMoveId()}>
+        {/* Avoids entry jump when editor is opened. */}
+        <div class="-mb-8" />
+      </Show>
+      <main class="w-xl max-w-full mx-auto overflow-hidden mt-8">
         <Line class="h-2 border-t rounded-t" />
         <For each={messages}>
-          {message => (
+          {(message, messageIndex) => (
             <For each={message.moves}>
-              {(move, index) => (
+              {(move, moveIndex) => (
                 <>
                   <Move
                     {...{
@@ -75,20 +79,36 @@ export const Moves: Component = () => {
                       statementsById, argumentsById, avatarsById
                     }}
                     selected={selectedMoveId() === move.id}
-                    messageMoveIndex={index()}
+                    messageMoveIndex={moveIndex()}
                   />
                   <Show when={selectedMoveId() === move.id}>
                     <MoveEditor
                       {...{ onSave, onCancel, mainClaimId }}
                       targetMove={movesById[selectedMoveId()!]}
+                      isLastMove={
+                        messageIndex() === messages.length - 1
+                        && moveIndex() === message.moves.length - 1
+                      }
                     />
+                  </Show>
+                  <Show when={
+                    moveIndex() === message.moves.length - 1 &&
+                    selectedMoveId() !== move.id
+                  }>
+                    <Show
+                      when={messageIndex() !== messages.length - 1}
+                      fallback={<Line class="h-2 border-b rounded-b" />}
+                    >
+                      <Line class="h-2" />
+                      {/* <div class="border-t" /> */}
+                      <Line class="h-2" />
+                    </Show>
                   </Show>
                 </>
               )}
             </For>
           )}
         </For>
-        <Line class="h-2 border-b rounded-b" />
       </main>
     </div>
   )
