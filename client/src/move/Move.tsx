@@ -44,6 +44,7 @@ export const Move: Component<{
       case 'addClaim':
         return ' started a discussion about the following claim:'
       case 'addArgument':
+      case 'addPremiseArgument':
         const { pro } = props.argumentsById[props.move.argument_id!]
         return pro
           ? ' defends 1: ChatGPT-like interfaces will replace most of the Web and mobile apps.'

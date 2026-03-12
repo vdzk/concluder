@@ -20,7 +20,7 @@ export const MovesTable: Component = () => {
     = createSignal<number>()
   const [formRefreshKey, setFormRefreshKey] = createSignal(1)
 
-  onMount(async () => {
+  const reloadTable = async () => {
     const movesData = await rpc('getMoves', { id: mainClaimId })
     batch(() => {
       setMoves(movesData.moves)
@@ -28,7 +28,9 @@ export const MovesTable: Component = () => {
       setArgumentsById(indexBy(movesData.arguments, 'id'))
       setAvatarsById(indexBy(movesData.avatars, 'id'))
     })
-  })
+  }
+
+  onMount(reloadTable)
 
   const getRow = (move: MoveRecord, index: Accessor<number>) => {
     const avatar = avatarsById[move.avatar_id]
@@ -48,7 +50,7 @@ export const MovesTable: Component = () => {
       </div>
       entryText = statement.text
       certainty = getPercent(statement.likelihood)
-    } else if (move.type === 'addArgument') {
+    } else if (move.type === 'addArgument' || move.type === 'addPremiseArgument') {
       action = argument.pro ? 'Defend' : 'Attack'
       entryText = argument.text
       strength = getPercent(argument.strength)
@@ -120,7 +122,10 @@ export const MovesTable: Component = () => {
       <Show when={formRefreshKey()} keyed>
         <MoveForm
           moveIndex={selectedMoveIndex()}
-          {...{moves, clearForm, statementsById, argumentsById}}  
+          {...{
+            moves, clearForm, statementsById,
+            argumentsById, reloadTable, mainClaimId
+          }}  
         />
       </Show>
     </>

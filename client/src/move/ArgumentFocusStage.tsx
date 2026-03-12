@@ -7,7 +7,7 @@ const focusAreas = ['explicitPremise', 'linkToConclusion', 'hiddenPremise'] as c
 export type ArgumentFocusArea = typeof focusAreas[number]
 
 const focusAreaDescriptions: Record<ArgumentFocusArea, string> = {
-  explicitPremise: 'Something that is stated in its text.',
+  explicitPremise: 'Something that is stated in its premises.',
   linkToConclusion: 'That the conclusion follows from its premises.',
   hiddenPremise: 'A hidden assumption that the argument relies on.'
 }

@@ -4,33 +4,47 @@ import { getOrSetUsername } from '../utils.ts'
 import { cascadeUpdateScores } from '../cascadeUpdateScores.ts'
 import { saveScoreChange } from '../saveScoreChange.ts'
 
-export const addPremise: RequestHandler = async (req, res) => {
-  const owner = await getOrSetUsername(req, res)
+export const addPremiseReusable = async (
+  text: string,
+  likelihood: number,
+  owner: string,
+  argumentId: string
+) => {
   const statementResults = await sql`
     INSERT INTO statement ${sql({
-      text: req.body.text,
-      likelihood: req.body.likelihood,
-      owner
+      text, likelihood, owner
     })}
     RETURNING id
   `.catch(onError)
 
-  const statementId = statementResults[0].id
+  const statement_id = statementResults[0].id
 
   const premiseResults = await sql`
     INSERT INTO premise ${sql({
-      argument_id: req.body.argument_id,
-      statement_id: statementId,
+      argument_id: argumentId,
+      statement_id: statement_id,
       owner
     })}
     RETURNING id
   `.catch(onError)
 
-  const premiseId = premiseResults[0].id
+  const id = premiseResults[0].id
 
-  const scoreChanges = await cascadeUpdateScores(statementId, true)
+  return { id, statement_id }
+}
 
-  res.json({ savedId: premiseId, scoreChanges })
+export const addPremise: RequestHandler = async (req, res) => {
+  const owner = await getOrSetUsername(req, res)
+  const premise = await addPremiseReusable(
+    req.body.text,
+    req.body.likelihood,
+    owner,
+    req.body.argument_id
+  )
+
+  const scoreChanges = await cascadeUpdateScores(premise.statement_id, true)
+
+  res.json({ savedId: premise.id, scoreChanges })
 
   saveScoreChange(scoreChanges, owner, {
     type: 'addPremise',

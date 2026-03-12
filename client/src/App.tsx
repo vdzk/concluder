@@ -6,6 +6,7 @@ import { Derivation } from './Derivation'
 import { Tutorial } from './tutorial/Tutorial'
 import { Moves } from './move/Moves'
 import { MovesTable } from './move/MovesTable'
+import { OneMove } from './one-move/OneMove'
 
 export const App: Component = () => {
   return (
@@ -25,6 +26,7 @@ export const App: Component = () => {
       <Route path="/wtp/:argumentId" component={Derivation} />
       <Route path="/moves/:id" component={Moves} />
       <Route path="/moves-table/:id" component={MovesTable} />
+      <Route path="/one-move/:id" component={OneMove} />
     </Router>
   )
 }

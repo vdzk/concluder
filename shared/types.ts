@@ -18,7 +18,7 @@ export interface PremiseFormData {
 export interface MoveRecord {
   id: number
   claim_id: number
-  type: 'addClaim' | 'addArgument'
+  type: 'addClaim' | 'addArgument' | 'addPremiseArgument'
   statement_id: number | null
   argument_id: number | null
   target_id: number | null
@@ -43,4 +43,29 @@ export interface AvatarRecord {
   id: number
   svg: string
   display_name: string
+}
+
+export interface GetMoveResponse {
+  move: {
+    id: number
+    claim_id: number
+    type: MoveRecord['type']
+    statement_id: number | null
+    argument_id: number | null
+    target_id: number | null
+    owner: string
+  }
+  claimStatement: StatementRecord
+  statement: StatementRecord
+  argument: ArgumentRecord
+  avatar: AvatarRecord
+  targetStatement: StatementRecord | null
+  targetArgument: ArgumentRecord | null
+  targetArgumentClaim: StatementRecord | null
+  nav: {
+    current: number
+    total: number
+    prevMoveId: number | null
+    nextMoveId: number | null
+  }
 }

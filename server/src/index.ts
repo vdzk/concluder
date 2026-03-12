@@ -2,6 +2,7 @@ import express, { type RequestHandler } from 'express'
 import cookieParser from 'cookie-parser'
 import dotenv from "dotenv"
 import { getMoves } from './api/getMoves.ts'
+import { getMove } from './api/getMove.ts'
 import { getTaggedClaims } from './api/getTaggedClaims.ts'
 import { addClaim } from './api/addClaim.ts'
 import { deleteStatement } from './api/deleteStatement.ts'
@@ -17,6 +18,7 @@ import { addPremise } from './api/addPremise.ts'
 import { getConsequence } from './api/getConsequence.ts'
 import { reportEntry } from './api/reportEntry.ts'
 import { addArgumentMove } from './api/addArgumentMove.ts'
+import { addPremiseArgumentMove } from './api/addPremiseArgumentMove.ts'
 
 dotenv.config()
 const app = express()
@@ -29,6 +31,7 @@ app.use(cookieParser())
 
 const handlers: Record<string, RequestHandler> = {
   getMoves,
+  getMove,
   getTaggedClaims,
   addClaim,
   deleteStatement,
@@ -41,6 +44,7 @@ const handlers: Record<string, RequestHandler> = {
   getPremisesByArgumentId,
   addArgument,
   addArgumentMove,
+  addPremiseArgumentMove,
   addPremise,
   getConsequence,
   reportEntry,

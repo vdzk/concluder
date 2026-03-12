@@ -28,6 +28,8 @@ export const MoveForm: Component<{
   statementsById: Record<number, StatementRecord>
   argumentsById: Record<number, ArgumentRecord>
   clearForm: () => void
+  reloadTable: () => Promise<void>
+  mainClaimId: number
 }> = props => {
   const [pro, setPro] = createSignal<boolean>()
   const [argumentFocusArea, setArgumentFocusArea]
@@ -48,6 +50,7 @@ export const MoveForm: Component<{
           return argumentFocusAreaStages[focusArea]
         }
       } else {
+        // addClaim and addPremiseArgument: target is statement_id
         return EditArgumentStage
       }
     }
@@ -55,16 +58,18 @@ export const MoveForm: Component<{
 
   const targetData = () => {
     if (props.moveIndex === undefined) return {}
-    const move = props.moves[props.moveIndex]
-    const statement = move.statement_id
-      ? props.statementsById[move.statement_id]
+    const targetMove = props.moves[props.moveIndex]
+    const statement = targetMove.statement_id
+      ? props.statementsById[targetMove.statement_id]
       : undefined
-    const argument = move.argument_id
-      ? props.argumentsById[move.argument_id]
+    const argument = targetMove.argument_id && targetMove.type !== 'addPremiseArgument'
+      ? props.argumentsById[targetMove.argument_id]
       : undefined
 
     let targetEntry: JSXElement
+    let targetText = ''
     if (argument) {
+      targetText = argument.text
       targetEntry = (
         <>
           <div class="font-bold py-1 px-2">
@@ -88,15 +93,16 @@ export const MoveForm: Component<{
           </div>
         </>
       )
-    } else {
+    } else if (statement) {
+      targetText = statement.text
       targetEntry = (
         <div class="px-2 py-1 text-lg">
-          {statement?.text}
+          {statement.text}
         </div>
       )
     }
 
-    return { targetEntry }
+    return { targetEntry, targetText, targetMove }
   }
 
   return (
@@ -105,6 +111,8 @@ export const MoveForm: Component<{
         component={getStage()}
         pro={pro()}
         clearForm={props.clearForm}
+        reloadTable={props.reloadTable}
+        mainClaimId={props.mainClaimId}
         {...{
           setPro, setArgumentFocusArea
         }}

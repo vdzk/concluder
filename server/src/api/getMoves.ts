@@ -1,5 +1,5 @@
-import { type RequestHandler } from "express";
-import { type Row } from "postgres";
+import { type RequestHandler } from "express"
+import { type Row } from "postgres"
 import { onError, sql } from "../db.ts"
 
 export const getMoves: RequestHandler = async (req, res) => {
