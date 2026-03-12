@@ -2,7 +2,6 @@ import { Component, onMount, Show } from "solid-js"
 import { ArgumentRecord, AvatarRecord, MoveRecord, StatementRecord } from "../../../shared/types"
 import { getPercent } from "../utils"
 import { Line } from "./Line"
-import { CutGap } from "./CutGap"
 
 const scoreTitle: Record<string, string> = {
   statement: 'Certainty',
@@ -43,32 +42,35 @@ export const Move: Component<{
   const moveTitle = () => {
     switch (props.move.type) {
       case 'addClaim':
-        return 'It is said that'
+        return ' started a discussion about the following claim:'
       case 'addArgument':
         const { pro } = props.argumentsById[props.move.argument_id!]
-        return pro ? 'This is because' : 'On the other hand'
+        return pro
+          ? ' defends 1: ChatGPT-like interfaces will replace most of the Web and mobile apps.'
+          : ' attacks 1: ChatGPT-like interfaces will replace most of the Web and mobile apps.'
     }
   }
   const firstInMessage = () => props.messageMoveIndex === 0
+  const avatar = () => props.avatarsById[props.move.avatar_id]
   return (
     <>
       <Line head={
         <Show when={firstInMessage()}>
           <div
-            innerHTML={props.avatarsById[props.move.avatar_id].svg}
+            innerHTML={avatar().svg}
             class="w-6 h-6"
           />
         </Show>
       }>
-        <div
-          class="text-sm opacity-70 mt-0.5"
-        >
-          {moveTitle()}...
+        <div class="text-sm mt-0.5">
+          <span class="font-bold">
+            {avatar().display_name}
+          </span>
+          <span class="opacity-70">
+            {moveTitle()}
+          </span>
         </div>
       </Line>
-      <Show when={props.selected}>
-        <CutGap />
-      </Show>
       <Line
         onClick={() => props.onSelectMove(props.move.id)}
         head={
@@ -77,7 +79,8 @@ export const Move: Component<{
           </div>
         }
       >
-        {entry().text}
+        <span classList={{'font-bold': props.move.type === 'addClaim'}}>{entry().text}
+          </span>
         <div class="text-sm opacity-70">
           {scoreTitle[entry().type]}: {getPercent(entry().score)}
         </div>

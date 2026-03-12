@@ -18,7 +18,7 @@ export interface PremiseFormData {
 export interface MoveRecord {
   id: number
   claim_id: number
-  type: string
+  type: 'addClaim' | 'addArgument'
   statement_id: number | null
   argument_id: number | null
   target_id: number | null
@@ -32,14 +32,15 @@ export interface StatementRecord {
 }
 
 export interface ArgumentRecord {
-  id: number,
-  claim_id: number,
-  text: string,
-  pro: boolean,
-  strength: number,
+  id: number
+  claim_id: number
+  text: string
+  pro: boolean
+  strength: number
 }
 
 export interface AvatarRecord {
-  id: number,
+  id: number
   svg: string
+  display_name: string
 }

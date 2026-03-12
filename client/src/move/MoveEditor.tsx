@@ -59,10 +59,16 @@ export const MoveEditor: Component<{
 
   return (
     <>
-      <Line class="h-1" />
-      <Show when={pro() === undefined}>
-        <Line>
-          <div class="flex gap-2">
+      <div class="h-2" />
+      <div class="ml-7 bg-[#efe3c6] rounded-l-lg pl-3 py-3 relative">
+        <div class="bg-[#efe3c6] absolute h-2 w-2 right-0 -top-2">
+          <div class="h-full bg-white dark:bg-gray-900 rounded-br-full" />
+        </div>
+        <div class="bg-[#efe3c6] absolute h-2 w-2 right-0 -bottom-2">
+          <div class="h-full bg-white dark:bg-gray-900 rounded-tr-full" />
+        </div>
+        <Show when={pro() === undefined}>
+          <div class="flex gap-3">
             <TextButton
               label="Attack"
               color="red"
@@ -73,91 +79,79 @@ export const MoveEditor: Component<{
               color="green"
               onClick={() => setPro(true)}
             />
-          </div>
-        </Line>
-      </Show>
-      <Show when={pro() !== undefined && !text()} >
-        <Line head={questionHead()} class="font-bold">
-          What's your argument{' '}
-          <span
-            class="font-bold inline-block pr-1"
-            classList={{
-              'text-green-700 dark:text-green-400': pro(),
-              'text-red-700 dark:text-red-400': !pro()
-            }}
-          >
-            {pro() ? 'supporting' : 'opposing'}
-          </span>
-          the above?
-        </Line>
-        <Line>
-          <textarea
-            rows={3}
-            placeholder="Type here..."
-            class="mt-0.5 border rounded px-1 focus:outline-none block w-full dark:bg-gray-800 mr-2"
-            onChange={etv(setInputText)}
-            value={inputText()}
-          />
-        </Line>
-      </Show>
-      <Show when={text()}>
-        <Line
-          head={
-            <img
-              class="px-1 py-1 h-6"
-              src={`/${pro() ? 'shield' : 'sword'}.svg`}
-              alt={pro() ? 'shield' : 'sword'}
+            <TextButton
+              label="Cancel"
+              color="gray"
+              onClick={props.onCancel}
             />
-          }
-        >
-          {text()}
-        </Line>
-        <Line head={questionHead()} class="font-bold">
-          How strong is your argument?
-        </Line>
-        <Line>
-          <input
-            type="text"
-            value={score()}
-            onChange={etv(setScore)}
-            onInput={() => setTouchedText(true)}
-            class="w-10 border rounded pl-0.5 bg-white dark:bg-gray-700"
-          /> %
-        </Line>
-      </Show>
-      <Line class="h-2" />
-      <LineCustom
-        class="border-y"
-      >
-        <div class="flex">
-          <div
-            class={`flex-1 flex ${clickableStyle}`}
-            onClick={onBack}
-          >
-            <img
-              src="/arrow-left.svg"
-              class="ml-1 mr-0.5 my-0.5 py-1 px-1 h-5"
-            />
-            Back
           </div>
-          <Show when={pro() !== undefined}>
-            <div
-              class={`flex-1 flex justify-end border-l ${clickableStyle}`}
-              onClick={onNext}
+        </Show>
+        <Show when={pro() !== undefined} >
+          <div class="font-bold relative -top-1">
+            What's your argument{' '}
+            <span
+              class="font-bold inline-block pr-1"
+              classList={{
+                'text-green-700 dark:text-green-400': pro(),
+                'text-red-700 dark:text-red-400': !pro()
+              }}
             >
-              Next
-              <img
-                src="/arrow-right.svg"
-                class="mr-1 ml-0.5 my-0.5 py-1 px-1 h-5"
-              />
+              {pro() ? 'supporting' : 'opposing'}
+            </span>
+            the above?
+          </div>
+          <div>
+            <textarea
+              rows={3}
+              placeholder="Type here..."
+              class="mt-0.5 rounded px-1.5 py-0.5 focus:outline-none block w-full bg-yellow-50 dark:bg-gray-800"
+              onChange={etv(setInputText)}
+              value={inputText()}
+            />
+          </div>
+          <Show when={text()}>
+            <div class="font-bold pt-2">
+              How strong is your argument?
+            </div>
+            <div>
+              <input
+                type="text"
+                value={score()}
+                onChange={etv(setScore)}
+                onInput={() => setTouchedText(true)}
+                class="w-11 border rounded pl-1.5 py-0.5 bg-yellow-50 dark:bg-gray-700"
+              /> %
             </div>
           </Show>
-        </div>
-      </LineCustom>
-      <Show when={!props.isLastMove}>
-        <div class="h-4" />
-        <Line class="h-2 border-t " />
-      </Show>
+          <div class="flex gap-3 pt-3">
+            <Show when={text()}>
+              <TextButton
+                label="Submit"
+                color="green"
+                onClick={onNext}
+              />
+            </Show>
+            <Show when={!text()}>
+              <TextButton
+                label="Next"
+                color="green"
+                onClick={onNext}
+              />
+            </Show>
+            <TextButton
+              label="Back"
+              color="gray"
+              onClick={onBack}
+            />
+            <TextButton
+              label="Cancel"
+              color="gray"
+              onClick={props.onCancel}
+            />
+          </div>
+        </Show>
+      </div>
+      <div class="h-6" />
     </>
   )
 }

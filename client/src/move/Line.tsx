@@ -9,7 +9,7 @@ export const Line: ParentComponent<{
 }> = props => {
   return (
     <div
-      class={`bg-white dark:bg-gray-800 flex pl-1 pr-2 border-x ${props.class ?? ''}`}
+      class={`flex pl-1 pr-2 ${props.class ?? ''}`}
       classList={{
         [clickableStyle]: !!props.onClick
       }}
@@ -30,7 +30,7 @@ export const LineCustom: ParentComponent<{
 }> = props => {
   return (
     <div
-      class={`bg-white dark:bg-gray-800 border-x ${props.class ?? ''}`}
+      class={` ${props.class ?? ''}`}
     >
       {props.children}
     </div>

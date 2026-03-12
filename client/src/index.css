@@ -15,3 +15,14 @@
     }
   }
 }
+
+tr {
+  border-bottom: 1px solid;
+}
+td, th {
+  border-left: 1px solid;
+  padding-left: 4px;
+}
+th {
+  text-align: left;
+}

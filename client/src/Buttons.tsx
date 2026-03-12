@@ -32,7 +32,7 @@ export const IconButton: Component<{
 
 export const TextButton: Component<{
   label: string
-  color?: 'red' | 'green'
+  color?: 'red' | 'green' | 'blue' | 'gray'
   onClick: () => void
 }> = props => {
   return (
@@ -44,7 +44,9 @@ export const TextButton: Component<{
       "
       classList={{
         'bg-green-700 dark:bg-green-400': props.color === 'green',
-        'bg-red-700 dark:bg-red-400': props.color === 'red'
+        'bg-blue-700 dark:bg-blue-400': props.color === 'blue',
+        'bg-red-700 dark:bg-red-400': props.color === 'red',
+        'bg-gray-700 dark:bg-gray-400': props.color === 'gray'
       }}
     >
       {props.label}

@@ -29,7 +29,7 @@ export const Moves: Component = () => {
       let message: Message | null = null
       let conversationMoveIndex = 0
       for (const move of movesData.moves) {
-        if (!message || move.avatar_id !== message.avatarId) {
+        if (!message || move.avatar_id !== message.avatarId || true) {
           message = {
             avatarId: move.avatar_id,
             moves: []
@@ -62,12 +62,11 @@ export const Moves: Component = () => {
 
   return (
     <div class="[scrollbar-gutter:stable] overflow-y-auto">
-      <Show when={selectedMoveId()}>
-        {/* Avoids entry jump when editor is opened. */}
-        <div class="-mb-8" />
-      </Show>
-      <main class="w-xl max-w-full mx-auto overflow-hidden mt-8">
-        <Line class="h-2 border-t rounded-t" />
+      <main class="
+        h-dvh
+        w-2xl max-w-full mx-auto overflow-hidden pt-2
+       bg-white dark:bg-gray-800
+      ">
         <For each={messages}>
           {(message, messageIndex) => (
             <For each={message.moves}>
@@ -97,7 +96,6 @@ export const Moves: Component = () => {
                   }>
                     <Show
                       when={messageIndex() !== messages.length - 1}
-                      fallback={<Line class="h-2 border-b rounded-b" />}
                     >
                       <Line class="h-2" />
                       {/* <div class="border-t" /> */}

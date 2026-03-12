@@ -45,7 +45,7 @@ export const getMoves: RequestHandler = async (req, res) => {
   let avatarResults: Row[] = []
   if (avatarIds.length > 0) {
     avatarResults = await sql`
-      SELECT id, svg
+      SELECT id, svg, display_name
       FROM avatar
       WHERE id IN ${sql(avatarIds)}
     `.catch(onError)
