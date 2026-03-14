@@ -30,7 +30,7 @@ export const MoveForm: Component<{
   const [pro, setPro] = createSignal<boolean>()
   const [argumentFocusArea, setArgumentFocusArea] = createSignal<ArgumentFocusArea>()
 
-  const { targetMove, targetText } = buildTargetProps(props.badgeTarget, props.data)
+  const { targetMove, targetText, targetStatementId } = buildTargetProps(props.badgeTarget, props.data)
   const targetEntry = <Card><FormTargetEntry badgeTarget={props.badgeTarget} data={props.data} /></Card>
   const mainClaimId = props.data.move.claim_id
   const conclusionText = props.data.targetArgumentClaim?.text ?? props.data.claimStatement.text
@@ -69,6 +69,7 @@ export const MoveForm: Component<{
         targetMove={targetMove}
         mainClaimId={mainClaimId}
         targetText={targetText}
+        targetStatementId={targetStatementId}
         conclusionText={conclusionText}
       />
     </main>

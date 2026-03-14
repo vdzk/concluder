@@ -28,17 +28,6 @@ export const addPremiseArgumentMove: RequestHandler = async (req, res) => {
     targetArgumentId
   )
 
-  if (req.body.premiseText) {
-    // Create a new move of splitting a premise from an argument text
-  } else {
-    // add the premise to the target move (so it's both an arg. and prem.)
-    await sql`
-      UPDATE move
-      SET statement_id = ${premise.statement_id}
-      WHERE id = ${move.target_id}
-    `.catch(onError)
-  }
-
   argument.claim_id = premise.statement_id
 
   const newArgument = await addArgumentReusable(argument, owner)

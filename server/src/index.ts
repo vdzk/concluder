@@ -1,7 +1,6 @@
 import express, { type RequestHandler } from 'express'
 import cookieParser from 'cookie-parser'
 import dotenv from "dotenv"
-import { getMoves } from './api/getMoves.ts'
 import { getMove } from './api/getMove.ts'
 import { getTaggedClaims } from './api/getTaggedClaims.ts'
 import { addClaim } from './api/addClaim.ts'
@@ -30,7 +29,6 @@ app.use(cookieParser())
 // NOTE: do not leak other owner usernames in responses!
 
 const handlers: Record<string, RequestHandler> = {
-  getMoves,
   getMove,
   getTaggedClaims,
   addClaim,

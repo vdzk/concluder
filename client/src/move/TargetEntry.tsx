@@ -13,20 +13,18 @@ export type BadgeTarget = 'claim' | 'argument' | 'targetStatement'
 export function buildTargetProps(
   badgeTarget: BadgeTarget,
   data: GetMoveResponse
-): { targetMove: MoveRecord; targetText: string } {
+): { targetMove: MoveRecord; targetText: string; targetStatementId: number | null } {
   const { move, claimStatement, statement, argument } = data
-  const effectiveStatement = statement ?? data.targetStatement
 
   if (badgeTarget === 'argument' && argument) {
     return {
       targetText: argument.text,
+      targetStatementId: statement?.id ?? null,
       targetMove: {
         id: move.id,
         claim_id: move.claim_id,
         type: 'addArgument',
-        statement_id: move.statement_id ?? effectiveStatement?.id ?? null,
         argument_id: move.argument_id,
-        target_id: move.target_id,
         avatar_id: 0,
       },
     }
@@ -35,26 +33,24 @@ export function buildTargetProps(
     const ts = data.targetStatement
     return {
       targetText: ts.text,
+      targetStatementId: ts.id,
       targetMove: {
         id: move.id,
         claim_id: move.claim_id,
         type: 'addPremiseArgument',
-        statement_id: ts.id,
         argument_id: move.argument_id,
-        target_id: move.target_id,
         avatar_id: 0,
       },
     }
   }
   return {
     targetText: claimStatement.text,
+    targetStatementId: claimStatement.id,
     targetMove: {
       id: move.id,
       claim_id: move.claim_id,
       type: 'addClaim',
-      statement_id: claimStatement.id,
       argument_id: null,
-      target_id: move.target_id,
       avatar_id: 0,
     },
   }
@@ -102,12 +98,11 @@ type Props = {
 
 export const TargetEntry: Component<Props> = (props) => {
   const showArgTarget = () =>
-    props.move.target_id !== null &&
     props.targetArgument !== null &&
-    props.move.type !== 'addPremiseArgument'
+    props.move.type !== 'addPremiseArgument' &&
+    props.move.type !== 'addArgument'
 
   const showStmtTarget = () =>
-    props.move.target_id !== null &&
     !showArgTarget() &&
     props.targetStatement !== null &&
     props.targetStatement.id !== props.move.claim_id

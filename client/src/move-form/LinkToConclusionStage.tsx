@@ -29,7 +29,7 @@ export const LinkToConclusionStage: Component<Props> = props => {
       targetArgumentId: props.targetMove.argument_id,
       premiseText,
       argument: { text, pro, strength },
-      move: { claim_id: props.mainClaimId, target_id: props.targetMove.id }
+      move: { claim_id: props.mainClaimId }
     })
     navigate(`/move/${result.savedId}`)
   }

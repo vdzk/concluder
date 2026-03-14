@@ -4,8 +4,8 @@ import { getPercent } from "../utils"
 import { BadgeTarget } from "../move-form/MoveForm"
 import { Card } from "./Card"
 import { AvatarRow } from "./AvatarRow"
-import { NavArrow } from "./NavArrow"
 import { TargetEntry } from "./TargetEntry"
+import { ClaimNav } from "./ClaimNav"
 
 export const MoveContent: Component<{ data: GetMoveResponse; onBadgeClick: (target: BadgeTarget) => void }> = (props) => {
   const { move, claimStatement, argument, avatar, nav, targetStatement, targetArgument, targetArgumentClaim } = props.data
@@ -20,20 +20,13 @@ export const MoveContent: Component<{ data: GetMoveResponse; onBadgeClick: (targ
 
   return (
     <main class="w-2xl max-w-full mx-auto mt-4 flex flex-col gap-4">
-      <Card badge onBadgeClick={() => props.onBadgeClick('claim')}>
-        <div class="text-2xl font-semibold mb-1">{claimStatement.text}</div>
-        <div class="flex items-center justify-between text-lg">
-          <span title="certainty">🎲 {getPercent(claimStatement.likelihood)}</span>
-          <div class="flex items-center gap-2">
-            <span>Debate Moves:</span>
-            <div class="flex items-center gap-3">
-              <NavArrow direction="prev" href={`/move/${nav.prevMoveId ?? ''}`} disabled={nav.prevMoveId === null} />
-              <span class="text-lg">{nav.current} / {nav.total}</span>
-              <NavArrow direction="next" href={`/move/${nav.nextMoveId ?? ''}`} disabled={nav.nextMoveId === null} />
-            </div>
-          </div>
-        </div>
-      </Card>
+      <ClaimNav
+        claimStatement={claimStatement}
+        nav={nav}
+        firstMoveId={nav.firstMoveId}
+        lastMoveId={nav.lastMoveId}
+        onBadgeClick={props.onBadgeClick}
+      />
       <TargetEntry
         move={move}
         avatar={avatar}

@@ -19,9 +19,7 @@ export interface MoveRecord {
   id: number
   claim_id: number
   type: 'addClaim' | 'addArgument' | 'addPremiseArgument'
-  statement_id: number | null
   argument_id: number | null
-  target_id: number | null
   avatar_id: number
 }
 
@@ -50,9 +48,7 @@ export interface GetMoveResponse {
     id: number
     claim_id: number
     type: MoveRecord['type']
-    statement_id: number | null
     argument_id: number | null
-    target_id: number | null
     owner: string
   }
   claimStatement: StatementRecord
@@ -67,5 +63,7 @@ export interface GetMoveResponse {
     total: number
     prevMoveId: number | null
     nextMoveId: number | null
+    firstMoveId: number | null
+    lastMoveId: number | null
   }
 }

@@ -10,6 +10,7 @@ export type Props = {
   clearForm: () => void
   targetMove: MoveRecord
   mainClaimId: number
+  targetStatementId: number | null
   targetEntry: JSXElement
 }
 
@@ -18,8 +19,8 @@ export const MoveEditArgumentStage: Component<Props> = props => {
 
   const onSubmit = async (text: string, pro: boolean, strength: number) => {
     const result = await rpc('addArgumentMove', {
-      argument: { claim_id: props.targetMove.statement_id, text, pro, strength },
-      move: { claim_id: props.mainClaimId, type: 'addArgument', target_id: props.targetMove.id }
+      argument: { claim_id: props.targetStatementId, text, pro, strength },
+      move: { claim_id: props.mainClaimId, type: 'addArgument' }
     })
     navigate(`/move/${result.savedId}`)
   }

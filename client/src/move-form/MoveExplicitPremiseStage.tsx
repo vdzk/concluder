@@ -21,22 +21,35 @@ export const MoveExplicitPremiseStage: Component<Props> = props => {
   const [multiPremise, setMultiPremise] = createSignal(false)
   const [scopeSelected, setScopeSelected] = createSignal(false)
   const [premiseTextInput, setPremiseTextInput] = createSignal(props.targetText)
+  const [premiseText, setPremiseText] = createSignal('')
 
   const onSubmit = async (text: string, pro: boolean, strength: number) => {
     const result = await rpc('addPremiseArgumentMove', {
       targetArgumentId: props.targetMove.argument_id,
       argument: { text, pro, strength },
-      move: { claim_id: props.mainClaimId, target_id: props.targetMove.id }
+      move: { claim_id: props.mainClaimId }
+    })
+    navigate(`/move/${result.savedId}`)
+  }
+
+  const onSubmitMulti = async (text: string, pro: boolean, strength: number) => {
+    const result = await rpc('addPremiseArgumentMove', {
+      targetArgumentId: props.targetMove.argument_id,
+      premiseText: premiseText(),
+      argument: { text, pro, strength },
+      move: { claim_id: props.mainClaimId }
     })
     navigate(`/move/${result.savedId}`)
   }
 
   const onNext = () => {
     if (!scopeSelected()) setScopeSelected(true)
+    else if (multiPremise() && !premiseText()) setPremiseText(premiseTextInput().trim())
   }
 
   const onBack = () => {
-    if (scopeSelected()) setScopeSelected(false)
+    if (premiseText()) setPremiseText('')
+    else if (scopeSelected()) setScopeSelected(false)
     else props.setArgumentFocusArea()
   }
 
@@ -56,7 +69,16 @@ export const MoveExplicitPremiseStage: Component<Props> = props => {
 
   return (
     <>
-      <Show when={scopeSelected() && multiPremise()}>
+      <Show when={scopeSelected() && multiPremise() && premiseText()}>
+        <EditArgumentForm
+          pro={props.pro}
+          targetEntry={<Card><div class="text-lg">{premiseText()}</div></Card>}
+          onSubmit={onSubmitMulti}
+          onBack={() => setPremiseText('')}
+          onCancel={props.clearForm}
+        />
+      </Show>
+      <Show when={scopeSelected() && multiPremise() && !premiseText()}>
         {premiseTargetEntry()}
         <Card>
           <div class="font-bold">

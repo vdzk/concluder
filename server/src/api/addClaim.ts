@@ -25,7 +25,6 @@ export const addClaim: RequestHandler = async (req, res) => {
     INSERT INTO move ${sql({
       claim_id: claimId,
       type: 'addClaim',
-      statement_id: claimId,
       owner
     })}
   `.catch(onError)
