@@ -4,9 +4,7 @@ import { Home } from './Home'
 import { Argue } from './argue/Argue'
 import { Derivation } from './Derivation'
 import { Tutorial } from './tutorial/Tutorial'
-import { Moves } from './move/Moves'
-import { MovesTable } from './move/MovesTable'
-import { OneMove } from './one-move/OneMove'
+import { Move } from './move/Move'
 
 export const App: Component = () => {
   return (
@@ -24,9 +22,7 @@ export const App: Component = () => {
       <Route path="/tab/:tab/:tab2?" component={Home} />
       <Route path="/argue/:id" component={Argue} />
       <Route path="/wtp/:argumentId" component={Derivation} />
-      <Route path="/moves/:id" component={Moves} />
-      <Route path="/moves-table/:id" component={MovesTable} />
-      <Route path="/one-move/:id" component={OneMove} />
+      <Route path="/move/:id" component={Move} />
     </Router>
   )
 }

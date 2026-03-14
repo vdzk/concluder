@@ -1,30 +1,27 @@
-import { Component, JSXElement} from "solid-js"
-import { rpc } from "../utils"
+import { Component, JSXElement } from "solid-js"
+import { useNavigate } from "@solidjs/router"
 import { MoveRecord } from "../../../shared/types"
+import { rpc } from "../utils"
 import { EditArgumentForm } from "./EditArgumentForm"
 
-export const EditArgumentStage: Component<{
+export type Props = {
   pro: boolean
   setPro: (pro?: boolean) => void
   clearForm: () => void
   targetMove: MoveRecord
   mainClaimId: number
   targetEntry: JSXElement
-  reloadTable: () => Promise<void>
-}> = props => {
+}
+
+export const MoveEditArgumentStage: Component<Props> = props => {
+  const navigate = useNavigate()
+
   const onSubmit = async (text: string, pro: boolean, strength: number) => {
-    const argument = {
-      claim_id: props.targetMove.statement_id,
-      text, pro, strength
-    }
-    const move = {
-      claim_id: props.mainClaimId,
-      type: 'addArgument',
-      target_id: props.targetMove.id
-    }
-    await rpc('addArgumentMove', { argument, move })
-    props.clearForm()
-    await props.reloadTable()
+    const result = await rpc('addArgumentMove', {
+      argument: { claim_id: props.targetMove.statement_id, text, pro, strength },
+      move: { claim_id: props.mainClaimId, type: 'addArgument', target_id: props.targetMove.id }
+    })
+    navigate(`/move/${result.savedId}`)
   }
 
   return (
