@@ -34,7 +34,7 @@ export const MoveForm: Component<{
   const targetEntry = <Card><FormTargetEntry badgeTarget={props.badgeTarget} data={props.data} /></Card>
   const mainClaimId = props.data.move.claim_id
   const conclusionText = props.data.targetArgumentClaim?.text ?? props.data.claimStatement.text
-  const isAddArgument = targetMove.type === 'addArgument'
+  const isTargetingArgument = props.badgeTarget === 'argument' || props.badgeTarget === 'targetArgument'
 
   const focusAreaStages: Record<ArgumentFocusArea, Component<StageProps>> = {
     explicitPremise: MoveExplicitPremiseStage as Component<StageProps>,
@@ -45,7 +45,7 @@ export const MoveForm: Component<{
   const getStage = (): Component<StageProps> => {
     if (pro() === undefined) {
       return DirectionStage as Component<StageProps>
-    } else if (isAddArgument) {
+    } else if (isTargetingArgument) {
       const focusArea = argumentFocusArea()
       if (focusArea === undefined) {
         return ArgumentFocusStage as Component<StageProps>

@@ -6,7 +6,7 @@ export const getMove: RequestHandler = async (req, res) => {
   const moveId = req.body.id
 
   const [move] = await sql`
-    SELECT id, type, argument_id, owner, claim_id
+    SELECT id, type, argument_id, premise_id, owner, claim_id
     FROM move
     WHERE id = ${moveId}
   `.catch(onError) as unknown as GetMoveResponse['move'][]
@@ -73,6 +73,41 @@ export const getMove: RequestHandler = async (req, res) => {
     }
   }
 
+  let premiseStatement: GetMoveResponse['premiseStatement'] = null
+  if (move.premise_id) {
+    const [premiseRow] = await sql`
+      SELECT statement_id, argument_id
+      FROM premise
+      WHERE id = ${move.premise_id}
+    `.catch(onError) as unknown as { statement_id: number; argument_id: number }[]
+
+    if (premiseRow) {
+      const [stmt] = await sql`
+        SELECT id, text, likelihood
+        FROM statement
+        WHERE id = ${premiseRow.statement_id}
+      `.catch(onError) as unknown as GetMoveResponse['premiseStatement'][]
+      premiseStatement = stmt ?? null
+
+      if (move.type === 'addHiddenPremise' && premiseRow.argument_id) {
+        const [parentArg] = await sql`
+          SELECT id, claim_id, text, pro, strength
+          FROM argument
+          WHERE id = ${premiseRow.argument_id}
+        `.catch(onError) as unknown as GetMoveResponse['targetArgument'][]
+        targetArgument = parentArg ?? null
+        if (targetArgument) {
+          const [parentClaim] = await sql`
+            SELECT id, text, likelihood
+            FROM statement
+            WHERE id = ${targetArgument.claim_id}
+          `.catch(onError) as unknown as GetMoveResponse['targetArgumentClaim'][]
+          targetArgumentClaim = parentClaim ?? null
+        }
+      }
+    }
+  }
+
   const siblings = await sql`
     SELECT id FROM move
     WHERE claim_id = ${move.claim_id}
@@ -89,5 +124,5 @@ export const getMove: RequestHandler = async (req, res) => {
     lastMoveId: siblings.length > 0 ? siblings[siblings.length - 1].id : null,
   }
 
-  res.json({ move, claimStatement, statement, argument, avatar, nav, targetStatement, targetArgument, targetArgumentClaim } satisfies GetMoveResponse)
+  res.json({ move, claimStatement, statement, argument, avatar, nav, targetStatement, targetArgument, targetArgumentClaim, premiseStatement } satisfies GetMoveResponse)
 }

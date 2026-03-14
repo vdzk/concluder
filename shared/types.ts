@@ -18,8 +18,9 @@ export interface PremiseFormData {
 export interface MoveRecord {
   id: number
   claim_id: number
-  type: 'addClaim' | 'addArgument' | 'addPremiseArgument'
+  type: 'addClaim' | 'addArgument' | 'addPremiseArgument' | 'addHiddenPremise'
   argument_id: number | null
+  premise_id: number | null
   avatar_id: number
 }
 
@@ -49,6 +50,7 @@ export interface GetMoveResponse {
     claim_id: number
     type: MoveRecord['type']
     argument_id: number | null
+    premise_id: number | null
     owner: string
   }
   claimStatement: StatementRecord
@@ -58,6 +60,7 @@ export interface GetMoveResponse {
   targetStatement: StatementRecord | null
   targetArgument: ArgumentRecord | null
   targetArgumentClaim: StatementRecord | null
+  premiseStatement: StatementRecord | null
   nav: {
     current: number
     total: number

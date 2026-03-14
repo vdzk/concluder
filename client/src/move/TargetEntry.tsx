@@ -4,7 +4,7 @@ import { getPercent } from "../utils"
 import { Card } from "./Card"
 import { AvatarRow } from "./AvatarRow"
 
-export type BadgeTarget = 'claim' | 'argument' | 'targetStatement'
+export type BadgeTarget = 'claim' | 'argument' | 'targetStatement' | 'targetArgument' | 'premise'
 
 // ---------------------------------------------------------------------------
 // Helpers used by MoveForm to derive targetMove / targetText from the badge
@@ -25,6 +25,7 @@ export function buildTargetProps(
         claim_id: move.claim_id,
         type: 'addArgument',
         argument_id: move.argument_id,
+        premise_id: null,
         avatar_id: 0,
       },
     }
@@ -39,6 +40,37 @@ export function buildTargetProps(
         claim_id: move.claim_id,
         type: 'addPremiseArgument',
         argument_id: move.argument_id,
+        premise_id: null,
+        avatar_id: 0,
+      },
+    }
+  }
+  if (badgeTarget === 'targetArgument' && data.targetArgument) {
+    const ta = data.targetArgument
+    return {
+      targetText: ta.text,
+      targetStatementId: data.targetArgumentClaim?.id ?? null,
+      targetMove: {
+        id: move.id,
+        claim_id: move.claim_id,
+        type: 'addArgument',
+        argument_id: ta.id,
+        premise_id: null,
+        avatar_id: 0,
+      },
+    }
+  }
+  if (badgeTarget === 'premise' && data.premiseStatement) {
+    const ps = data.premiseStatement
+    return {
+      targetText: ps.text,
+      targetStatementId: ps.id,
+      targetMove: {
+        id: move.id,
+        claim_id: move.claim_id,
+        type: 'addPremiseArgument',
+        argument_id: move.argument_id,
+        premise_id: move.premise_id,
         avatar_id: 0,
       },
     }
@@ -51,6 +83,7 @@ export function buildTargetProps(
       claim_id: move.claim_id,
       type: 'addClaim',
       argument_id: null,
+      premise_id: null,
       avatar_id: 0,
     },
   }
@@ -77,8 +110,26 @@ export const FormTargetEntry: Component<{ badgeTarget: BadgeTarget; data: GetMov
       </div>
     )
   }
+  if (props.badgeTarget === 'targetArgument' && props.data.targetArgument) {
+    const ta = props.data.targetArgument
+    const claimText = props.data.targetArgumentClaim?.text ?? claimStatement.text
+    return (
+      <div class="text-lg">
+        <div>{claimText}</div>
+        <div class="font-bold">
+          <span classList={{ 'text-green-700': ta.pro, 'text-red-700': !ta.pro }}>
+            {ta.pro ? 'is true because...' : 'is false because...'}
+          </span>
+        </div>
+        <div>{ta.text}</div>
+      </div>
+    )
+  }
   if (props.badgeTarget === 'targetStatement' && props.data.targetStatement) {
     return <div class="text-lg">{props.data.targetStatement.text}</div>
+  }
+  if (props.badgeTarget === 'premise' && props.data.premiseStatement) {
+    return <div class="text-lg">{props.data.premiseStatement.text}</div>
   }
   return <div class="text-lg">{claimStatement.text}</div>
 }
@@ -113,7 +164,7 @@ export const TargetEntry: Component<Props> = (props) => {
         <Card>
           <AvatarRow svg={props.avatar.svg} name={props.avatar.display_name} label="picks an argument:" />
         </Card>
-        <Card class="text-lg">
+        <Card badge onBadgeClick={() => props.onBadgeClick('targetArgument')} class="text-lg">
           <div>{props.targetArgumentClaim?.text}</div>
           <div class="font-bold">
             <span classList={{ 'text-green-700': props.targetArgument!.pro, 'text-red-700': !props.targetArgument!.pro }}>
@@ -121,6 +172,7 @@ export const TargetEntry: Component<Props> = (props) => {
             </span>
           </div>
           <div>{props.targetArgument!.text}</div>
+          <div class="text-base mt-1" title="argument strength">💪 {getPercent(props.targetArgument!.strength)}</div>
         </Card>
       </Show>
       <Show when={showStmtTarget()}>
