@@ -1,6 +1,5 @@
 import { Component, JSXElement } from "solid-js"
 import { useNavigate } from "@solidjs/router"
-import { MoveRecord } from "../../../shared/types"
 import { rpc } from "../utils"
 import { EditArgumentForm } from "./EditArgumentForm"
 
@@ -8,7 +7,6 @@ export type Props = {
   pro: boolean
   setPro: (pro?: boolean) => void
   clearForm: () => void
-  targetMove: MoveRecord
   mainClaimId: number
   targetStatementId: number | null
   targetEntry: JSXElement

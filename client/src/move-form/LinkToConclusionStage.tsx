@@ -1,6 +1,5 @@
 import { Component, JSXElement } from "solid-js"
 import { useNavigate } from "@solidjs/router"
-import { MoveRecord } from "../../../shared/types"
 import { rpc } from "../utils"
 import { EditArgumentForm } from "./EditArgumentForm"
 import { Card } from "../move/Card"
@@ -13,7 +12,7 @@ export type Props = {
   targetText: string
   conclusionText: string
   mainClaimId: number
-  targetMove: MoveRecord
+  argumentId: number
 }
 
 export const LinkToConclusionStage: Component<Props> = props => {
@@ -26,7 +25,7 @@ export const LinkToConclusionStage: Component<Props> = props => {
 
   const onSubmit = async (text: string, pro: boolean, strength: number) => {
     const result = await rpc('addPremiseArgumentMove', {
-      targetArgumentId: props.targetMove.argument_id,
+      targetArgumentId: props.argumentId,
       premiseText,
       argument: { text, pro, strength },
       move: { claim_id: props.mainClaimId }

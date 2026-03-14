@@ -1,13 +1,11 @@
 import { Component, JSXElement } from "solid-js";
 import { TextButton } from "../Buttons";
-import { MoveRecord } from "../../../shared/types";
 import { Card } from "../move/Card";
 
 export type Props = {
   targetEntry: JSXElement
   setPro: (pro?: boolean) => void
   clearForm: () => void
-  targetMove: MoveRecord
 }
 
 export const DirectionStage: Component<Props> = props => {

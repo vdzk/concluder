@@ -1,6 +1,5 @@
 import { Component, createSignal, Show } from "solid-js"
 import { useNavigate } from "@solidjs/router"
-import { MoveRecord } from "../../../shared/types"
 import { etv, rpc } from "../utils"
 import { TextButton } from "../Buttons"
 import { Card } from "../move/Card"
@@ -12,7 +11,7 @@ export type Props = {
   setArgumentFocusArea: (area?: ArgumentFocusArea) => void
   targetText: string
   mainClaimId: number
-  targetMove: MoveRecord
+  argumentId: number
 }
 
 export const HiddenPremiseStage: Component<Props> = props => {
@@ -30,7 +29,7 @@ export const HiddenPremiseStage: Component<Props> = props => {
     const value = parseFloat(likelihood()) / 100
     if (value >= 0 && value <= 1) {
       const result = await rpc('addHiddenPremiseMove', {
-        targetArgumentId: props.targetMove.argument_id,
+        targetArgumentId: props.argumentId,
         premiseText: text(),
         likelihood: value,
         move: { claim_id: props.mainClaimId }

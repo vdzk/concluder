@@ -19,6 +19,7 @@ import { reportEntry } from './api/reportEntry.ts'
 import { addArgumentMove } from './api/addArgumentMove.ts'
 import { addPremiseArgumentMove } from './api/addPremiseArgumentMove.ts'
 import { addHiddenPremiseMove } from './api/addHiddenPremiseMove.ts'
+import { getMoveFormTarget } from './api/getMoveFormTarget.ts'
 
 dotenv.config()
 const app = express()
@@ -45,6 +46,7 @@ const handlers: Record<string, RequestHandler> = {
   addArgumentMove,
   addPremiseArgumentMove,
   addHiddenPremiseMove,
+  getMoveFormTarget,
   addPremise,
   getConsequence,
   reportEntry,

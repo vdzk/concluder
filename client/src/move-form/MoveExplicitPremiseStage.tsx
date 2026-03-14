@@ -1,6 +1,5 @@
 import { Component, createSignal, For, Show } from "solid-js"
 import { useNavigate } from "@solidjs/router"
-import { MoveRecord } from "../../../shared/types"
 import { etv, rpc } from "../utils"
 import { TextButton } from "../Buttons"
 import { EditArgumentForm } from "./EditArgumentForm"
@@ -13,7 +12,7 @@ export type Props = {
   setArgumentFocusArea: (area?: ArgumentFocusArea) => void
   targetText: string
   mainClaimId: number
-  targetMove: MoveRecord
+  argumentId: number
 }
 
 export const MoveExplicitPremiseStage: Component<Props> = props => {
@@ -25,7 +24,7 @@ export const MoveExplicitPremiseStage: Component<Props> = props => {
 
   const onSubmit = async (text: string, pro: boolean, strength: number) => {
     const result = await rpc('addPremiseArgumentMove', {
-      targetArgumentId: props.targetMove.argument_id,
+      targetArgumentId: props.argumentId,
       argument: { text, pro, strength },
       move: { claim_id: props.mainClaimId }
     })
@@ -34,7 +33,7 @@ export const MoveExplicitPremiseStage: Component<Props> = props => {
 
   const onSubmitMulti = async (text: string, pro: boolean, strength: number) => {
     const result = await rpc('addPremiseArgumentMove', {
-      targetArgumentId: props.targetMove.argument_id,
+      targetArgumentId: props.argumentId,
       premiseText: premiseText(),
       argument: { text, pro, strength },
       move: { claim_id: props.mainClaimId }

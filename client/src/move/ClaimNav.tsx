@@ -1,7 +1,6 @@
 import { Component } from "solid-js"
 import { GetMoveResponse } from "../../../shared/types"
 import { getPercent } from "../utils"
-import { BadgeTarget } from "../move-form/MoveForm"
 import { Card } from "./Card"
 import { NavArrow } from "./NavArrow"
 import { A } from "@solidjs/router"
@@ -28,11 +27,11 @@ type Props = {
   nav: GetMoveResponse['nav']
   firstMoveId: number | null
   lastMoveId: number | null
-  onBadgeClick: (target: BadgeTarget) => void
+  onBadgeClick: (targetType: 'argument' | 'statement', targetId: number) => void
 }
 
 export const ClaimNav: Component<Props> = (props) => (
-  <Card badge onBadgeClick={() => props.onBadgeClick('claim')}>
+  <Card badge onBadgeClick={() => props.onBadgeClick('statement', props.claimStatement.id)}>
     <div class="text-2xl font-semibold mb-1">{props.claimStatement.text}</div>
     <div class="flex items-center justify-between text-lg">
       <span title="certainty">🎲 {getPercent(props.claimStatement.likelihood)}</span>

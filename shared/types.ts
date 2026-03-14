@@ -44,6 +44,10 @@ export interface AvatarRecord {
   display_name: string
 }
 
+export type MoveFormTarget =
+  | { type: 'argument'; id: number; text: string; pro: boolean; conclusionText: string }
+  | { type: 'statement'; id: number; text: string }
+
 export interface GetMoveResponse {
   move: {
     id: number

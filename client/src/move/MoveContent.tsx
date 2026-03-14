@@ -1,13 +1,12 @@
 import { Component, JSXElement } from "solid-js"
 import { GetMoveResponse } from "../../../shared/types"
 import { getPercent } from "../utils"
-import { BadgeTarget } from "../move-form/MoveForm"
 import { Card } from "./Card"
 import { AvatarRow } from "./AvatarRow"
 import { TargetEntry } from "./TargetEntry"
 import { ClaimNav } from "./ClaimNav"
 
-export const MoveContent: Component<{ data: GetMoveResponse; onBadgeClick: (target: BadgeTarget) => void }> = (props) => {
+export const MoveContent: Component<{ data: GetMoveResponse; onBadgeClick: (targetType: 'argument' | 'statement', targetId: number) => void }> = (props) => {
   const { move, claimStatement, argument, avatar, nav, targetStatement, targetArgument, targetArgumentClaim, premiseStatement } = props.data
   const isAddClaim = move.type === 'addClaim'
   const isAddHiddenPremise = move.type === 'addHiddenPremise'
@@ -42,13 +41,13 @@ export const MoveContent: Component<{ data: GetMoveResponse; onBadgeClick: (targ
         <AvatarRow svg={avatar.svg} name={avatar.display_name} label={action} />
       </Card>
       {!isAddClaim && argument && (
-        <Card badge onBadgeClick={() => props.onBadgeClick('argument')}>
+        <Card badge onBadgeClick={() => props.onBadgeClick('argument', argument.id)}>
           <div class="text-lg mb-1">{argument.text}</div>
           <div class="text-base" title="argument strength">💪 {getPercent(argument.strength)}</div>
         </Card>
       )}
       {isAddHiddenPremise && premiseStatement && (
-        <Card badge onBadgeClick={() => props.onBadgeClick('premise')}>
+        <Card badge onBadgeClick={() => props.onBadgeClick('statement', premiseStatement.id)}>
           <div class="text-lg mb-1">{premiseStatement.text}</div>
           <div class="text-base" title="certainty">🎲 {getPercent(premiseStatement.likelihood)}</div>
         </Card>

@@ -5,6 +5,7 @@ import { Argue } from './argue/Argue'
 import { Derivation } from './Derivation'
 import { Tutorial } from './tutorial/Tutorial'
 import { Move } from './move/Move'
+import { MoveForm } from './move-form/MoveForm'
 
 export const App: Component = () => {
   return (
@@ -23,6 +24,7 @@ export const App: Component = () => {
       <Route path="/argue/:id" component={Argue} />
       <Route path="/wtp/:argumentId" component={Derivation} />
       <Route path="/move/:id" component={Move} />
+      <Route path="/respond/:targetType/:targetId/:claimId/:moveId" component={MoveForm} />
     </Router>
   )
 }
