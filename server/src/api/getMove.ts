@@ -6,7 +6,7 @@ export const getMove: RequestHandler = async (req, res) => {
   const moveId = req.body.id
 
   const [move] = await sql`
-    SELECT id, type, argument_id, premise_id, owner, claim_id
+    SELECT id, type, argument_id, premise_id, owner, claim_id, claim_likelihood_before, claim_likelihood_after
     FROM move
     WHERE id = ${moveId}
   `.catch(onError) as unknown as GetMoveResponse['move'][]

@@ -56,6 +56,8 @@ export interface GetMoveResponse {
     argument_id: number | null
     premise_id: number | null
     owner: string
+    claim_likelihood_before: number
+    claim_likelihood_after: number
   }
   claimStatement: StatementRecord
   statement: StatementRecord

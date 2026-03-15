@@ -5,6 +5,7 @@ import { Card } from "./Card"
 import { AvatarRow } from "./AvatarRow"
 import { TargetEntry } from "./TargetEntry"
 import { ClaimNav } from "./ClaimNav"
+import { LikelihoodBar } from "./LikelihoodBar"
 
 export const MoveContent: Component<{ data: GetMoveResponse; onBadgeClick: (targetType: 'argument' | 'statement', targetId: number) => void }> = (props) => {
   const { move, claimStatement, argument, avatar, nav, targetStatement, targetArgument, targetArgumentClaim, premiseStatement } = props.data
@@ -52,6 +53,16 @@ export const MoveContent: Component<{ data: GetMoveResponse; onBadgeClick: (targ
           <div class="text-base" title="certainty">🎲 {getPercent(premiseStatement.likelihood)}</div>
         </Card>
       )}
+      <Card>
+        <div class="text-lg pb-2">
+          {`Main claim ${isAddClaim ? 'initial 🎲' : '🎲 change'}`}
+        </div>
+        <LikelihoodBar
+          before={move.claim_likelihood_before}
+          after={move.claim_likelihood_after}
+          initial={isAddClaim}
+        />
+      </Card>
     </main>
   )
 }
