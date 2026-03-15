@@ -4,6 +4,7 @@ import { onError, sql } from "../db.ts"
 import { addPremiseReusable } from "./addPremise.ts"
 import { cascadeUpdateScores } from "../cascadeUpdateScores.ts"
 import { saveScoreChange } from "../saveScoreChange.ts"
+import { updateMoveLikelihood } from "../updateMoveLikelihood.ts"
 
 export const addHiddenPremiseMove: RequestHandler = async (req, res) => {
   const owner = await getOrSetUsername(req, res)
@@ -28,6 +29,8 @@ export const addHiddenPremiseMove: RequestHandler = async (req, res) => {
   const scoreChanges = await cascadeUpdateScores(premise.statement_id, true)
 
   res.json({ savedId: moveResults[0].id, scoreChanges })
+
+  updateMoveLikelihood(moveResults[0].id, move.claim_id, scoreChanges)
 
   saveScoreChange(scoreChanges, owner, {
     type: 'addHiddenPremise',

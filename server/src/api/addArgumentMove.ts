@@ -2,6 +2,7 @@ import { type RequestHandler } from "express"
 import { getOrSetUsername } from "../utils.ts"
 import { addArgumentReusable } from "./addArgument.ts"
 import { onError, sql } from "../db.ts"
+import { updateMoveLikelihood } from "../updateMoveLikelihood.ts"
 
 export const addArgumentMove: RequestHandler = async (req, res) => {
   const owner = await getOrSetUsername(req, res)
@@ -16,4 +17,6 @@ export const addArgumentMove: RequestHandler = async (req, res) => {
   `.catch(onError)
 
   res.json({ savedId: moveResults[0].id })
+
+  updateMoveLikelihood(moveResults[0].id, move.claim_id, newArgument.scoreChanges)
 }
