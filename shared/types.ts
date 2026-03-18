@@ -66,6 +66,8 @@ export interface GetMoveResponse {
   targetStatement: StatementRecord | null
   targetArgument: ArgumentRecord | null
   targetArgumentClaim: StatementRecord | null
+  targetOriginMoveId: number | null
+  responseMoveIds: Record<string, number[]>
   premiseStatement: StatementRecord | null
   nav: {
     current: number

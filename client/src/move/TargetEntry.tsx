@@ -1,7 +1,7 @@
 import { Component, Show } from "solid-js"
 import { GetMoveResponse } from "../../../shared/types"
 import { getPercent } from "../utils"
-import { Card } from "./Card"
+import { Card, KebabButton, MenuCard, RespondButton, OriginMoveLink, ResponseMoveLinks } from "./Card"
 import { AvatarRow } from "./AvatarRow"
 
 // ---------------------------------------------------------------------------
@@ -14,7 +14,11 @@ type Props = {
   targetArgument: GetMoveResponse['targetArgument']
   targetArgumentClaim: GetMoveResponse['targetArgumentClaim']
   targetStatement: GetMoveResponse['targetStatement']
-  onBadgeClick: (targetType: 'argument' | 'statement', targetId: number) => void
+  targetOriginMoveId: number | null
+  responseMoveIds: Record<string, number[]>
+  openMenu: string | null
+  onToggleMenu: (key: string) => void
+  onRespond: (targetType: 'argument' | 'statement', targetId: number) => void
 }
 
 export const TargetEntry: Component<Props> = (props) => {
@@ -34,7 +38,7 @@ export const TargetEntry: Component<Props> = (props) => {
         <Card>
           <AvatarRow svg={props.avatar.svg} name={props.avatar.display_name} label="picks an argument:" />
         </Card>
-        <Card badge onBadgeClick={() => props.onBadgeClick('argument', props.targetArgument!.id)} class="text-lg">
+        <Card class="text-lg">
           <div>{props.targetArgumentClaim?.text}</div>
           <div class="font-bold">
             <span classList={{ 'text-green-700': props.targetArgument!.pro, 'text-red-700': !props.targetArgument!.pro }}>
@@ -42,17 +46,33 @@ export const TargetEntry: Component<Props> = (props) => {
             </span>
           </div>
           <div>{props.targetArgument!.text}</div>
-          <div class="text-base mt-1" title="argument strength">💪 {getPercent(props.targetArgument!.strength)}</div>
+          <div class="flex items-center justify-between text-base mt-1">
+            <span title="argument strength">💪 {getPercent(props.targetArgument!.strength)}</span>
+            <KebabButton onClick={() => props.onToggleMenu('targetArg')} />
+          </div>
         </Card>
+        <MenuCard open={props.openMenu === 'targetArg'}>
+          <RespondButton onClick={() => props.onRespond('argument', props.targetArgument!.id)} />
+          <OriginMoveLink moveId={props.targetOriginMoveId} />
+          <ResponseMoveLinks moveIds={props.responseMoveIds[`a:${props.targetArgument!.id}`]} />
+        </MenuCard>
       </Show>
       <Show when={showStmtTarget()}>
         <Card>
           <AvatarRow svg={props.avatar.svg} name={props.avatar.display_name} label="picks a statement:" />
         </Card>
-        <Card badge onBadgeClick={() => props.onBadgeClick('statement', props.targetStatement!.id)} class="text-lg">
+        <Card class="text-lg">
           <div>{props.targetStatement!.text}</div>
-          <div title="certainty" class="text-base mt-1">🎲 {getPercent(props.targetStatement!.likelihood)}</div>
+          <div class="flex items-center justify-between text-base mt-1">
+            <span title="certainty">🎲 {getPercent(props.targetStatement!.likelihood)}</span>
+            <KebabButton onClick={() => props.onToggleMenu('targetStmt')} />
+          </div>
         </Card>
+        <MenuCard open={props.openMenu === 'targetStmt'}>
+          <RespondButton onClick={() => props.onRespond('statement', props.targetStatement!.id)} />
+          <OriginMoveLink moveId={props.targetOriginMoveId} />
+          <ResponseMoveLinks moveIds={props.responseMoveIds[`s:${props.targetStatement!.id}`]} />
+        </MenuCard>
       </Show>
     </>
   )

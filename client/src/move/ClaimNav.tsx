@@ -1,7 +1,7 @@
 import { Component } from "solid-js"
 import { GetMoveResponse } from "../../../shared/types"
 import { getPercent } from "../utils"
-import { Card } from "./Card"
+import { Card, KebabButton, MenuCard, PathViewLink, RespondButton, ResponseMoveLinks } from "./Card"
 import { NavArrow } from "./NavArrow"
 import { A } from "@solidjs/router"
 
@@ -24,18 +24,20 @@ const NavEnd: Component<{ href: string; disabled: boolean; direction: 'first' | 
 
 type Props = {
   claimStatement: GetMoveResponse['claimStatement']
+  claimId: number
   nav: GetMoveResponse['nav']
   firstMoveId: number | null
   lastMoveId: number | null
-  onBadgeClick: (targetType: 'argument' | 'statement', targetId: number) => void
+  menuOpen: boolean
+  onToggleMenu: () => void
+  onRespond: () => void
+  claimResponseMoveIds?: number[]
 }
 
 export const ClaimNav: Component<Props> = (props) => (
-  <Card badge onBadgeClick={() => props.onBadgeClick('statement', props.claimStatement.id)}>
-    <div class="text-2xl font-semibold mb-1">{props.claimStatement.text}</div>
-    <div class="flex items-center justify-between text-lg">
-      <span title="certainty">🎲 {getPercent(props.claimStatement.likelihood)}</span>
-      <div class="flex items-center gap-2">
+  <>
+    <Card>
+      <div class="flex items-center justify-between gap-2 text-lg">
         <span>Debate Moves:</span>
         <div class="flex items-center gap-3">
           <div class="flex items-center">
@@ -49,6 +51,18 @@ export const ClaimNav: Component<Props> = (props) => (
           </div>
         </div>
       </div>
-    </div>
-  </Card>
+    </Card>
+    <Card>
+      <div class="text-2xl font-semibold mb-1">{props.claimStatement.text}</div>
+      <div class="flex items-center justify-between text-base">
+        <span title="certainty">🎲 {getPercent(props.claimStatement.likelihood)}</span>
+        <KebabButton onClick={props.onToggleMenu} />
+      </div>
+    </Card>
+    <MenuCard open={props.menuOpen}>
+      <RespondButton onClick={props.onRespond} />
+      <ResponseMoveLinks moveIds={props.claimResponseMoveIds} />
+      <PathViewLink claimId={props.claimId} />
+    </MenuCard>
+  </>
 )
