@@ -6,6 +6,10 @@ import { Derivation } from './Derivation'
 import { Tutorial } from './tutorial/Tutorial'
 import { Move } from './move/Move'
 import { MoveForm } from './move-form/MoveForm'
+import { SayHome } from './say/SayHome'
+import { SayNewDebate } from './say/SayNewDebate'
+import { UnprocessedNewDebates } from './say/UnprocessedNewDebates'
+import { ProcHome } from './proc/ProcHome'
 
 export const App: Component = () => {
   return (
@@ -25,6 +29,12 @@ export const App: Component = () => {
       <Route path="/wtp/:argumentId" component={Derivation} />
       <Route path="/move/:id" component={Move} />
       <Route path="/respond/:targetType/:targetId/:claimId/:moveId" component={MoveForm} />
+      <Route path="/say" component={SayHome} />
+      <Route path="/say/start-new-debate" component={SayNewDebate} />
+      <Route path="/say/edit-new-debate/:commentId" component={SayNewDebate} />
+      <Route path="/say/unprocessed-new-debates" component={UnprocessedNewDebates} />
+
+      <Route path="/proc" component={ProcHome} />
     </Router>
   )
 }

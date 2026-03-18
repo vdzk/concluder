@@ -1,3 +1,4 @@
+import { A } from "@solidjs/router";
 import { Component } from "solid-js";
 
 const hasHoverAndFinePointer =
@@ -30,26 +31,48 @@ export const IconButton: Component<{
   )
 }
 
+type ButtonColor = 'red' | 'green' | 'blue' | 'gray'
+
+const textButtonClass = `
+    px-2 cursor-pointer text-white rounded
+    opacity-75 hover:opacity-100
+  `
+
+const getTextButtonColorClass =
+  (color?: ButtonColor) => `bg-${color ?? 'gray'}-700`
+
 export const TextButton: Component<{
   label: string
-  color?: 'red' | 'green' | 'blue' | 'gray'
+  color?: ButtonColor
   onClick: () => void
 }> = props => {
   return (
     <button
       onClick={props.onClick}
-      class="
-        px-2 cursor-pointer text-white rounded
-        opacity-75 hover:opacity-100
-      "
+      class={textButtonClass}
       classList={{
-        'bg-green-700 dark:bg-green-400': props.color === 'green',
-        'bg-blue-700 dark:bg-blue-400': props.color === 'blue',
-        'bg-red-700 dark:bg-red-400': props.color === 'red',
-        'bg-gray-700 dark:bg-gray-400': props.color === 'gray'
+        [getTextButtonColorClass(props.color)]: true
       }}
     >
       {props.label}
     </button>
+  )
+}
+
+export const TextButtonLink: Component<{
+  label: string
+  color?: ButtonColor
+  href: string
+}> = props => {
+  return (
+    <A
+      href={props.href}
+      class={textButtonClass + 'inline-block'}
+      classList={{
+        [getTextButtonColorClass(props.color)]: true
+      }}
+    >
+      {props.label}
+    </A>
   )
 }

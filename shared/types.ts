@@ -78,3 +78,13 @@ export interface GetMoveResponse {
     lastMoveId: number | null
   }
 }
+
+export interface CommentRecord {
+  id: number
+  text: string
+  owner: string
+}
+
+export type UnprocessedNewDebateComment = Omit<CommentRecord, 'owner'> & {
+  canEdit: boolean
+}
