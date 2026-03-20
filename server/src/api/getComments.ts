@@ -5,16 +5,27 @@ import { type CommentRecord, type UnprocessedNewDebateComment } from '../../../s
 export const getComments: RequestHandler = async (req, res) => {
   const owner = req.cookies.name
 
-  const whereCond = req.body.id
-    ? sql`WHERE id = ${req.body.id}`
-    : sql`WHERE true`
+  const conditions = []
+  if (req.body.id) {
+    conditions.push(sql`id = ${req.body.id}`)
+  }
+  if (req.body.processed === false) {
+    conditions.push(sql`processed = false`)
+  }
+  if (req.body.newDebates) {
+    conditions.push(sql`statement_id IS NULL AND argument_id IS NULL`)
+  }
 
-  const limitClause = req.body.procNext
+  const whereCond = conditions.length
+    ? sql`WHERE ${conditions.reduce((a, b) => sql`${a} AND ${b}`)}`
+    : sql``
+
+  const limitClause = req.body.single
     ? sql`LIMIT 1`
     : sql``
 
   const results = await sql<CommentRecord[]>`
-    SELECT id, text, owner
+    SELECT id, text, statement_id, argument_id, owner
     FROM comment
     ${whereCond}
     ORDER BY id

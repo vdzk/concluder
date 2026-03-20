@@ -7,7 +7,10 @@ export const UnprocessedNewDebates: Component = () => {
   const [comments, setComments] = createSignal<UnprocessedNewDebateComment[]>([])
 
   onMount(async () => {
-    setComments(await rpc('getComments', {}))
+    setComments(await rpc('getComments', {
+      processed: false,
+      newDebates: true
+    }))
   })
 
   return (

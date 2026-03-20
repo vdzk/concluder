@@ -10,6 +10,7 @@ import { SayHome } from './say/SayHome'
 import { SayNewDebate } from './say/SayNewDebate'
 import { UnprocessedNewDebates } from './say/UnprocessedNewDebates'
 import { ProcHome } from './proc/ProcHome'
+import { SayClaim } from './say/SayClaim'
 
 export const App: Component = () => {
   return (
@@ -33,7 +34,7 @@ export const App: Component = () => {
       <Route path="/say/start-new-debate" component={SayNewDebate} />
       <Route path="/say/edit-new-debate/:commentId" component={SayNewDebate} />
       <Route path="/say/unprocessed-new-debates" component={UnprocessedNewDebates} />
-
+      <Route path="/say/claim/:id" component={SayClaim} />
       <Route path="/proc" component={ProcHome} />
     </Router>
   )

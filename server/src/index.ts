@@ -23,6 +23,10 @@ import { getMoveFormTarget } from './api/getMoveFormTarget.ts'
 import { addComment } from './api/addComment.ts'
 import { getComments } from './api/getComments.ts'
 import { editComment } from './api/editComment.ts'
+import { applyCommentChanges } from './api/applyCommentChanges.ts'
+import { getExposedClaims } from './api/getExposedClaims.ts'
+import { getClaimGraph } from './api/getClaimGraph.ts'
+import { getClaimIdByDescendant } from './api/getClaimIdByDescendant.ts'
 
 dotenv.config()
 const app = express()
@@ -55,7 +59,11 @@ const handlers: Record<string, RequestHandler> = {
   reportEntry,
   addComment,
   editComment,
-  getComments
+  getComments,
+  applyCommentChanges,
+  getExposedClaims,
+  getClaimGraph,
+  getClaimIdByDescendant
 }
 
 for (const handlerName in handlers) {

@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { Component } from "solid-js";
+import { Component, ParentComponent } from "solid-js";
 
 const hasHoverAndFinePointer =
   typeof window !== "undefined" &&
@@ -38,8 +38,15 @@ const textButtonClass = `
     opacity-75 hover:opacity-100
   `
 
+const textButtonColorClass: Record<ButtonColor, string> = {
+  red: 'bg-red-700',
+  green: 'bg-green-700',
+  blue: 'bg-blue-700',
+  gray: 'bg-gray-700',
+}
+
 const getTextButtonColorClass =
-  (color?: ButtonColor) => `bg-${color ?? 'gray'}-700`
+  (color?: ButtonColor) => textButtonColorClass[color ?? 'gray']
 
 export const TextButton: Component<{
   label: string
@@ -74,5 +81,22 @@ export const TextButtonLink: Component<{
     >
       {props.label}
     </A>
+  )
+}
+
+export const CardButton: ParentComponent<{
+  selected: boolean
+  onClick: () => void
+}> = props => {
+  return (
+    <button
+      class={"px-2 pt-0.5 border-b-3" + btnClass}
+      classList={{
+        'border-b-transparent': !props.selected
+      }}
+      onClick={props.onClick}
+    >
+      {props.children}
+    </button>
   )
 }

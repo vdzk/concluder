@@ -83,6 +83,8 @@ export interface CommentRecord {
   id: number
   text: string
   owner: string
+  statement_id: number | null
+  argument_id: number | null
 }
 
 export type UnprocessedNewDebateComment = Omit<CommentRecord, 'owner'> & {
