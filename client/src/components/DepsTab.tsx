@@ -1,6 +1,7 @@
 import { Show, For, createSignal, type Component } from 'solid-js'
 import { A } from '@solidjs/router'
 import { ReasoningStepForm } from './ReasoningStepForm'
+import type { TextSelection } from './StepContent'
 
 type Dep = { id: number; question: string; conclusion: string | null }
 type FormValues = { question: string; analysis: string; conclusion: string }
@@ -9,6 +10,8 @@ type Props = {
   dependents: Dep[] | undefined
   deps: Dep[] | undefined
   onAddDep: (values: FormValues) => Promise<void>
+  selection: TextSelection | null
+  onLink: (depId: number) => void
 }
 
 export const DepsTab: Component<Props> = (props) => {
@@ -18,13 +21,24 @@ export const DepsTab: Component<Props> = (props) => {
     <div class="flex flex-col gap-6">
       <Show when={showForm()} fallback={
         <div class="flex flex-col gap-3">
+          <Show when={props.selection} fallback={
+            <p class="text-sm text-gray-500 italic">
+              Select a part of the analysis text to link it to one of the questions.
+            </p>
+          }>
+            {sel => (
+              <p class="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-2 py-1">
+                Selected: "{sel().text.length > 80 ? sel().text.slice(0, 80) + '…' : sel().text}"
+              </p>
+            )}
+          </Show>
           <ul class="flex flex-col gap-3">
             <For each={props.deps} fallback={<li class="text-gray-400">No sub-questions yet.</li>}>
               {dep => (
-                <li>
+                <li class="flex items-start gap-2">
                   <A
                     href={`/step/${dep.id}`}
-                    class="flex flex-col rounded border  px-1.5 py-1
+                    class="flex flex-col flex-1 rounded border px-1.5 py-1
                       border-transparent border-l-black hover:border-black
                     "
                   >
@@ -33,6 +47,15 @@ export const DepsTab: Component<Props> = (props) => {
                       <span><strong>A:</strong> {dep.conclusion}</span>
                     </Show>
                   </A>
+                  <Show when={props.selection}>
+                    <button
+                      class="shrink-0 px-2 py-1 text-xs rounded bg-green-100 text-green-800 border border-green-300 hover:bg-green-200 cursor-pointer"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => props.onLink(dep.id)}
+                    >
+                      Link
+                    </button>
+                  </Show>
                 </li>
               )}
             </For>

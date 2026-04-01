@@ -2,7 +2,7 @@ import { createResource, createSignal, Show, type Component } from 'solid-js'
 import { useParams, useSearchParams } from '@solidjs/router'
 import { trpc } from '../trpc'
 import { ReasoningStepForm } from '../components/ReasoningStepForm'
-import { StepContent } from '../components/StepContent'
+import { StepContent, type TextSelection } from '../components/StepContent'
 import { HistoryTab } from '../components/HistoryTab'
 import { DepsTab } from '../components/DepsTab'
 import { BreadcrumbsTab } from '../components/BreadcrumbsTab'
@@ -47,6 +47,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
     () => trpc.reasoningStep.breadcrumbs.query({ reasoningStepId: props.id })
   )
   const [adminStatus] = createResource(() => trpc.user.isAdmin.query())
+  const [selection, setSelection] = createSignal<TextSelection | null>(null)
 
   const handleRollback = async (versionId: number) => {
     setRollingBack(versionId);
@@ -72,6 +73,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
               analysis={s().analysis}
               annotatedAnalysis={s().annotatedAnalysis}
               conclusion={s().conclusion}
+              onSelectionChange={setSelection}
             />
           )}
         </Show>
@@ -122,6 +124,20 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
                 });
                 refetchDeps();
                 refetchStep();
+              }}
+              selection={selection()}
+              onLink={async (depId) => {
+                const sel = selection();
+                if (!sel) return;
+                const updated = await trpc.reasoningStep.linkAnnotation.mutate({
+                  stepId: props.id,
+                  dependencyId: depId,
+                  startOffset: sel.start,
+                  endOffset: sel.end,
+                });
+                mutate(updated);
+                setSelection(null);
+                window.getSelection()?.removeAllRanges();
               }}
             />
           </Show>
