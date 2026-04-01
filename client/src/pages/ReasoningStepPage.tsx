@@ -7,6 +7,7 @@ import { HistoryTab } from '../components/HistoryTab'
 import { DepsTab } from '../components/DepsTab'
 import { BreadcrumbsTab } from '../components/BreadcrumbsTab'
 import { TabBar, type Tab } from '../components/TabBar'
+import { TalkTab } from '../components/TalkTab'
 
 export type Version = NonNullable<Awaited<ReturnType<typeof trpc.reasoningStep.versions.query>>>[number];
 
@@ -47,6 +48,9 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
     () => trpc.reasoningStep.breadcrumbs.query({ reasoningStepId: props.id })
   )
   const [adminStatus] = createResource(() => trpc.user.isAdmin.query())
+  const [messages, { mutate: mutateMessages }] = createResource(
+    () => trpc.talkMessage.list.query({ reasoningStepId: props.id })
+  )
   const [selection, setSelection] = createSignal<TextSelection | null>(null)
 
   const handleRollback = async (versionId: number) => {
@@ -142,6 +146,21 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
             />
           </Show>
 
+          {/* Talk tab */}
+          <Show when={activeTab() === 'talk'}>
+            <TalkTab
+              messages={messages()}
+              currentUserId={undefined}
+              onSend={async (body) => {
+                const msg = await trpc.talkMessage.send.mutate({
+                  reasoningStepId: props.id,
+                  body,
+                });
+                mutateMessages(prev => [...(prev ?? []), msg]);
+              }}
+            />
+          </Show>
+
           {/* Edit tab */}
           <Show when={activeTab() === 'edit'}>
             <Show when={step()}>
@@ -149,6 +168,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
                 <ReasoningStepForm
                   initialValues={s()}
                   submitLabel="Save"
+                  depCount={deps()?.length ?? 0}
                   onSubmit={async (values) => {
                     const updated = await trpc.reasoningStep.update.mutate({ id: props.id, ...values });
                     mutate(updated);

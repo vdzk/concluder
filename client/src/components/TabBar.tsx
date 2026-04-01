@@ -1,15 +1,16 @@
 import { type Component } from 'solid-js'
 
-export type Tab = 'breadcrumbs' | 'history' | 'deps' | 'edit'
+export type Tab = 'breadcrumbs' | 'history' | 'deps' | 'edit' | 'talk'
 
 const TAB_LABELS: Record<Tab, string> = {
   breadcrumbs: 'Breadcrumbs',
   history: 'History',
   deps: 'Sub-questions',
   edit: 'Edit',
+  talk: 'Talk',
 }
 
-const TABS: Tab[] = ['breadcrumbs',  'deps', 'edit', 'history']
+const TABS: Tab[] = ['breadcrumbs', 'deps', 'talk', 'edit', 'history']
 
 type Props = {
   activeTab: Tab | null

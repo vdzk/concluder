@@ -125,8 +125,10 @@ export const reasoningStepRouter = t.router({
       conclusion: z.string().min(1),
     }))
     .mutation(async ({ input, ctx }) => {
+      const annotatedAnalysis = await applyDefinitions([{ type: 'text', text: input.analysis }]);
       const [row] = await db.insert(reasoningStepTable).values({
         ...input,
+        annotatedAnalysis,
         createdBy: ctx.userId,
       }).returning();
       return row;
@@ -194,8 +196,10 @@ export const reasoningStepRouter = t.router({
     }))
     .mutation(async ({ input, ctx }) => {
       const { sourceId, ...fields } = input;
+      const annotatedAnalysis = await applyDefinitions([{ type: 'text', text: fields.analysis }]);
       const [step] = await db.insert(reasoningStepTable).values({
         ...fields,
+        annotatedAnalysis,
         createdBy: ctx.userId,
       }).returning();
       await db.insert(reasoningDependencyTable).values({

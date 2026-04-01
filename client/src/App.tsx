@@ -11,7 +11,7 @@ const Layout = (props: { children?: JSX.Element }) => {
   const showHeader = () => !location.pathname.startsWith('/step/');
   return (
     <div class="flex flex-col h-screen overflow-hidden">
-      <Show when={showHeader()}>
+      <Show when={false && showHeader()}>
         <Header />
       </Show>
       <main class="flex-1 min-h-0 overflow-hidden">{props.children}</main>

@@ -14,7 +14,7 @@ export const VersionHistoryItem: Component<Props> = (props) => {
   return (
     <li class="border rounded overflow-hidden">
       <button
-        class="w-full text-left px-4 py-3 flex items-center justify-between gap-4 hover:bg-gray-50"
+        class="w-full text-left px-4 py-3 flex items-center justify-between gap-4 hover:bg-gray-50 cursor-pointer"
         onClick={props.onToggle}
       >
         <div class="min-w-0">

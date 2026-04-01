@@ -4,6 +4,7 @@ import { userRouter } from './routers/user.ts'
 import { recentRouter } from './routers/recent.ts'
 import { featuredRouter } from './routers/featured.ts'
 import { definitionRouter } from './routers/definition.ts'
+import { talkMessageRouter } from './routers/talkMessage.ts'
 
 export const appRouter = t.router({
   reasoningStep: reasoningStepRouter,
@@ -11,6 +12,7 @@ export const appRouter = t.router({
   recent: recentRouter,
   featured: featuredRouter,
   definition: definitionRouter,
+  talkMessage: talkMessageRouter,
 });
 
 export type AppRouter = typeof appRouter;

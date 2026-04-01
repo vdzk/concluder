@@ -56,3 +56,11 @@ export const definitionTable = pgTable('definition', {
 export const adminTable = pgTable('admin', {
   userId: integer('user_id').primaryKey().references(() => userTable.id),
 })
+
+export const reasoningStepMessageTable = pgTable('reasoning_step_message', {
+  id: serial('id').primaryKey(),
+  reasoningStepId: integer('reasoning_step_id').notNull().references(() => reasoningStepTable.id),
+  userId: integer('user_id').notNull().references(() => userTable.id),
+  body: text('body').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})

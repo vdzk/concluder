@@ -20,10 +20,11 @@ export const Home: Component = () => {
   const [status, setStatus] = createSignal<'idle' | 'loading' | 'error'>('idle');
   const [formOpen, setFormOpen] = createSignal(false);
   const [searchParams, setSearchParams] = useSearchParams<{ tab?: string }>();
-  const tab = () => searchParams.tab === 'recent' ? 'recent' : 'featured';
-  const setTab = (t: 'featured' | 'recent') => setSearchParams({ tab: t });
+  const tab = () => searchParams.tab === 'recent' ? 'recent' : searchParams.tab === 'messages' ? 'messages' : 'featured';
+  const setTab = (t: 'featured' | 'recent' | 'messages') => setSearchParams({ tab: t });
   const [featured, { refetch }] = createResource(() => trpc.featured.list.query());
   const [recent] = createResource(() => trpc.recent.list.query());
+  const [recentMessages] = createResource(() => trpc.talkMessage.recent.query());
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
@@ -59,6 +60,12 @@ export const Home: Component = () => {
               class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'recent' ? 'bg-gray-200 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
             >
               Recent
+            </button>
+            <button
+              onClick={() => setTab('messages')}
+              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'messages' ? 'bg-gray-200 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Messages
             </button>
             </div>
           </div>
@@ -127,6 +134,22 @@ export const Home: Component = () => {
                     <div class="text-xs text-gray-500 mt-1">
                       {item.wasEdited ? 'edited' : 'created'} {timeAgo(item.activityAt)} by {item.actorName}
                     </div>
+                  </A>
+                </li>
+              )}
+            </For>
+          </ul>
+        </Show>
+
+        <Show when={tab() === 'messages'}>
+          <ul class="flex flex-col gap-3">
+            <For each={recentMessages()} fallback={<li class="text-gray-500">No messages yet.</li>}>
+              {msg => (
+                <li>
+                  <A href={`/step/${msg.reasoningStepId}`} class="block border rounded px-4 py-3 hover:bg-gray-50">
+                    <div class="text-xs text-gray-500 mb-1 truncate">{msg.stepQuestion}</div>
+                    <p class="text-sm text-gray-800 line-clamp-2 whitespace-pre-wrap">{msg.body}</p>
+                    <div class="text-xs text-gray-400 mt-1">{msg.userName} · {timeAgo(new Date(msg.createdAt).toISOString())}</div>
                   </A>
                 </li>
               )}

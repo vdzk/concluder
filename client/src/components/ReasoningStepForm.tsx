@@ -8,6 +8,7 @@ type Props = {
   onSubmit?: (values: Values) => Promise<void>;
   submitLabel?: string;
   onCancel?: () => void;
+  depCount?: number;
 };
 
 export const ReasoningStepForm: Component<Props> = (props) => {
@@ -20,7 +21,8 @@ export const ReasoningStepForm: Component<Props> = (props) => {
   const [checkNoErase, setCheckNoErase] = createSignal(false);
   const [checkNoContradiction, setCheckNoContradiction] = createSignal(false);
   const [checkFollows, setCheckFollows] = createSignal(false);
-  const checksValid = () => !isEditing || (checkNoErase() && checkNoContradiction() && checkFollows());
+  const hasDepCount = () => (props.depCount ?? 0) > 0;
+  const checksValid = () => !isEditing || (checkNoErase() && (!hasDepCount() || checkNoContradiction()) && checkFollows());
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
@@ -86,10 +88,12 @@ export const ReasoningStepForm: Component<Props> = (props) => {
               <input type="checkbox" class="mt-0.5 cursor-pointer" checked={checkNoErase()} onChange={e => setCheckNoErase(e.currentTarget.checked)} />
               I didn't erase any points from the analysis.
             </label>
-            <label class="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox" class="mt-0.5 cursor-pointer" checked={checkNoContradiction()} onChange={e => setCheckNoContradiction(e.currentTarget.checked)} />
-              There is no contradiction between the analysis and the conclusions from all of the sub-questions.
-            </label>
+            <Show when={hasDepCount()}>
+              <label class="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" class="mt-0.5 cursor-pointer" checked={checkNoContradiction()} onChange={e => setCheckNoContradiction(e.currentTarget.checked)} />
+                There is no contradiction between the analysis and the conclusions from all {props.depCount} sub-question{props.depCount === 1 ? '' : 's'}.
+              </label>
+            </Show>
             <label class="flex items-start gap-2 cursor-pointer">
               <input type="checkbox" class="mt-0.5 cursor-pointer" checked={checkFollows()} onChange={e => setCheckFollows(e.currentTarget.checked)} />
               The conclusion follows from the analysis and answers the question.
