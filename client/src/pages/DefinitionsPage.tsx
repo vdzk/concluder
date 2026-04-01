@@ -45,11 +45,6 @@ export const DefinitionsPage: Component<Props> = (props) => {
       <div class="flex flex-col gap-6 w-1/2 px-10 py-10 overflow-y-auto">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <A href="/" class="flex items-center justify-center w-9 h-9 rounded-full border-2 border-gray-300 text-gray-400 hover:border-amber-600 hover:text-amber-700 transition-colors cursor-pointer">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 5l-7 7 7 7" />
-              </svg>
-            </A>
             <h1 class="text-xl font-semibold">Definitions</h1>
           </div>
           <button

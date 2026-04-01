@@ -9,13 +9,14 @@ type Props = {
   onTogglePreview: (id: number) => void
   onRestore: (id: number) => void
   rollingBack: number | null
+  isAdmin: boolean
 }
 
 export const HistoryTab: Component<Props> = (props) => {
   return (
     <div class="flex flex-col gap-4">
       <Show when={props.createdByName}>
-        <p class="text-sm text-gray-400">Created by {props.createdByName}</p>
+        <p class="text-sm text-gray-400">Current version created by: {props.createdByName}</p>
       </Show>
       <Show
         when={(props.versions?.length ?? 0) > 0}
@@ -30,6 +31,7 @@ export const HistoryTab: Component<Props> = (props) => {
                 onToggle={() => props.onTogglePreview(v.id)}
                 onRestore={() => props.onRestore(v.id)}
                 restoring={props.rollingBack === v.id}
+                isAdmin={props.isAdmin}
               />
             )}
           </For>

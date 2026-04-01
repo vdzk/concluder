@@ -1,5 +1,5 @@
-import { A } from '@solidjs/router';
-import { Component } from 'solid-js';
+import { A } from '@solidjs/router'
+import { Component } from 'solid-js'
 
 export const Header: Component = () => (
   <header class="w-full border-b bg-amber-900 text-white">
@@ -9,4 +9,4 @@ export const Header: Component = () => (
       </A>
     </div>
   </header>
-);
+)

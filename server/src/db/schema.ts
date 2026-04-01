@@ -52,3 +52,7 @@ export const definitionTable = pgTable('definition', {
   text: text('text').notNull(),
   createdBy: integer('created_by').notNull().references(() => userTable.id),
 })
+
+export const adminTable = pgTable('admin', {
+  userId: integer('user_id').primaryKey().references(() => userTable.id),
+})

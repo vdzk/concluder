@@ -7,6 +7,7 @@ type Props = {
   onToggle: () => void
   onRestore: () => void
   restoring: boolean
+  isAdmin: boolean
 }
 
 export const VersionHistoryItem: Component<Props> = (props) => {
@@ -39,13 +40,15 @@ export const VersionHistoryItem: Component<Props> = (props) => {
             <h3 class="text-sm font-medium uppercase tracking-wide text-gray-500 mb-1">Conclusion</h3>
             <p class="text-gray-800">{props.version.conclusion}</p>
           </section>
-          <button
-            onClick={props.onRestore}
-            disabled={props.restoring}
-            class="self-start text-sm border rounded px-4 py-2 hover:bg-white disabled:opacity-50"
-          >
-            {props.restoring ? 'Restoring…' : 'Restore this version'}
-          </button>
+          <Show when={props.isAdmin}>
+            <button
+              onClick={props.onRestore}
+              disabled={props.restoring}
+              class="self-start text-sm border rounded px-4 py-2 hover:bg-white disabled:opacity-50"
+            >
+              {props.restoring ? 'Restoring…' : 'Restore this version'}
+            </button>
+          </Show>
         </div>
       </Show>
     </li>

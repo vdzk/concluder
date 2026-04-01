@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { eq, desc, sql } from 'drizzle-orm'
 import crypto from 'node:crypto'
 import { db } from '../db/index.ts'
-import { reasoningStepTable, userTable, userSessionTable, featuredTable, reasoningStepVersionTable, reasoningDependencyTable, definitionTable } from '../db/schema.ts'
+import { reasoningStepTable, userTable, userSessionTable, featuredTable, reasoningStepVersionTable, reasoningDependencyTable, definitionTable, adminTable } from '../db/schema.ts'
 import type { Context } from './context.ts'
 import { generateName } from '../lib/nameGenerator.ts'
 import { annotateAnalysis, type AnnotationChunk } from '../lib/annotateAnalysis.ts'
@@ -50,6 +50,18 @@ const sessionMiddleware = t.middleware(async ({ ctx, next }) => {
 });
 
 const sessionProcedure = t.procedure.use(sessionMiddleware)
+
+const adminMiddleware = sessionMiddleware.unstable_pipe(async ({ ctx, next }) => {
+  const [admin] = await db
+    .select()
+    .from(adminTable)
+    .where(eq(adminTable.userId, ctx.userId))
+    .limit(1);
+  if (!admin) throw new Error('Forbidden');
+  return next({ ctx });
+});
+
+const adminProcedure = t.procedure.use(adminMiddleware)
 
 async function getStepById(id: number) {
   const [row] = await db
@@ -225,7 +237,7 @@ export const appRouter = t.router({
           .orderBy(desc(reasoningStepVersionTable.version));
       }),
 
-    rollback: sessionProcedure
+    rollback: adminProcedure
       .input(z.object({ versionId: z.number().int() }))
       .mutation(async ({ input, ctx }) => {
         const [ver] = await db.select().from(reasoningStepVersionTable).where(eq(reasoningStepVersionTable.id, input.versionId)).limit(1);
@@ -301,6 +313,31 @@ export const appRouter = t.router({
           .where(eq(reasoningDependencyTable.targetId, input.reasoningStepId));
       }),
 
+    breadcrumbs: t.procedure
+      .input(z.object({ reasoningStepId: z.number().int() }))
+      .query(async ({ input }) => {
+        const chain: { id: number; question: string }[] = [];
+        let currentId = input.reasoningStepId;
+        const visited = new Set<number>();
+        while (true) {
+          visited.add(currentId);
+          const parents = await db
+            .select({
+              id: reasoningStepTable.id,
+              question: reasoningStepTable.question,
+            })
+            .from(reasoningDependencyTable)
+            .innerJoin(reasoningStepTable, eq(reasoningDependencyTable.sourceId, reasoningStepTable.id))
+            .where(eq(reasoningDependencyTable.targetId, currentId));
+          if (parents.length === 0) break;
+          const parent = parents[0];
+          if (visited.has(parent.id)) break;
+          chain.push(parent);
+          currentId = parent.id;
+        }
+        return chain.reverse();
+      }),
+
     addDependency: sessionProcedure
       .input(z.object({
         sourceId: z.number().int(),
@@ -322,6 +359,17 @@ export const appRouter = t.router({
         await refreshAnnotation(sourceId);
         return step;
       }),
+  }),
+
+  user: t.router({
+    isAdmin: sessionProcedure.query(async ({ ctx }) => {
+      const [admin] = await db
+        .select()
+        .from(adminTable)
+        .where(eq(adminTable.userId, ctx.userId))
+        .limit(1);
+      return { isAdmin: !!admin };
+    }),
   }),
 
   recent: t.router({
