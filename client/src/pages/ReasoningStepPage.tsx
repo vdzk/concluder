@@ -1,10 +1,8 @@
 import { createResource, createSignal, Show, type Component } from 'solid-js'
-import { useParams, A } from '@solidjs/router'
+import { useParams } from '@solidjs/router'
 import { trpc } from '../trpc'
 import { ReasoningStepForm } from '../components/ReasoningStepForm';
 import { StepContent } from '../components/StepContent';
-import { StepView } from '../components/StepView';
-import { DefinitionContent } from '../components/DefinitionContent';
 import { HistoryTab } from '../components/HistoryTab';
 import { DepsTab } from '../components/DepsTab';
 import { NavButton } from '../components/NavButton';
@@ -32,24 +30,10 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
   const [previewVersionId, setPreviewVersionId] = createSignal<number | null>(null);
   const [deps, { refetch: refetchDeps }] = createResource(
     () => trpc.reasoningStep.dependencies.query({ reasoningStepId: props.id })
-  );
+  )
   const [dependents] = createResource(
     () => trpc.reasoningStep.dependents.query({ reasoningStepId: props.id })
-  );
-
-  // Preview state
-  const [previewTarget, setPreviewTarget] = createSignal<{ type: 'step'; id: number } | { type: 'definition'; id: number } | null>(null);
-
-  const upHref = () => {
-    const d = dependents();
-    return d && d.length > 0 ? `/step/${d[0].id}` : '/';
-  };
-
-  const openPreview = (target: { type: 'step'; id: number } | { type: 'definition'; id: number }) => {
-    setPreviewTarget(target);
-    setTabsOpen(true);
-    setActiveTab('preview');
-  };
+  )
 
   const handleRollback = async (versionId: number) => {
     setRollingBack(versionId);
@@ -67,7 +51,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
     <div class="flex h-full">
 
       {/* Left column – content */}
-      <div class="flex flex-col justify-between gap-6 w-1/2 px-10 py-10 overflow-y-auto">
+      <div class="flex flex-col gap-6 w-1/2 px-10 py-10 overflow-y-auto">
         <Show when={step()} fallback={<p class="text-gray-500">{step.loading ? 'Loading…' : 'Not found.'}</p>}>
           {s => (
             <StepContent
@@ -75,14 +59,8 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
               analysis={s().analysis}
               annotatedAnalysis={s().annotatedAnalysis}
               conclusion={s().conclusion}
-              onStepClick={(id) => openPreview({ type: 'step', id })}
-              onDefinitionClick={(id) => openPreview({ type: 'definition', id })}
             />
           )}
-        </Show>
-        <div class="flex-1" />
-        <Show when={dependents() && dependents()!.length > 0}>
-          <NavButton href={upHref()} />
         </Show>
       </div>
 
@@ -153,36 +131,6 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
                 />
               )}
             </Show>
-          </Show>
-
-          {/* Preview tab */}
-          <Show when={activeTab() === 'preview' && previewTarget()}>
-            {target => (
-              <div class="flex flex-col gap-4">
-                <Show when={target().type === 'step'}>
-                  <StepView
-                    id={target().id}
-                    onStepClick={(id) => openPreview({ type: 'step', id })}
-                    onDefinitionClick={(id) => openPreview({ type: 'definition', id })}
-                  />
-                  <A
-                    href={`/step/${target().id}`}
-                    class="text-sm text-green-700 hover:underline"
-                  >
-                    Open full page &rarr;
-                  </A>
-                </Show>
-                <Show when={target().type === 'definition'}>
-                  <DefinitionContent id={target().id} />
-                  <A
-                    href={`/definition/${target().id}`}
-                    class="text-sm text-amber-700 hover:underline"
-                  >
-                    Open full page &rarr;
-                  </A>
-                </Show>
-              </div>
-            )}
           </Show>
 
         </Show>

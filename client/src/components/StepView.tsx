@@ -4,8 +4,6 @@ import { StepContent } from './StepContent'
 
 type Props = {
   id: number
-  onStepClick?: (id: number) => void
-  onDefinitionClick?: (id: number) => void
 }
 
 export const StepView: Component<Props> = (props) => {
@@ -22,8 +20,6 @@ export const StepView: Component<Props> = (props) => {
           analysis={s().analysis}
           annotatedAnalysis={s().annotatedAnalysis}
           conclusion={s().conclusion}
-          onStepClick={props.onStepClick}
-          onDefinitionClick={props.onDefinitionClick}
         />
       )}
     </Show>

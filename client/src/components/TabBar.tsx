@@ -1,13 +1,12 @@
 import { Show, type Component } from 'solid-js'
 
-export type Tab = 'history' | 'deps' | 'new-dep' | 'edit' | 'preview'
+export type Tab = 'history' | 'deps' | 'new-dep' | 'edit'
 
 const TAB_LABELS: Record<Tab, string> = {
   history: 'History',
   deps: 'Dependencies',
   'new-dep': 'New dependency',
   edit: 'Edit',
-  preview: 'Preview',
 }
 
 const TABS: Tab[] = ['history', 'deps', 'new-dep', 'edit']
@@ -50,14 +49,7 @@ export const TabBar: Component<Props> = (props) => {
             {TAB_LABELS[tab]}
           </button>
         ))}
-        <Show when={props.activeTab === 'preview'}>
-          <button
-            class="px-3 py-2 text-sm cursor-pointer border-b-2 -mb-px transition-colors border-green-600 text-green-700 font-medium"
-            onClick={() => props.onToggleTab('preview')}
-          >
-            {TAB_LABELS.preview}
-          </button>
-        </Show>
+
       </Show>
     </div>
   )

@@ -1,4 +1,5 @@
 import { type Component } from 'solid-js'
+import { A } from '@solidjs/router'
 
 type AnnotationChunk =
   | { type: 'text'; text: string }
@@ -10,8 +11,6 @@ type Props = {
   analysis: string
   annotatedAnalysis: unknown
   conclusion: string
-  onStepClick?: (id: number) => void
-  onDefinitionClick?: (id: number) => void
 }
 
 export const StepContent: Component<Props> = (props) => {
@@ -26,19 +25,19 @@ export const StepContent: Component<Props> = (props) => {
             if (!chunks || !Array.isArray(chunks)) return props.analysis;
             return chunks.map(chunk =>
               chunk.type === 'link' ? (
-                <span
-                  class="underline decoration-green-400 decoration-2 text-green-800 hover:bg-green-50 rounded px-0.5 cursor-pointer"
-                  onClick={() => props.onStepClick?.(chunk.dependencyId)}
+                <A
+                  href={`/step/${chunk.dependencyId}`}
+                  class="underline decoration-green-400 decoration-2 text-green-800 hover:bg-green-50 rounded px-0.5"
                 >
                   {chunk.text}
-                </span>
+                </A>
               ) : chunk.type === 'definition' ? (
-                <span
-                  class="underline decoration-amber-400 decoration-2 text-amber-800 hover:bg-amber-50 rounded px-0.5 cursor-pointer"
-                  onClick={() => props.onDefinitionClick?.(chunk.definitionId)}
+                <A
+                  href={`/definition/${chunk.definitionId}`}
+                  class="underline decoration-amber-400 decoration-2 text-amber-800 hover:bg-amber-50 rounded px-0.5"
                 >
                   {chunk.text}
-                </span>
+                </A>
               ) : chunk.text
             );
           })()}
