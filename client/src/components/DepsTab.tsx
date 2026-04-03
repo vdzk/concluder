@@ -12,6 +12,22 @@ type Props = {
   onAddDep: (values: FormValues) => Promise<void>
   selection: TextSelection | null
   onLink: (depId: number) => void
+  annotatedAnalysis: unknown
+  onRemoveLink: () => void
+}
+
+function getLinkedDepAtSelection(annotatedAnalysis: unknown, sel: TextSelection): number | null {
+  const chunks = annotatedAnalysis as Array<{ type: string; text: string; dependencyId?: number }> | null
+  if (!chunks || !Array.isArray(chunks)) return null
+  let offset = 0
+  for (const chunk of chunks) {
+    const chunkEnd = offset + chunk.text.length
+    if (chunk.type === 'link' && chunk.dependencyId !== undefined) {
+      if (sel.start < chunkEnd && sel.end > offset) return chunk.dependencyId
+    }
+    offset = chunkEnd
+  }
+  return null
 }
 
 export const DepsTab: Component<Props> = (props) => {
@@ -27,9 +43,20 @@ export const DepsTab: Component<Props> = (props) => {
             </p>
           }>
             {sel => (
-              <p class="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-2 py-1">
-                Selected: "{sel().text.length > 80 ? sel().text.slice(0, 80) + '…' : sel().text}"
-              </p>
+              <div class="flex items-center gap-2">
+                <p class="flex-1 text-sm text-green-700 bg-green-50 border border-green-200 rounded px-2 py-1">
+                  Selected: "{sel().text.length > 80 ? sel().text.slice(0, 80) + '…' : sel().text}"
+                </p>
+                <Show when={getLinkedDepAtSelection(props.annotatedAnalysis, sel()) !== null}>
+                  <button
+                    class="shrink-0 px-2 py-1 text-xs rounded bg-red-100 text-red-800 border border-red-300 hover:bg-red-200 cursor-pointer"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => props.onRemoveLink()}
+                  >
+                    Remove link
+                  </button>
+                </Show>
+              </div>
             )}
           </Show>
           <ul class="flex flex-col gap-3">

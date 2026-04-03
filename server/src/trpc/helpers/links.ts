@@ -90,3 +90,7 @@ export function addLinkToChunks(existingLinks: LinkInfo[], newLink: LinkInfo): L
   result.push(newLink);
   return result;
 }
+
+export function removeLinkAtSelection(links: LinkInfo[], startOffset: number, endOffset: number): LinkInfo[] {
+  return links.filter(link => link.endOffset <= startOffset || link.startOffset >= endOffset);
+}

@@ -1,4 +1,5 @@
 import { Route, Router, useLocation } from '@solidjs/router'
+import { MetaProvider } from '@solidjs/meta'
 import { ReasoningStepPage } from './pages/ReasoningStepPage'
 import { Home } from './pages/Home'
 import { DefinitionPage } from './pages/DefinitionPage'
@@ -20,12 +21,14 @@ const Layout = (props: { children?: JSX.Element }) => {
 };
 
 const App = () => (
-  <Router root={Layout}>
-    <Route path="/" component={Home} />
-    <Route path="/step/:id" component={ReasoningStepPage} />
-    <Route path="/definitions" component={DefinitionsPage as Component} />
-    <Route path="/definition/:id" component={DefinitionPage} />
-  </Router>
+  <MetaProvider>
+    <Router root={Layout}>
+      <Route path="/" component={Home} />
+      <Route path="/step/:id" component={ReasoningStepPage} />
+      <Route path="/definitions" component={DefinitionsPage as Component} />
+      <Route path="/definition/:id" component={DefinitionPage} />
+    </Router>
+  </MetaProvider>
 );
 
 export default App;

@@ -5,7 +5,7 @@ import { reasoningStepTable, reasoningStepVersionTable, reasoningDependencyTable
 import { type AnnotationChunk } from '../../lib/annotateAnalysis.ts'
 import { t, sessionProcedure, adminProcedure } from '../trpc.ts'
 import { getStepById } from '../helpers/getStepById.ts'
-import { extractLinks, buildChunksFromLinks, stripDefinitions, preserveLinks, addLinkToChunks } from '../helpers/links.ts'
+import { extractLinks, buildChunksFromLinks, stripDefinitions, preserveLinks, addLinkToChunks, removeLinkAtSelection } from '../helpers/links.ts'
 import { applyDefinitions } from '../helpers/definitions.ts'
 
 export const reasoningStepRouter = t.router({
@@ -242,6 +242,27 @@ export const reasoningStepRouter = t.router({
         startOffset: input.startOffset,
         endOffset: input.endOffset,
       });
+
+      let chunks = buildChunksFromLinks(step.analysis, updatedLinks);
+      chunks = await applyDefinitions(chunks);
+
+      await db.update(reasoningStepTable).set({ annotatedAnalysis: chunks }).where(eq(reasoningStepTable.id, input.stepId));
+      return getStepById(input.stepId);
+    }),
+
+  removeAnnotationLink: sessionProcedure
+    .input(z.object({
+      stepId: z.number().int(),
+      startOffset: z.number().int().min(0),
+      endOffset: z.number().int().min(1),
+    }))
+    .mutation(async ({ input }) => {
+      const [step] = await db.select().from(reasoningStepTable).where(eq(reasoningStepTable.id, input.stepId)).limit(1);
+      if (!step) throw new Error('Not found');
+
+      const oldChunks = (step.annotatedAnalysis as AnnotationChunk[] | null) ?? [];
+      const existingLinks = extractLinks(oldChunks);
+      const updatedLinks = removeLinkAtSelection(existingLinks, input.startOffset, input.endOffset);
 
       let chunks = buildChunksFromLinks(step.analysis, updatedLinks);
       chunks = await applyDefinitions(chunks);

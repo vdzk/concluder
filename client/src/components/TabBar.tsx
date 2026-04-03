@@ -1,4 +1,5 @@
 import { type Component } from 'solid-js'
+import { A } from '@solidjs/router'
 
 export type Tab = 'breadcrumbs' | 'history' | 'deps' | 'edit' | 'talk'
 
@@ -17,21 +18,36 @@ type Props = {
   onToggleTab: (tab: Tab) => void
 }
 
+const BASE_TAB_CLASS = 'px-3 py-2 text-sm border-b-2 -mb-px transition-colors'
+const INACTIVE_TAB_CLASS = 'border-transparent text-gray-500 hover:text-gray-800'
+
 export const TabBar: Component<Props> = (props) => {
   return (
     <div class="flex items-center gap-1 border-b border-gray-200">
+      <A
+        href="/"
+        class={`${BASE_TAB_CLASS} ${INACTIVE_TAB_CLASS}`}
+      >
+        Home
+      </A>
       {TABS.map(tab => (
         <button
-          class={`px-3 py-2 text-sm cursor-pointer border-b-2 -mb-px transition-colors ${
+          class={`${BASE_TAB_CLASS} cursor-pointer ${
             props.activeTab === tab
               ? 'border-green-600 text-green-700 font-medium'
-              : 'border-transparent text-gray-500 hover:text-gray-800'
+              : INACTIVE_TAB_CLASS
           }`}
           onClick={() => props.onToggleTab(tab)}
         >
           {TAB_LABELS[tab]}
         </button>
       ))}
+      <A
+        href="/definitions"
+        class={`${BASE_TAB_CLASS} ${INACTIVE_TAB_CLASS}`}
+      >
+        Definitions
+      </A>
     </div>
   )
 }

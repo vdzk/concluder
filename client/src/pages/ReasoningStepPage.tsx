@@ -1,4 +1,4 @@
-import { createResource, createSignal, Show, type Component } from 'solid-js'
+import { createEffect, createResource, createSignal, Show, type Component } from 'solid-js'
 import { useParams, useSearchParams } from '@solidjs/router'
 import { trpc } from '../trpc'
 import { ReasoningStepForm } from '../components/ReasoningStepForm'
@@ -52,6 +52,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
     () => trpc.talkMessage.list.query({ reasoningStepId: props.id })
   )
   const [selection, setSelection] = createSignal<TextSelection | null>(null)
+  createEffect(() => { document.title = step()?.question ?? 'Concluder'; })
 
   const handleRollback = async (versionId: number) => {
     setRollingBack(versionId);
@@ -130,12 +131,25 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
                 refetchStep();
               }}
               selection={selection()}
+              annotatedAnalysis={step()?.annotatedAnalysis}
               onLink={async (depId) => {
                 const sel = selection();
                 if (!sel) return;
                 const updated = await trpc.reasoningStep.linkAnnotation.mutate({
                   stepId: props.id,
                   dependencyId: depId,
+                  startOffset: sel.start,
+                  endOffset: sel.end,
+                });
+                mutate(updated);
+                setSelection(null);
+                window.getSelection()?.removeAllRanges();
+              }}
+              onRemoveLink={async () => {
+                const sel = selection();
+                if (!sel) return;
+                const updated = await trpc.reasoningStep.removeAnnotationLink.mutate({
+                  stepId: props.id,
                   startOffset: sel.start,
                   endOffset: sel.end,
                 });

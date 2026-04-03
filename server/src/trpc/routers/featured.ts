@@ -10,6 +10,7 @@ export const featuredRouter = t.router({
       .select({
         id: reasoningStepTable.id,
         question: reasoningStepTable.question,
+        conclusion: reasoningStepTable.conclusion,
       })
       .from(featuredTable)
       .innerJoin(reasoningStepTable, eq(reasoningStepTable.id, featuredTable.id));

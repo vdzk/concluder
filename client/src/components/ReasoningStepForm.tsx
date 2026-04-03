@@ -50,8 +50,9 @@ export const ReasoningStepForm: Component<Props> = (props) => {
 
       <label class="flex flex-col gap-1">
         <span class="font-medium">Question</span>
-        <input
+        <textarea
           class="border rounded px-3 py-2"
+          rows={2}
           value={question()}
           onInput={e => setQuestion(e.currentTarget.value)}
           required
@@ -62,7 +63,7 @@ export const ReasoningStepForm: Component<Props> = (props) => {
         <span class="font-medium">Analysis</span>
         <textarea
           class="border rounded px-3 py-2 min-h-24"
-          rows={6}
+          rows={10}
           value={analysis()}
           onInput={e => setAnalysis(e.currentTarget.value)}
           required

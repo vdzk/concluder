@@ -1,5 +1,35 @@
-import { type Component, onCleanup } from 'solid-js'
+import { type Component, type JSX, onCleanup } from 'solid-js'
 import { A } from '@solidjs/router'
+
+const URL_RE = /https?:\/\/[^\s<>"]+/g;
+
+function trimUrl(raw: string): string {
+  let url = raw.replace(/[.,;:!?]+$/, '');
+  while (url.endsWith(')') && (url.match(/\(/g)?.length ?? 0) < (url.match(/\)/g)?.length ?? 0)) {
+    url = url.slice(0, -1);
+  }
+  while (url.endsWith(']') && (url.match(/\[/g)?.length ?? 0) < (url.match(/\]/g)?.length ?? 0)) {
+    url = url.slice(0, -1);
+  }
+  return url;
+}
+
+function renderText(text: string): string | JSX.Element[] {
+  const parts: JSX.Element[] = [];
+  let last = 0;
+  for (const m of text.matchAll(URL_RE)) {
+    if (m.index! > last) parts.push(text.slice(last, m.index));
+    const url = trimUrl(m[0]);
+    parts.push(
+      <a href={url} target="_blank" rel="noopener noreferrer"
+        class="underline decoration-blue-400 decoration-2 text-blue-700 hover:bg-blue-50 rounded px-0.5"
+      >{url}</a>
+    );
+    last = m.index! + url.length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts.length > 1 ? parts : text;
+}
 
 type AnnotationChunk =
   | { type: 'text'; text: string }
@@ -75,14 +105,14 @@ export const StepContent: Component<Props> = (props) => {
                 >
                   {chunk.text}
                 </A>
-              ) : chunk.text
+              ) : renderText(chunk.text)
             );
           })()}
         </p>
       </section>
       <section>
         <h2 class="text-sm font-medium uppercase tracking-wide text-gray-500 mb-1">Conclusion</h2>
-        <p class="text-gray-800">{props.conclusion}</p>
+        <p class="text-gray-800">{renderText(props.conclusion)}</p>
       </section>
     </>
   );

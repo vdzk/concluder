@@ -1,4 +1,4 @@
-import { createResource, createSignal, For, Show, type Component } from 'solid-js';
+import { createEffect, createResource, createSignal, For, Show, type Component } from 'solid-js';
 import { A, useSearchParams } from '@solidjs/router';
 import { trpc } from '../trpc';
 
@@ -25,6 +25,7 @@ export const Home: Component = () => {
   const [featured, { refetch }] = createResource(() => trpc.featured.list.query());
   const [recent] = createResource(() => trpc.recent.list.query());
   const [recentMessages] = createResource(() => trpc.talkMessage.recent.query());
+  createEffect(() => { document.title = 'Concluder | Home'; })
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
@@ -116,7 +117,10 @@ export const Home: Component = () => {
               {item => (
                 <li>
                   <A href={`/step/${item.id}`} class="block border rounded px-4 py-3 hover:bg-gray-50">
-                    {item.question}
+                    <div><span class="font-bold">Q:</span> {item.question}</div>
+                    <Show when={item.conclusion}>
+                      <div class="mt-1"><span class="font-bold">A:</span> {item.conclusion}</div>
+                    </Show>
                   </A>
                 </li>
               )}
@@ -146,7 +150,7 @@ export const Home: Component = () => {
             <For each={recentMessages()} fallback={<li class="text-gray-500">No messages yet.</li>}>
               {msg => (
                 <li>
-                  <A href={`/step/${msg.reasoningStepId}`} class="block border rounded px-4 py-3 hover:bg-gray-50">
+                  <A href={`/step/${msg.reasoningStepId}?tab=talk`} class="block border rounded px-4 py-3 hover:bg-gray-50">
                     <div class="text-xs text-gray-500 mb-1 truncate">{msg.stepQuestion}</div>
                     <p class="text-sm text-gray-800 line-clamp-2 whitespace-pre-wrap">{msg.body}</p>
                     <div class="text-xs text-gray-400 mt-1">{msg.userName} · {timeAgo(new Date(msg.createdAt).toISOString())}</div>
