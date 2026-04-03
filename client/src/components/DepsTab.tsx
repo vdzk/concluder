@@ -38,18 +38,18 @@ export const DepsTab: Component<Props> = (props) => {
       <Show when={showForm()} fallback={
         <div class="flex flex-col gap-3">
           <Show when={props.selection} fallback={
-            <p class="text-sm text-gray-500 italic">
+            <p class="text-sm text-gray-500 dark:text-gray-400 italic">
               Select a part of the analysis text to link it to one of the questions.
             </p>
           }>
             {sel => (
               <div class="flex items-center gap-2">
-                <p class="flex-1 text-sm text-green-700 bg-green-50 border border-green-200 rounded px-2 py-1">
+                <p class="flex-1 text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded px-2 py-1">
                   Selected: "{sel().text.length > 80 ? sel().text.slice(0, 80) + '…' : sel().text}"
                 </p>
                 <Show when={getLinkedDepAtSelection(props.annotatedAnalysis, sel()) !== null}>
                   <button
-                    class="shrink-0 px-2 py-1 text-xs rounded bg-red-100 text-red-800 border border-red-300 hover:bg-red-200 cursor-pointer"
+                    class="shrink-0 px-2 py-1 text-xs rounded bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border border-red-300 dark:border-red-700 hover:bg-red-200 dark:hover:bg-red-800 cursor-pointer"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => props.onRemoveLink()}
                   >
@@ -60,13 +60,13 @@ export const DepsTab: Component<Props> = (props) => {
             )}
           </Show>
           <ul class="flex flex-col gap-3">
-            <For each={props.deps} fallback={<li class="text-gray-400">No sub-questions yet.</li>}>
+            <For each={props.deps} fallback={<li class="text-gray-400 dark:text-gray-500">No sub-questions yet.</li>}>
               {dep => (
                 <li class="flex items-start gap-2">
                   <A
                     href={`/step/${dep.id}`}
                     class="flex flex-col flex-1 rounded border px-1.5 py-1
-                      border-transparent border-l-black hover:border-black
+                      border-transparent border-l-black dark:border-l-white hover:border-black dark:hover:border-white
                     "
                   >
                     <span><strong>Q:</strong> {dep.question}</span>
@@ -76,7 +76,7 @@ export const DepsTab: Component<Props> = (props) => {
                   </A>
                   <Show when={props.selection}>
                     <button
-                      class="shrink-0 px-2 py-1 text-xs rounded bg-green-100 text-green-800 border border-green-300 hover:bg-green-200 cursor-pointer"
+                      class="shrink-0 px-2 py-1 text-xs rounded bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-300 dark:border-green-700 hover:bg-green-200 dark:hover:bg-green-800 cursor-pointer"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => props.onLink(dep.id)}
                     >
@@ -88,7 +88,7 @@ export const DepsTab: Component<Props> = (props) => {
             </For>
           </ul>
           <button
-            class="self-start px-3 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-50 cursor-pointer"
+            class="self-start px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
             onClick={() => setShowForm(true)}
           >
             + Add sub-question

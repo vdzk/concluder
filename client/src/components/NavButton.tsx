@@ -10,7 +10,7 @@ export const NavButton: Component<Props> = (props) => {
   return (
     <A
       href={props.href}
-      class="flex items-center justify-center w-14 h-14 rounded-full border-2 border-gray-300 text-gray-400 hover:border-green-600 hover:text-green-700 transition-colors self-start"
+      class="flex items-center justify-center w-14 h-14 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 hover:border-green-600 hover:text-green-700 dark:hover:text-green-400 transition-colors self-start"
       aria-label={isHome() ? 'Go home' : 'Go up'}
     >
       {isHome() ? (

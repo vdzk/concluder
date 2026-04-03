@@ -52,19 +52,19 @@ export const Home: Component = () => {
             <div class="flex gap-1">
             <button
               onClick={() => setTab('featured')}
-              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'featured' ? 'bg-gray-200 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'featured' ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
             >
               Top Level
             </button>
             <button
               onClick={() => setTab('recent')}
-              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'recent' ? 'bg-gray-200 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'recent' ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
             >
               Recent
             </button>
             <button
               onClick={() => setTab('messages')}
-              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'messages' ? 'bg-gray-200 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'messages' ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
             >
               Messages
             </button>
@@ -73,7 +73,7 @@ export const Home: Component = () => {
           <Show when={tab() === 'featured'}>
             <button
               onClick={() => { setFormOpen(v => !v); setStatus('idle'); }}
-              class="w-9 h-9 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:bg-gray-100 text-2xl leading-none cursor-pointer"
+              class="w-9 h-9 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-2xl leading-none cursor-pointer"
               title="Add question"
             >
               +
@@ -84,7 +84,7 @@ export const Home: Component = () => {
         <Show when={tab() === 'featured' && formOpen()}>
           <form onSubmit={handleSubmit} class="flex flex-col gap-3">
             <input
-              class="border rounded px-3 py-2 text-sm"
+              class="border dark:border-gray-600 rounded px-3 py-2 text-sm dark:bg-gray-800"
               value={question()}
               onInput={e => setQuestion(e.currentTarget.value)}
               placeholder="Your question…"
@@ -95,28 +95,28 @@ export const Home: Component = () => {
               <button
                 type="submit"
                 disabled={status() === 'loading'}
-                class="bg-green-700 text-white px-4 py-1.5 rounded text-sm disabled:opacity-50"
+                class="bg-green-700 dark:bg-green-600 text-white px-4 py-1.5 rounded text-sm disabled:opacity-50"
               >
                 {status() === 'loading' ? 'Submitting…' : 'Submit'}
               </button>
               <button
                 type="button"
                 onClick={() => { setFormOpen(false); setStatus('idle'); }}
-                class="px-4 py-1.5 rounded text-sm border hover:bg-gray-50"
+                class="px-4 py-1.5 rounded text-sm border dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 Cancel
               </button>
             </div>
-            {status() === 'error' && <p class="text-red-600 text-sm">Something went wrong.</p>}
+            {status() === 'error' && <p class="text-red-600 dark:text-red-400 text-sm">Something went wrong.</p>}
           </form>
         </Show>
 
         <Show when={tab() === 'featured'}>
           <ul class="flex flex-col gap-3">
-            <For each={featured()} fallback={<li class="text-gray-500">No featured questions yet.</li>}>
+            <For each={featured()} fallback={<li class="text-gray-500 dark:text-gray-400">No featured questions yet.</li>}>
               {item => (
                 <li>
-                  <A href={`/step/${item.id}`} class="block border rounded px-4 py-3 hover:bg-gray-50">
+                  <A href={`/step/${item.id}`} class="block border dark:border-gray-700 rounded px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
                     <div><span class="font-bold">Q:</span> {item.question}</div>
                     <Show when={item.conclusion}>
                       <div class="mt-1"><span class="font-bold">A:</span> {item.conclusion}</div>
@@ -130,12 +130,12 @@ export const Home: Component = () => {
 
         <Show when={tab() === 'recent'}>
           <ul class="flex flex-col gap-3">
-            <For each={recent()} fallback={<li class="text-gray-500">No recent questions yet.</li>}>
+            <For each={recent()} fallback={<li class="text-gray-500 dark:text-gray-400">No recent questions yet.</li>}>
               {item => (
                 <li>
-                  <A href={`/step/${item.id}`} class="block border rounded px-4 py-3 hover:bg-gray-50">
+                  <A href={`/step/${item.id}`} class="block border dark:border-gray-700 rounded px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
                     <div class="font-medium">{item.question}</div>
-                    <div class="text-xs text-gray-500 mt-1">
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {item.wasEdited ? 'edited' : 'created'} {timeAgo(item.activityAt)} by {item.actorName}
                     </div>
                   </A>
@@ -147,13 +147,13 @@ export const Home: Component = () => {
 
         <Show when={tab() === 'messages'}>
           <ul class="flex flex-col gap-3">
-            <For each={recentMessages()} fallback={<li class="text-gray-500">No messages yet.</li>}>
+            <For each={recentMessages()} fallback={<li class="text-gray-500 dark:text-gray-400">No messages yet.</li>}>
               {msg => (
                 <li>
-                  <A href={`/step/${msg.reasoningStepId}?tab=talk`} class="block border rounded px-4 py-3 hover:bg-gray-50">
-                    <div class="text-xs text-gray-500 mb-1 truncate">{msg.stepQuestion}</div>
-                    <p class="text-sm text-gray-800 line-clamp-2 whitespace-pre-wrap">{msg.body}</p>
-                    <div class="text-xs text-gray-400 mt-1">{msg.userName} · {timeAgo(new Date(msg.createdAt).toISOString())}</div>
+                  <A href={`/step/${msg.reasoningStepId}?tab=talk`} class="block border dark:border-gray-700 rounded px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 truncate">{msg.stepQuestion}</div>
+                    <p class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 whitespace-pre-wrap">{msg.body}</p>
+                    <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">{msg.userName} · {timeAgo(new Date(msg.createdAt).toISOString())}</div>
                   </A>
                 </li>
               )}
@@ -163,13 +163,13 @@ export const Home: Component = () => {
       </div>
 
       {/* Divider */}
-      <div class="w-px bg-gray-400 self-stretch" />
+      <div class="w-px bg-gray-400 dark:bg-gray-600 self-stretch" />
 
       {/* Right column – welcome */}
       <div class="flex flex-col justify-between gap-6 w-1/2 px-10 py-10 overflow-y-auto">
         <div class="flex flex-col gap-4">
           <h1 class="text-3xl font-semibold">Welcome to Concluder</h1>
-          <p class="text-gray-600">
+          <p class="text-gray-600 dark:text-gray-400">
             Concluder is a Wikipedia-style tool for collaborative reasoning. Browse questions on the left,
             or add your own to kick off a structured chain of thought. Each question can be broken
             down into sub-questions, analysed, and concluded collaboratively.

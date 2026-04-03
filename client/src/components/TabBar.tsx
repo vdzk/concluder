@@ -19,11 +19,11 @@ type Props = {
 }
 
 const BASE_TAB_CLASS = 'px-3 py-2 text-sm border-b-2 -mb-px transition-colors'
-const INACTIVE_TAB_CLASS = 'border-transparent text-gray-500 hover:text-gray-800'
+const INACTIVE_TAB_CLASS = 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
 
 export const TabBar: Component<Props> = (props) => {
   return (
-    <div class="flex items-center gap-1 border-b border-gray-200">
+    <div class="flex items-center gap-1 border-b border-gray-200 dark:border-gray-700">
       <A
         href="/"
         class={`${BASE_TAB_CLASS} ${INACTIVE_TAB_CLASS}`}
@@ -34,7 +34,7 @@ export const TabBar: Component<Props> = (props) => {
         <button
           class={`${BASE_TAB_CLASS} cursor-pointer ${
             props.activeTab === tab
-              ? 'border-green-600 text-green-700 font-medium'
+              ? 'border-green-600 dark:border-green-500 text-green-700 dark:text-green-400 font-medium'
               : INACTIVE_TAB_CLASS
           }`}
           onClick={() => props.onToggleTab(tab)}

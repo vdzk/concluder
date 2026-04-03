@@ -16,11 +16,11 @@ export const HistoryTab: Component<Props> = (props) => {
   return (
     <div class="flex flex-col gap-4">
       <Show when={props.createdByName}>
-        <p class="text-sm text-gray-400">Current version created by: {props.createdByName}</p>
+        <p class="text-sm text-gray-400 dark:text-gray-500">Current version created by: {props.createdByName}</p>
       </Show>
       <Show
         when={(props.versions?.length ?? 0) > 0}
-        fallback={<p class="text-sm text-gray-400">No edit history yet.</p>}
+        fallback={<p class="text-sm text-gray-400 dark:text-gray-500">No edit history yet.</p>}
       >
         <ul class="flex flex-col gap-2">
           <For each={props.versions}>

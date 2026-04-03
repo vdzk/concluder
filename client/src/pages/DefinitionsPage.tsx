@@ -51,7 +51,7 @@ export const DefinitionsPage: Component<Props> = (props) => {
           </div>
           <button
             onClick={openAdd}
-            class="w-9 h-9 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:bg-gray-100 text-2xl leading-none cursor-pointer"
+            class="w-9 h-9 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-2xl leading-none cursor-pointer"
             title="Add definition"
           >
             +
@@ -59,16 +59,16 @@ export const DefinitionsPage: Component<Props> = (props) => {
         </div>
 
         <div class="flex flex-col">
-          <For each={definitions()} fallback={<p class="text-gray-500">No definitions yet.</p>}>
+          <For each={definitions()} fallback={<p class="text-gray-500 dark:text-gray-400">No definitions yet.</p>}>
             {def => (
               <button
                 onClick={() => selectDefinition(def.id)}
-                class={`flex items-center justify-between py-3 hover:bg-gray-50 -mx-2 px-2 rounded text-left cursor-pointer ${
-                  selectedId() === def.id ? 'bg-amber-50' : ''
+                class={`flex items-center justify-between py-3 hover:bg-gray-50 dark:hover:bg-gray-800 -mx-2 px-2 rounded text-left cursor-pointer ${
+                  selectedId() === def.id ? 'bg-amber-50 dark:bg-amber-900/30' : ''
                 }`}
               >
-                <span class="font-semibold text-amber-800">{def.term}</span>
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <span class="font-semibold text-amber-800 dark:text-amber-400">{def.term}</span>
+                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -78,13 +78,13 @@ export const DefinitionsPage: Component<Props> = (props) => {
       </div>
 
       {/* Divider */}
-      <div class="w-px bg-gray-400 self-stretch" />
+      <div class="w-px bg-gray-400 dark:bg-gray-600 self-stretch" />
 
       {/* Right column – definition view or add form */}
       <div class="flex flex-col w-1/2 overflow-y-auto">
 
-        <div class="flex items-center gap-1 border-b border-gray-200">
-          <A href="/" class="px-3 py-2 text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-800 -mb-px transition-colors">Home</A>
+        <div class="flex items-center gap-1 border-b border-gray-200 dark:border-gray-700">
+          <A href="/" class="px-3 py-2 text-sm border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 -mb-px transition-colors">Home</A>
         </div>
 
         <div class="flex flex-col gap-6 px-10 py-10">
@@ -95,7 +95,7 @@ export const DefinitionsPage: Component<Props> = (props) => {
                 <label class="flex flex-col gap-1">
                   <span class="font-medium text-sm">Term</span>
                   <input
-                    class="border rounded px-3 py-2"
+                    class="border dark:border-gray-600 rounded px-3 py-2 dark:bg-gray-800"
                     value={term()}
                     onInput={e => setTerm(e.currentTarget.value)}
                     placeholder="e.g. Opportunity cost"
@@ -106,7 +106,7 @@ export const DefinitionsPage: Component<Props> = (props) => {
                 <label class="flex flex-col gap-1">
                   <span class="font-medium text-sm">Definition</span>
                   <textarea
-                    class="border rounded px-3 py-2 min-h-20 resize-y"
+                    class="border dark:border-gray-600 rounded px-3 py-2 min-h-20 resize-y dark:bg-gray-800"
                     value={text()}
                     onInput={e => setText(e.currentTarget.value)}
                     placeholder="What does this term mean?"
@@ -117,21 +117,21 @@ export const DefinitionsPage: Component<Props> = (props) => {
                   <button
                     type="submit"
                     disabled={status() === 'loading'}
-                    class="bg-amber-700 text-white px-4 py-1.5 rounded text-sm disabled:opacity-50"
+                    class="bg-amber-700 dark:bg-amber-600 text-white px-4 py-1.5 rounded text-sm disabled:opacity-50"
                   >
                     {status() === 'loading' ? 'Adding…' : 'Add definition'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setRightMode('none')}
-                    class="px-4 py-1.5 rounded text-sm border hover:bg-gray-50"
+                    class="px-4 py-1.5 rounded text-sm border dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     Cancel
                   </button>
                 </div>
-                {status() === 'error' && <p class="text-red-600 text-sm">Something went wrong.</p>}
+                {status() === 'error' && <p class="text-red-600 dark:text-red-400 text-sm">Something went wrong.</p>}
               </form>
-              <p class="text-xs text-gray-400 italic">Links to new definitions in analysis texts will appear only after they are re-saved.</p>
+              <p class="text-xs text-gray-400 dark:text-gray-500 italic">Links to new definitions in analysis texts will appear only after they are re-saved.</p>
             </div>
           </Show>
 
@@ -140,7 +140,7 @@ export const DefinitionsPage: Component<Props> = (props) => {
           </Show>
 
           <Show when={rightMode() === 'none'}>
-            <p class="text-gray-400">Select a definition to view it, or press + to add one.</p>
+            <p class="text-gray-400 dark:text-gray-500">Select a definition to view it, or press + to add one.</p>
           </Show>
         </div>
 

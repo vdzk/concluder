@@ -71,7 +71,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
 
       {/* Left column – content */}
       <div class="flex flex-col gap-6 w-1/2 px-10 py-10 overflow-y-auto">
-        <Show when={step()} fallback={<p class="text-gray-500">{step.loading ? 'Loading…' : 'Not found.'}</p>}>
+        <Show when={step()} fallback={<p class="text-gray-500 dark:text-gray-400">{step.loading ? 'Loading…' : 'Not found.'}</p>}>
           {s => (
             <StepContent
               question={s().question}
@@ -85,7 +85,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
       </div>
 
       {/* Divider */}
-      <div class="w-px bg-gray-400 self-stretch" />
+      <div class="w-px bg-gray-400 dark:bg-gray-600 self-stretch" />
 
       {/* Right column – controls */}
       <div class="flex flex-col w-1/2 overflow-y-auto">

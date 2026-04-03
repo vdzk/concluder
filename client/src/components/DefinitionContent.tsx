@@ -14,12 +14,12 @@ export const DefinitionContent: Component<Props> = (props) => {
   return (
     <Show
       when={definition()}
-      fallback={<p class="text-gray-500">{definition.loading ? 'Loading…' : 'Definition not found.'}</p>}
+      fallback={<p class="text-gray-500 dark:text-gray-400">{definition.loading ? 'Loading…' : 'Definition not found.'}</p>}
     >
       {def => (
         <>
-          <h1 class="text-2xl font-semibold text-amber-800">{def().term}</h1>
-          <p class="text-gray-700 whitespace-pre-wrap">{def().text}</p>
+          <h1 class="text-2xl font-semibold text-amber-800 dark:text-amber-400">{def().term}</h1>
+          <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{def().text}</p>
         </>
       )}
     </Show>

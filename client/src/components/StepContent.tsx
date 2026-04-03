@@ -22,7 +22,7 @@ function renderText(text: string): string | JSX.Element[] {
     const url = trimUrl(m[0]);
     parts.push(
       <a href={url} target="_blank" rel="noopener noreferrer"
-        class="underline decoration-blue-400 decoration-2 text-blue-700 hover:bg-blue-50 rounded px-0.5"
+        class="underline decoration-blue-400 dark:decoration-blue-500 decoration-2 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded px-0.5"
       >{url}</a>
     );
     last = m.index! + url.length;
@@ -85,8 +85,8 @@ export const StepContent: Component<Props> = (props) => {
     <>
       <h1 class="text-2xl font-semibold">{props.question}</h1>
       <section>
-        <h2 class="text-sm font-medium uppercase tracking-wide text-gray-500 mb-1">Analysis</h2>
-        <p ref={analysisRef} class="text-gray-800 whitespace-pre-line">
+        <h2 class="text-sm font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Analysis</h2>
+        <p ref={analysisRef} class="text-gray-800 dark:text-gray-200 whitespace-pre-line">
           {(() => {
             const chunks = props.annotatedAnalysis as AnnotationChunk[] | null;
             if (!chunks || !Array.isArray(chunks)) return props.analysis;
@@ -94,14 +94,14 @@ export const StepContent: Component<Props> = (props) => {
               chunk.type === 'link' ? (
                 <A
                   href={`/step/${chunk.dependencyId}`}
-                  class="underline decoration-green-400 decoration-2 text-green-800 hover:bg-green-50 rounded px-0.5"
+                  class="underline decoration-green-400 dark:decoration-green-500 decoration-2 text-green-800 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded px-0.5"
                 >
                   {chunk.text}
                 </A>
               ) : chunk.type === 'definition' ? (
                 <A
                   href={`/definition/${chunk.definitionId}`}
-                  class="underline decoration-amber-400 decoration-2 text-amber-800 hover:bg-amber-50 rounded px-0.5"
+                  class="underline decoration-amber-400 dark:decoration-amber-500 decoration-2 text-amber-800 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded px-0.5"
                 >
                   {chunk.text}
                 </A>
@@ -111,8 +111,8 @@ export const StepContent: Component<Props> = (props) => {
         </p>
       </section>
       <section>
-        <h2 class="text-sm font-medium uppercase tracking-wide text-gray-500 mb-1">Conclusion</h2>
-        <p class="text-gray-800">{renderText(props.conclusion)}</p>
+        <h2 class="text-sm font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Conclusion</h2>
+        <p class="text-gray-800 dark:text-gray-200">{renderText(props.conclusion)}</p>
       </section>
     </>
   );

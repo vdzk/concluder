@@ -11,15 +11,15 @@ type Props = {
 export const BreadcrumbsTab: Component<Props> = (props) => {
   return (
     <nav class="flex flex-col gap-1">
-      <A href="/" class="text-green-700 hover:underline font-bold text-lg">Home</A>
+      <A href="/" class="text-green-700 dark:text-green-400 hover:underline font-bold text-lg">Home</A>
       <For each={props.ancestors}>
         {(item) => (
-          <A href={`/step/${item.id}`} class="text-green-700 hover:underline">
+          <A href={`/step/${item.id}`} class="text-green-700 dark:text-green-400 hover:underline">
             {item.question}
           </A>
         )}
       </For>
-      <span class="text-gray-700">{props.currentQuestion}</span>
+      <span class="text-gray-700 dark:text-gray-300">{props.currentQuestion}</span>
     </nav>
   )
 }

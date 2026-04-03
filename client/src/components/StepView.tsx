@@ -13,7 +13,7 @@ export const StepView: Component<Props> = (props) => {
   );
 
   return (
-    <Show when={step()} fallback={<p class="text-gray-500">{step.loading ? 'Loading…' : 'Not found.'}</p>}>
+    <Show when={step()} fallback={<p class="text-gray-500 dark:text-gray-400">{step.loading ? 'Loading…' : 'Not found.'}</p>}>
       {s => (
         <StepContent
           question={s().question}

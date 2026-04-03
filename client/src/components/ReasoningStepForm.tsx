@@ -51,7 +51,7 @@ export const ReasoningStepForm: Component<Props> = (props) => {
       <label class="flex flex-col gap-1">
         <span class="font-medium">Question</span>
         <textarea
-          class="border rounded px-3 py-2"
+          class="border dark:border-gray-600 rounded px-3 py-2 dark:bg-gray-800"
           rows={2}
           value={question()}
           onInput={e => setQuestion(e.currentTarget.value)}
@@ -62,7 +62,7 @@ export const ReasoningStepForm: Component<Props> = (props) => {
       <label class="flex flex-col gap-1">
         <span class="font-medium">Analysis</span>
         <textarea
-          class="border rounded px-3 py-2 min-h-24"
+          class="border dark:border-gray-600 rounded px-3 py-2 min-h-24 dark:bg-gray-800"
           rows={10}
           value={analysis()}
           onInput={e => setAnalysis(e.currentTarget.value)}
@@ -73,7 +73,7 @@ export const ReasoningStepForm: Component<Props> = (props) => {
       <label class="flex flex-col gap-1">
         <span class="font-medium">Conclusion</span>
         <textarea
-          class="border rounded px-3 py-2"
+          class="border dark:border-gray-600 rounded px-3 py-2 dark:bg-gray-800"
           value={conclusion()}
           rows={2}
           onInput={e => setConclusion(e.currentTarget.value)}
@@ -83,8 +83,8 @@ export const ReasoningStepForm: Component<Props> = (props) => {
 
       <div class="flex gap-3">
         <Show when={isEditing}>
-          <fieldset class="flex flex-col gap-2 border rounded px-4 py-3 text-sm text-gray-700 w-full">
-            <legend class="text-xs font-medium uppercase tracking-wide text-gray-500 px-1">Before saving, confirm:</legend>
+          <fieldset class="flex flex-col gap-2 border dark:border-gray-600 rounded px-4 py-3 text-sm text-gray-700 dark:text-gray-300 w-full">
+            <legend class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 px-1">Before saving, confirm:</legend>
             <label class="flex items-start gap-2 cursor-pointer">
               <input type="checkbox" class="mt-0.5 cursor-pointer" checked={checkNoErase()} onChange={e => setCheckNoErase(e.currentTarget.checked)} />
               I didn't erase any points from the analysis.
@@ -107,19 +107,19 @@ export const ReasoningStepForm: Component<Props> = (props) => {
         <button
           type="submit"
           disabled={status() === 'loading' || !checksValid()}
-          class="bg-green-700 text-white px-6 py-2 rounded disabled:opacity-50"
+          class="bg-green-700 dark:bg-green-600 text-white px-6 py-2 rounded disabled:opacity-50"
         >
           {status() === 'loading' ? 'Saving…' : (props.submitLabel ?? 'Submit')}
         </button>
         {props.onCancel && (
-          <button type="button" onClick={props.onCancel} class="border rounded px-5 py-2 hover:bg-gray-50">
+          <button type="button" onClick={props.onCancel} class="border dark:border-gray-600 rounded px-5 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">
             Cancel
           </button>
         )}
       </div>
 
-      {status() === 'success' && <p class="text-green-700">Entry saved!</p>}
-      {status() === 'error' && <p class="text-red-600">Something went wrong.</p>}
+      {status() === 'success' && <p class="text-green-700 dark:text-green-400">Entry saved!</p>}
+      {status() === 'error' && <p class="text-red-600 dark:text-red-400">Something went wrong.</p>}
     </form>
   );
 }
