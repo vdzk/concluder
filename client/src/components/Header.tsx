@@ -4,7 +4,7 @@ import { Component } from 'solid-js'
 export const Header: Component = () => (
   <header class="w-full border-b bg-lime-800 dark:bg-lime-900 text-white">
     <div class="mx-auto flex items-center px-6">
-      <A href="/" class="text-xl font-bold tracking-tight hover:opacity-80 transition-opacity">
+      <A href="/" class="text-xl font-semibold tracking-tight hover:opacity-80 transition-opacity">
         Concluder – Home
       </A>
     </div>

@@ -2,6 +2,7 @@ import { createSignal, For, Show, type Component } from 'solid-js'
 import { trpc } from '../trpc'
 import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
+import { Text, TextBlock } from './ui/Text'
 import { Textarea } from './ui/Textarea'
 
 type Message = {
@@ -39,19 +40,19 @@ export const TalkTab: Component<Props> = (props) => {
     <div class="flex flex-col gap-4">
       <Show
         when={(props.messages?.length ?? 0) > 0}
-        fallback={<EmptyState size="sm" message="No messages yet. Be the first to say something." />}
+        fallback={<EmptyState message="No messages yet. Be the first to say something." />}
       >
         <ul class="flex flex-col gap-3">
           <For each={props.messages}>
             {msg => (
               <li class="flex flex-col gap-1">
                 <div class="flex items-baseline gap-2">
-                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{msg.userName}</span>
-                  <span class="text-xs text-gray-400 dark:text-gray-500">
+                  <Text bold>{msg.userName}</Text>
+                  <Text size="xs" color="muted">
                     {new Date(msg.createdAt).toLocaleString()}
-                  </span>
+                  </Text>
                 </div>
-                <p class="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{msg.body}</p>
+                <TextBlock class="whitespace-pre-wrap">{msg.body}</TextBlock>
               </li>
             )}
           </For>

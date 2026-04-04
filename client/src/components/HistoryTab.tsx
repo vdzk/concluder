@@ -1,6 +1,7 @@
 import { Show, For, type Component } from 'solid-js'
 import { VersionHistoryItem } from './VersionHistoryItem'
 import { EmptyState } from './ui/EmptyState'
+import { TextBlock } from './ui/Text'
 import type { Version } from '../pages/ReasoningStepPage'
 
 type Props = {
@@ -17,11 +18,11 @@ export const HistoryTab: Component<Props> = (props) => {
   return (
     <div class="flex flex-col gap-4">
       <Show when={props.createdByName}>
-        <p class="text-sm text-gray-400 dark:text-gray-500">Current version created by: {props.createdByName}</p>
+        <TextBlock color="muted">Current version created by: {props.createdByName}</TextBlock>
       </Show>
       <Show
         when={(props.versions?.length ?? 0) > 0}
-        fallback={<EmptyState size="sm" message="No edit history yet." />}
+        fallback={<EmptyState message="No edit history yet." />}
       >
         <ul class="flex flex-col gap-2">
           <For each={props.versions}>

@@ -1,5 +1,6 @@
 import { For, type Component } from 'solid-js'
 import { BlockItem } from './ui/BlockItem'
+import { Text } from './ui/Text'
 
 type BreadcrumbItem = { id: number; question: string }
 
@@ -17,7 +18,7 @@ export const BreadcrumbsTab: Component<Props> = (props) => {
           <BlockItem href={`/step/${item.id}`}>{item.question}</BlockItem>
         )}
       </For>
-      <span class="text-gray-700 dark:text-gray-300 px-2 py-1.5">{props.currentQuestion}</span>
+      <Text class="px-2 py-1.5">{props.currentQuestion}</Text>
     </nav>
   )
 }

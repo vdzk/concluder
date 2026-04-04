@@ -4,6 +4,7 @@ import { BlockItem } from './ui/BlockItem'
 import type { TextSelection } from './StepContent'
 import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
+import { TextBlock } from './ui/Text'
 
 type Dep = { id: number; question: string; conclusion: string | null }
 type FormValues = { question: string; analysis: string; conclusion: string }
@@ -40,9 +41,9 @@ export const DepsTab: Component<Props> = (props) => {
       <Show when={showForm()} fallback={
         <div class="flex flex-col gap-3">
           <Show when={props.selection} fallback={
-            <p class="text-sm text-gray-500 dark:text-gray-400 italic">
+            <TextBlock color="muted" class="italic">
               Select a part of the analysis text to link it to one of the questions.
-            </p>
+            </TextBlock>
           }>
             {sel => (
               <div class="flex items-center gap-2">

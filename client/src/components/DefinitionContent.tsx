@@ -1,5 +1,6 @@
 import { createResource, Show, type Component } from 'solid-js'
 import { trpc } from '../trpc'
+import { TextBlock } from './ui/Text'
 
 type Props = {
   id: number
@@ -14,12 +15,12 @@ export const DefinitionContent: Component<Props> = (props) => {
   return (
     <Show
       when={definition()}
-      fallback={<p class="text-gray-500 dark:text-gray-400">{definition.loading ? 'Loading…' : 'Definition not found.'}</p>}
+      fallback={<TextBlock color="muted">{definition.loading ? 'Loading…' : 'Definition not found.'}</TextBlock>}
     >
       {def => (
         <>
           <h1 class="text-2xl font-semibold text-amber-800 dark:text-amber-400">{def().term}</h1>
-          <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{def().text}</p>
+          <TextBlock class="whitespace-pre-wrap">{def().text}</TextBlock>
         </>
       )}
     </Show>

@@ -4,13 +4,12 @@ import type { Component } from 'solid-js';
 interface Props {
   message: string;
   as?: 'p' | 'li' | 'span';
-  size?: 'sm' | 'base';
 }
 
 export const EmptyState: Component<Props> = (props) => (
   <Dynamic
     component={props.as ?? 'p'}
-    class={`text-gray-500 dark:text-gray-400${props.size === 'sm' ? ' text-sm' : ''}`}
+    class="text-sm text-gray-500 dark:text-gray-400"
   >
     {props.message}
   </Dynamic>

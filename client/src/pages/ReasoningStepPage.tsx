@@ -8,6 +8,7 @@ import { DepsTab } from '../components/DepsTab'
 import { BreadcrumbsTab } from '../components/BreadcrumbsTab'
 import { TabBar, type Tab } from '../components/TabBar'
 import { TalkTab } from '../components/TalkTab'
+import { TextBlock } from '../components/ui/Text'
 
 export type Version = NonNullable<Awaited<ReturnType<typeof trpc.reasoningStep.versions.query>>>[number];
 
@@ -71,7 +72,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
 
       {/* Left column – content */}
       <div class="flex flex-col gap-6 w-1/2 px-10 py-10 overflow-y-auto">
-        <Show when={step()} fallback={<p class="text-gray-500 dark:text-gray-400">{step.loading ? 'Loading…' : 'Not found.'}</p>}>
+        <Show when={step()} fallback={<TextBlock color="muted">{step.loading ? 'Loading…' : 'Not found.'}</TextBlock>}>
           {s => (
             <StepContent
               question={s().question}

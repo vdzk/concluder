@@ -1,6 +1,7 @@
 import { createResource, Show, type Component } from 'solid-js'
 import { trpc } from '../trpc'
 import { StepContent } from './StepContent'
+import { TextBlock } from './ui/Text'
 
 type Props = {
   id: number
@@ -13,7 +14,7 @@ export const StepView: Component<Props> = (props) => {
   );
 
   return (
-    <Show when={step()} fallback={<p class="text-gray-500 dark:text-gray-400">{step.loading ? 'Loading…' : 'Not found.'}</p>}>
+    <Show when={step()} fallback={<TextBlock color="muted">{step.loading ? 'Loading…' : 'Not found.'}</TextBlock>}>
       {s => (
         <StepContent
           question={s().question}

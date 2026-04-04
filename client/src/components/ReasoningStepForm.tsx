@@ -1,6 +1,7 @@
 import { createSignal, Show, type Component } from 'solid-js';
 import { trpc } from '../trpc';
 import { Button } from './ui/Button';
+import { Text, TextBlock } from './ui/Text';
 import { Textarea } from './ui/Textarea';
 
 type Values = { question: string; analysis: string; conclusion: string };
@@ -48,27 +49,27 @@ export const ReasoningStepForm: Component<Props> = (props) => {
 
   return (
     <form onSubmit={handleSubmit} class="flex flex-col gap-4">
-      {!props.onSubmit && <h2 class="text-2xl font-semibold">New Reasoning Step</h2>}
+      {!props.onSubmit && <TextBlock size="xl" bold>New Reasoning Step</TextBlock>}
 
       <label class="flex flex-col gap-1">
-        <span class="font-medium">Question</span>
+        <Text bold>Question</Text>
         <Textarea rows={2} value={question()} onInput={e => setQuestion(e.currentTarget.value)} required />
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="font-medium">Analysis</span>
+        <Text bold>Analysis</Text>
         <Textarea class="min-h-24" rows={10} value={analysis()} onInput={e => setAnalysis(e.currentTarget.value)} required />
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="font-medium">Conclusion</span>
+        <Text bold>Conclusion</Text>
         <Textarea rows={2} value={conclusion()} onInput={e => setConclusion(e.currentTarget.value)} required />
       </label>
 
       <div class="flex gap-3">
         <Show when={isEditing}>
-          <fieldset class="flex flex-col gap-2 border dark:border-gray-600 rounded px-4 py-3 text-sm text-gray-700 dark:text-gray-300 w-full">
-            <legend class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 px-1">Before saving, confirm:</legend>
+          <fieldset class="flex flex-col gap-2 border dark:border-gray-600 rounded px-4 py-3 text-sm w-full">
+            <Text size="xs" color="muted" bold class="uppercase tracking-wide px-1">Before saving, confirm:</Text>
 
             <label class="flex items-start gap-2 cursor-pointer">
               <input type="checkbox" class="mt-0.5 cursor-pointer" checked={checkNoErase()} onChange={e => setCheckNoErase(e.currentTarget.checked)} />

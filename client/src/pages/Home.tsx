@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Input } from '../components/ui/Input';
 import { TabButton } from '../components/ui/TabButton';
+import { Text, TextBlock } from '../components/ui/Text';
 
 function timeAgo(iso: string): string {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -94,9 +95,9 @@ export const Home: Component = () => {
               {item => (
                 <li>
                   <BlockItem href={`/step/${item.id}`}>
-                    <div><span class="font-bold">Q:</span> {item.question}</div>
+                    <div><Text bold>Q:</Text> {item.question}</div>
                     <Show when={item.conclusion}>
-                      <div class="mt-1"><span class="font-bold">A:</span> {item.conclusion}</div>
+                      <div class="mt-1"><Text bold>A:</Text> {item.conclusion}</div>
                     </Show>
                   </BlockItem>
                 </li>
@@ -112,9 +113,9 @@ export const Home: Component = () => {
                 <li>
                   <BlockItem href={`/step/${item.id}`}>
                     <div>{item.question}</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <TextBlock size="xs" color="muted" class="mt-1">
                       {item.wasEdited ? 'edited' : 'created'} {timeAgo(item.activityAt)} by {item.actorName}
-                    </div>
+                    </TextBlock>
                   </BlockItem>
                 </li>
               )}
@@ -128,9 +129,9 @@ export const Home: Component = () => {
               {msg => (
                 <li>
                   <BlockItem href={`/step/${msg.reasoningStepId}?tab=talk`}>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 truncate">{msg.stepQuestion}</div>
-                    <p class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 whitespace-pre-wrap">{msg.body}</p>
-                    <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">{msg.userName} · {timeAgo(new Date(msg.createdAt).toISOString())}</div>
+                    <TextBlock size="xs" color="muted" class="mb-1 truncate">{msg.stepQuestion}</TextBlock>
+                    <TextBlock class="line-clamp-2 whitespace-pre-wrap">{msg.body}</TextBlock>
+                    <TextBlock size="xs" color="muted" class="mt-1">{msg.userName} · {timeAgo(new Date(msg.createdAt).toISOString())}</TextBlock>
                   </BlockItem>
                 </li>
               )}
@@ -146,11 +147,11 @@ export const Home: Component = () => {
       <div class="flex flex-col justify-between gap-6 w-1/2 px-10 py-10 overflow-y-auto">
         <div class="flex flex-col gap-4">
           <h1 class="text-3xl font-semibold">Welcome to Concluder</h1>
-          <p class="text-gray-600 dark:text-gray-400">
+          <TextBlock>
             Concluder is a Wikipedia-style tool for collaborative reasoning. Browse questions on the left,
             or add your own to kick off a structured chain of thought. Each question can be broken
             down into sub-questions, analysed, and concluded collaboratively.
-          </p>
+          </TextBlock>
         </div>
       </div>
 

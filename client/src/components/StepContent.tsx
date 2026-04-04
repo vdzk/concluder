@@ -1,6 +1,6 @@
 import { type Component, type JSX, onCleanup } from 'solid-js'
 import { InlineLink } from './ui/InlineLink'
-import { SectionHeading } from './ui/SectionHeading'
+import { TextBlock } from './ui/Text'
 
 const URL_RE = /https?:\/\/[^\s<>"]+/g;
 
@@ -80,9 +80,9 @@ export const StepContent: Component<Props> = (props) => {
 
   return (
     <>
-      <h1 class="text-2xl font-semibold">{props.question}</h1>
+      <TextBlock size="xl" bold>{props.question}</TextBlock>
       <section>
-        <SectionHeading>Analysis</SectionHeading>
+        <TextBlock size="lg" bold color="muted" class="uppercase tracking-wide mb-1">Analysis</TextBlock>
         <p ref={analysisRef} class="text-gray-800 dark:text-gray-200 whitespace-pre-line">
           {(() => {
             const chunks = props.annotatedAnalysis as AnnotationChunk[] | null;
@@ -98,8 +98,8 @@ export const StepContent: Component<Props> = (props) => {
         </p>
       </section>
       <section>
-        <SectionHeading>Conclusion</SectionHeading>
-        <p class="text-gray-800 dark:text-gray-200">{renderText(props.conclusion)}</p>
+        <TextBlock size="lg" bold color="muted" class="uppercase tracking-wide mb-1">Conclusion</TextBlock>
+        <TextBlock>{renderText(props.conclusion)}</TextBlock>
       </section>
     </>
   );

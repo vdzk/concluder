@@ -6,6 +6,7 @@ import { DefinitionContent } from '../components/DefinitionContent'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Input } from '../components/ui/Input'
+import { Text, TextBlock } from '../components/ui/Text'
 import { Textarea } from '../components/ui/Textarea'
 
 type Props = { initialId?: number };
@@ -119,7 +120,7 @@ export const DefinitionsPage: Component<Props> = (props) => {
                 </div>
                 {status() === 'error' && <p class="text-red-600 dark:text-red-400 text-sm">Something went wrong.</p>}
               </form>
-              <p class="text-xs text-gray-400 dark:text-gray-500 italic">Links to new definitions in analysis texts will appear only after they are re-saved.</p>
+              <Text size="xs" color="muted" bold class="uppercase tracking-wide px-1">Links to new definitions in analysis texts will appear only after they are re-saved.</Text>
             </div>
           </Show>
 
@@ -128,7 +129,7 @@ export const DefinitionsPage: Component<Props> = (props) => {
           </Show>
 
           <Show when={rightMode() === 'none'}>
-            <p class="text-gray-400 dark:text-gray-500">Select a definition to view it, or press + to add one.</p>
+            <TextBlock color="muted">Select a definition to view it, or press + to add one.</TextBlock>
           </Show>
         </div>
 
