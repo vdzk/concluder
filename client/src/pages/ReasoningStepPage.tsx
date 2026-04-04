@@ -9,6 +9,7 @@ import { BreadcrumbsTab } from '../components/BreadcrumbsTab'
 import { TabBar, type Tab } from '../components/TabBar'
 import { TalkTab } from '../components/TalkTab'
 import { TextBlock } from '../components/ui/Text'
+import { TwoColumnLayout } from '../components/ui/TwoColumnLayout'
 
 export type Version = NonNullable<Awaited<ReturnType<typeof trpc.reasoningStep.versions.query>>>[number];
 
@@ -68,10 +69,11 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
   };
 
   return (
-    <div class="flex h-full">
-
-      {/* Left column – content */}
-      <div class="flex flex-col gap-6 w-1/2 px-10 py-10 overflow-y-auto">
+    <TwoColumnLayout
+      leftLabel="Step"
+      rightLabel="Sidebar"
+      leftClass="gap-6 px-10 py-10"
+      left={<>
         <Show when={step()} fallback={<TextBlock color="muted">{step.loading ? 'Loading…' : 'Not found.'}</TextBlock>}>
           {s => (
             <StepContent
@@ -83,13 +85,8 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
             />
           )}
         </Show>
-      </div>
-
-      {/* Divider */}
-      <div class="w-px bg-gray-400 dark:bg-gray-600 self-stretch" />
-
-      {/* Right column – controls */}
-      <div class="flex flex-col w-1/2 overflow-y-auto">
+      </>}
+      right={<>
 
         <TabBar
           activeTab={activeTab()}
@@ -199,7 +196,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
         </Show>
 
         </div>
-      </div>
-    </div>
+      </>}
+    />
   );
 }

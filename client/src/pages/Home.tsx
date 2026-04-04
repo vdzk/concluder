@@ -1,6 +1,7 @@
 import { createEffect, createResource, createSignal, For, Show, type Component } from 'solid-js';
 import { useSearchParams } from '@solidjs/router';
 import { BlockItem } from '../components/ui/BlockItem';
+import { TwoColumnLayout } from '../components/ui/TwoColumnLayout';
 import { trpc } from '../trpc';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -48,10 +49,12 @@ export const Home: Component = () => {
   };
 
   return (
-    <div class="flex h-full">
-
-      {/* Left column – questions */}
-      <div class="flex flex-col gap-6 w-1/2 px-10 py-10 overflow-y-auto">
+    <TwoColumnLayout
+      leftLabel="Questions"
+      rightLabel="About"
+      leftClass="gap-6 px-10 py-10"
+      rightClass="justify-between gap-6 px-10 py-10"
+      left={<>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <h2 class="text-xl font-semibold">Questions</h2>
@@ -138,13 +141,8 @@ export const Home: Component = () => {
             </For>
           </ul>
         </Show>
-      </div>
-
-      {/* Divider */}
-      <div class="w-px bg-gray-400 dark:bg-gray-600 self-stretch" />
-
-      {/* Right column – welcome */}
-      <div class="flex flex-col justify-between gap-6 w-1/2 px-10 py-10 overflow-y-auto">
+      </>}
+      right={<>
         <div class="flex flex-col gap-4">
           <h1 class="text-3xl font-semibold">Welcome to Concluder</h1>
           <TextBlock>
@@ -153,8 +151,7 @@ export const Home: Component = () => {
             down into sub-questions, analysed, and concluded collaboratively.
           </TextBlock>
         </div>
-      </div>
-
-    </div>
+      </>}
+    />
   )
 }

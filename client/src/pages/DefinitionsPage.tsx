@@ -2,6 +2,7 @@ import { createEffect, createResource, createSignal, For, Show, type Component }
 import { A, useNavigate, useParams } from '@solidjs/router'
 import { trpc } from '../trpc'
 import { BlockItem } from '../components/ui/BlockItem'
+import { TwoColumnLayout } from '../components/ui/TwoColumnLayout'
 import { DefinitionContent } from '../components/DefinitionContent'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -16,6 +17,7 @@ export const DefinitionsPage: Component = () => {
   const [definitions, { refetch }] = createResource(() => trpc.definition.list.query());
   const [selectedId, setSelectedId] = createSignal<number | null>(initialId());
   const [rightMode, setRightMode] = createSignal<'view' | 'add' | 'none'>(params.id ? 'view' : 'none');
+  const [showRight, setShowRight] = createSignal(!!params.id);
   const [term, setTerm] = createSignal('');
   const [text, setText] = createSignal('');
   const [status, setStatus] = createSignal<'idle' | 'loading' | 'error'>('idle');
@@ -25,11 +27,14 @@ export const DefinitionsPage: Component = () => {
   const selectDefinition = (id: number) => {
     setSelectedId(id);
     setRightMode('view');
+    setShowRight(true);
     navigate(`/definitions/${id}`, { replace: true });
   };
 
   const openAdd = () => {
-    setRightMode(m => m === 'add' ? 'none' : 'add');
+    const closing = rightMode() === 'add';
+    setRightMode(closing ? 'none' : 'add');
+    if (!closing) setShowRight(true);
     setStatus('idle');
   };
 
@@ -49,10 +54,13 @@ export const DefinitionsPage: Component = () => {
   };
 
   return (
-    <div class="flex h-full">
-
-      {/* Left column – term list */}
-      <div class="flex flex-col gap-6 w-1/2 px-10 py-10 overflow-y-auto">
+    <TwoColumnLayout
+      leftLabel="Definitions"
+      rightLabel="Details"
+      leftClass="gap-6 px-10 py-10"
+      showRight={showRight()}
+      onShowRightChange={setShowRight}
+      left={<>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <h1 class="text-xl font-semibold">Definitions</h1>
@@ -75,13 +83,8 @@ export const DefinitionsPage: Component = () => {
             )}
           </For>
         </div>
-      </div>
-
-      {/* Divider */}
-      <div class="w-px bg-gray-400 dark:bg-gray-600 self-stretch" />
-
-      {/* Right column – definition view or add form */}
-      <div class="flex flex-col w-1/2 overflow-y-auto">
+      </>}
+      right={<>
 
         <div class="flex items-center gap-1 border-b border-gray-200 dark:border-gray-700">
           <A href="/" class="px-3 py-2 text-sm border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 -mb-px transition-colors">Home</A>
@@ -134,9 +137,7 @@ export const DefinitionsPage: Component = () => {
             <TextBlock color="muted">Select a definition to view it, or press + to add one.</TextBlock>
           </Show>
         </div>
-
-      </div>
-
-    </div>
+      </>}
+    />
   );
 };
