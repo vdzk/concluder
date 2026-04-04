@@ -1,6 +1,7 @@
 import { createEffect, createResource, createSignal, For, Show, type Component } from 'solid-js'
 import { A } from '@solidjs/router'
 import { trpc } from '../trpc'
+import { BlockItem } from '../components/ui/BlockItem'
 import { DefinitionContent } from '../components/DefinitionContent'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -56,20 +57,18 @@ export const DefinitionsPage: Component<Props> = (props) => {
           <Button variant="icon" onClick={openAdd} title="Add definition">+</Button>
         </div>
 
-        <div class="flex flex-col">
+        <div class="flex flex-col gap-2">
           <For each={definitions()} fallback={<EmptyState message="No definitions yet." />}>
             {def => (
-              <button
+              <BlockItem
                 onClick={() => selectDefinition(def.id)}
-                class={`flex items-center justify-between py-3 hover:bg-gray-50 dark:hover:bg-gray-800 -mx-2 px-2 rounded text-left cursor-pointer ${
-                  selectedId() === def.id ? 'bg-amber-50 dark:bg-amber-900/30' : ''
-                }`}
+                class={`flex items-center justify-between ${selectedId() === def.id ? 'bg-amber-50 dark:bg-amber-900/30' : ''}`}
               >
-                <span class="font-semibold text-amber-800 dark:text-amber-400">{def.term}</span>
+                <span>{def.term}</span>
                 <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </BlockItem>
             )}
           </For>
         </div>

@@ -1,6 +1,6 @@
 import { Show, For, createSignal, type Component } from 'solid-js'
-import { A } from '@solidjs/router'
 import { ReasoningStepForm } from './ReasoningStepForm'
+import { BlockItem } from './ui/BlockItem'
 import type { TextSelection } from './StepContent'
 import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
@@ -62,21 +62,16 @@ export const DepsTab: Component<Props> = (props) => {
               </div>
             )}
           </Show>
-          <ul class="flex flex-col gap-3">
+          <ul class="flex flex-col gap-2">
             <For each={props.deps} fallback={<EmptyState as="li" message="No sub-questions yet." />}>
               {dep => (
                 <li class="flex items-start gap-2">
-                  <A
-                    href={`/step/${dep.id}`}
-                    class="flex flex-col flex-1 rounded border px-1.5 py-1
-                      border-transparent border-l-black dark:border-l-white hover:border-black dark:hover:border-white
-                    "
-                  >
+                  <BlockItem href={`/step/${dep.id}`} class="flex flex-col flex-1">
                     <span><strong>Q:</strong> {dep.question}</span>
                     <Show when={dep.conclusion}>
                       <span><strong>A:</strong> {dep.conclusion}</span>
                     </Show>
-                  </A>
+                  </BlockItem>
                   <Show when={props.selection}>
                     <Button
                       variant="badge"

@@ -1,5 +1,5 @@
 import { For, type Component } from 'solid-js'
-import { A } from '@solidjs/router'
+import { BlockItem } from './ui/BlockItem'
 
 type BreadcrumbItem = { id: number; question: string }
 
@@ -10,16 +10,14 @@ type Props = {
 
 export const BreadcrumbsTab: Component<Props> = (props) => {
   return (
-    <nav class="flex flex-col gap-1">
-      <A href="/" class="text-green-700 dark:text-green-400 hover:underline font-bold text-lg">Home</A>
+    <nav class="flex flex-col gap-2">
+      <BlockItem href="/">Home</BlockItem>
       <For each={props.ancestors}>
         {(item) => (
-          <A href={`/step/${item.id}`} class="text-green-700 dark:text-green-400 hover:underline">
-            {item.question}
-          </A>
+          <BlockItem href={`/step/${item.id}`}>{item.question}</BlockItem>
         )}
       </For>
-      <span class="text-gray-700 dark:text-gray-300">{props.currentQuestion}</span>
+      <span class="text-gray-700 dark:text-gray-300 px-2 py-1.5">{props.currentQuestion}</span>
     </nav>
   )
 }

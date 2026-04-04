@@ -1,5 +1,6 @@
 import { createEffect, createResource, createSignal, For, Show, type Component } from 'solid-js';
-import { A, useSearchParams } from '@solidjs/router';
+import { useSearchParams } from '@solidjs/router';
+import { BlockItem } from '../components/ui/BlockItem';
 import { trpc } from '../trpc';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -88,16 +89,16 @@ export const Home: Component = () => {
         </Show>
 
         <Show when={tab() === 'featured'}>
-          <ul class="flex flex-col gap-3">
+          <ul class="flex flex-col gap-2">
             <For each={featured()} fallback={<EmptyState as="li" message="No featured questions yet." />}>
               {item => (
                 <li>
-                  <A href={`/step/${item.id}`} class="block border dark:border-gray-700 rounded px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <BlockItem href={`/step/${item.id}`}>
                     <div><span class="font-bold">Q:</span> {item.question}</div>
                     <Show when={item.conclusion}>
                       <div class="mt-1"><span class="font-bold">A:</span> {item.conclusion}</div>
                     </Show>
-                  </A>
+                  </BlockItem>
                 </li>
               )}
             </For>
@@ -105,16 +106,16 @@ export const Home: Component = () => {
         </Show>
 
         <Show when={tab() === 'recent'}>
-          <ul class="flex flex-col gap-3">
+          <ul class="flex flex-col gap-2">
             <For each={recent()} fallback={<EmptyState as="li" message="No recent questions yet." />}>
               {item => (
                 <li>
-                  <A href={`/step/${item.id}`} class="block border dark:border-gray-700 rounded px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <div class="font-medium">{item.question}</div>
+                  <BlockItem href={`/step/${item.id}`}>
+                    <div>{item.question}</div>
                     <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {item.wasEdited ? 'edited' : 'created'} {timeAgo(item.activityAt)} by {item.actorName}
                     </div>
-                  </A>
+                  </BlockItem>
                 </li>
               )}
             </For>
@@ -122,15 +123,15 @@ export const Home: Component = () => {
         </Show>
 
         <Show when={tab() === 'messages'}>
-          <ul class="flex flex-col gap-3">
+          <ul class="flex flex-col gap-2">
             <For each={recentMessages()} fallback={<EmptyState as="li" message="No messages yet." />}>
               {msg => (
                 <li>
-                  <A href={`/step/${msg.reasoningStepId}?tab=talk`} class="block border dark:border-gray-700 rounded px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <BlockItem href={`/step/${msg.reasoningStepId}?tab=talk`}>
                     <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 truncate">{msg.stepQuestion}</div>
                     <p class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 whitespace-pre-wrap">{msg.body}</p>
                     <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">{msg.userName} · {timeAgo(new Date(msg.createdAt).toISOString())}</div>
-                  </A>
+                  </BlockItem>
                 </li>
               )}
             </For>
