@@ -2,6 +2,7 @@ import { Show, type Component } from 'solid-js'
 import type { Version } from '../pages/ReasoningStepPage'
 import { Button } from './ui/Button'
 import { Text, TextBlock } from './ui/Text'
+import { StepSection } from './ui/StepSection'
 
 type Props = {
   version: Version
@@ -30,18 +31,9 @@ export const VersionHistoryItem: Component<Props> = (props) => {
 
       <Show when={props.expanded}>
         <div class="border-t dark:border-gray-700 px-4 py-4 flex flex-col gap-4 bg-gray-50 dark:bg-gray-800">
-          <section>
-            <TextBlock size="lg" bold color="muted" class="uppercase tracking-wide mb-1">Question</TextBlock>
-            <TextBlock>{props.version.question}</TextBlock>
-          </section>
-          <section>
-            <TextBlock size="lg" bold color="muted" class="uppercase tracking-wide mb-1">Analysis</TextBlock>
-            <TextBlock>{props.version.analysis}</TextBlock>
-          </section>
-          <section>
-            <TextBlock size="lg" bold color="muted" class="uppercase tracking-wide mb-1">Conclusion</TextBlock>
-            <TextBlock>{props.version.conclusion}</TextBlock>
-          </section>
+          <StepSection label="Question"><TextBlock>{props.version.question}</TextBlock></StepSection>
+          <StepSection label="Analysis"><TextBlock>{props.version.analysis}</TextBlock></StepSection>
+          <StepSection label="Conclusion"><TextBlock>{props.version.conclusion}</TextBlock></StepSection>
           <Show when={props.isAdmin}>
             <Button variant="secondary" onClick={props.onRestore} disabled={props.restoring}>
               {props.restoring ? 'Restoring…' : 'Restore this version'}

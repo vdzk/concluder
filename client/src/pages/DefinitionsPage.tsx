@@ -1,5 +1,5 @@
 import { createEffect, createResource, createSignal, For, Show, type Component } from 'solid-js'
-import { A } from '@solidjs/router'
+import { A, useNavigate, useParams } from '@solidjs/router'
 import { trpc } from '../trpc'
 import { BlockItem } from '../components/ui/BlockItem'
 import { DefinitionContent } from '../components/DefinitionContent'
@@ -9,12 +9,13 @@ import { Input } from '../components/ui/Input'
 import { Text, TextBlock } from '../components/ui/Text'
 import { Textarea } from '../components/ui/Textarea'
 
-type Props = { initialId?: number };
-
-export const DefinitionsPage: Component<Props> = (props) => {
+export const DefinitionsPage: Component = () => {
+  const params = useParams<{ id?: string }>();
+  const navigate = useNavigate();
+  const initialId = () => params.id ? Number(params.id) : null;
   const [definitions, { refetch }] = createResource(() => trpc.definition.list.query());
-  const [selectedId, setSelectedId] = createSignal<number | null>(props.initialId ?? null);
-  const [rightMode, setRightMode] = createSignal<'view' | 'add' | 'none'>(props.initialId ? 'view' : 'none');
+  const [selectedId, setSelectedId] = createSignal<number | null>(initialId());
+  const [rightMode, setRightMode] = createSignal<'view' | 'add' | 'none'>(params.id ? 'view' : 'none');
   const [term, setTerm] = createSignal('');
   const [text, setText] = createSignal('');
   const [status, setStatus] = createSignal<'idle' | 'loading' | 'error'>('idle');
@@ -24,6 +25,7 @@ export const DefinitionsPage: Component<Props> = (props) => {
   const selectDefinition = (id: number) => {
     setSelectedId(id);
     setRightMode('view');
+    navigate(`/definitions/${id}`, { replace: true });
   };
 
   const openAdd = () => {

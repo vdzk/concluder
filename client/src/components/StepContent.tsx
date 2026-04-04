@@ -1,6 +1,6 @@
 import { type Component, type JSX, onCleanup } from 'solid-js'
 import { InlineLink } from './ui/InlineLink'
-import { TextBlock } from './ui/Text'
+import { StepSection } from './ui/StepSection'
 
 const URL_RE = /https?:\/\/[^\s<>"]+/g;
 
@@ -80,9 +80,10 @@ export const StepContent: Component<Props> = (props) => {
 
   return (
     <>
-      <TextBlock size="xl" bold>{props.question}</TextBlock>
-      <section>
-        <TextBlock size="lg" bold color="muted" class="uppercase tracking-wide mb-1">Analysis</TextBlock>
+      <StepSection label="Question">
+        {props.question}
+      </StepSection>
+      <StepSection label="Analysis">
         <p ref={analysisRef} class="text-gray-800 dark:text-gray-200 whitespace-pre-line">
           {(() => {
             const chunks = props.annotatedAnalysis as AnnotationChunk[] | null;
@@ -91,16 +92,15 @@ export const StepContent: Component<Props> = (props) => {
               chunk.type === 'link' ? (
                 <InlineLink variant="dep" href={`/step/${chunk.dependencyId}`}>{chunk.text}</InlineLink>
               ) : chunk.type === 'definition' ? (
-                <InlineLink variant="def" href={`/definition/${chunk.definitionId}`}>{chunk.text}</InlineLink>
+                <InlineLink variant="def" href={`/definitions/${chunk.definitionId}`}>{chunk.text}</InlineLink>
               ) : renderText(chunk.text)
             );
           })()}
         </p>
-      </section>
-      <section>
-        <TextBlock size="lg" bold color="muted" class="uppercase tracking-wide mb-1">Conclusion</TextBlock>
-        <TextBlock>{renderText(props.conclusion)}</TextBlock>
-      </section>
+      </StepSection>
+      <StepSection label="Conclusion">
+        <div class="text-base text-gray-800 dark:text-gray-200">{renderText(props.conclusion)}</div>
+      </StepSection>
     </>
   );
 }

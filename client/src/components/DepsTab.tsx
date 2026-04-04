@@ -41,9 +41,11 @@ export const DepsTab: Component<Props> = (props) => {
       <Show when={showForm()} fallback={
         <div class="flex flex-col gap-3">
           <Show when={props.selection} fallback={
-            <TextBlock color="muted" class="italic">
-              Select a part of the analysis text to link it to one of the questions.
-            </TextBlock>
+            <Show when={props.deps && props.deps.length > 0}>
+              <TextBlock color="muted" class="italic">
+                Select a part of the analysis text to link it to one of the questions.
+              </TextBlock>
+            </Show>
           }>
             {sel => (
               <div class="flex items-center gap-2">
