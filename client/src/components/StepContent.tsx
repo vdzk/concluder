@@ -1,5 +1,6 @@
 import { type Component, type JSX, onCleanup } from 'solid-js'
-import { A } from '@solidjs/router'
+import { InlineLink } from './ui/InlineLink'
+import { SectionHeading } from './ui/SectionHeading'
 
 const URL_RE = /https?:\/\/[^\s<>"]+/g;
 
@@ -20,11 +21,7 @@ function renderText(text: string): string | JSX.Element[] {
   for (const m of text.matchAll(URL_RE)) {
     if (m.index! > last) parts.push(text.slice(last, m.index));
     const url = trimUrl(m[0]);
-    parts.push(
-      <a href={url} target="_blank" rel="noopener noreferrer"
-        class="underline decoration-blue-400 dark:decoration-blue-500 decoration-2 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded px-0.5"
-      >{url}</a>
-    );
+    parts.push(<InlineLink variant="external" href={url}>{url}</InlineLink>);
     last = m.index! + url.length;
   }
   if (last < text.length) parts.push(text.slice(last));
@@ -85,33 +82,23 @@ export const StepContent: Component<Props> = (props) => {
     <>
       <h1 class="text-2xl font-semibold">{props.question}</h1>
       <section>
-        <h2 class="text-sm font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Analysis</h2>
+        <SectionHeading>Analysis</SectionHeading>
         <p ref={analysisRef} class="text-gray-800 dark:text-gray-200 whitespace-pre-line">
           {(() => {
             const chunks = props.annotatedAnalysis as AnnotationChunk[] | null;
             if (!chunks || !Array.isArray(chunks)) return props.analysis;
             return chunks.map(chunk =>
               chunk.type === 'link' ? (
-                <A
-                  href={`/step/${chunk.dependencyId}`}
-                  class="underline decoration-green-400 dark:decoration-green-500 decoration-2 text-green-800 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded px-0.5"
-                >
-                  {chunk.text}
-                </A>
+                <InlineLink variant="dep" href={`/step/${chunk.dependencyId}`}>{chunk.text}</InlineLink>
               ) : chunk.type === 'definition' ? (
-                <A
-                  href={`/definition/${chunk.definitionId}`}
-                  class="underline decoration-amber-400 dark:decoration-amber-500 decoration-2 text-amber-800 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded px-0.5"
-                >
-                  {chunk.text}
-                </A>
+                <InlineLink variant="def" href={`/definition/${chunk.definitionId}`}>{chunk.text}</InlineLink>
               ) : renderText(chunk.text)
             );
           })()}
         </p>
       </section>
       <section>
-        <h2 class="text-sm font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Conclusion</h2>
+        <SectionHeading>Conclusion</SectionHeading>
         <p class="text-gray-800 dark:text-gray-200">{renderText(props.conclusion)}</p>
       </section>
     </>

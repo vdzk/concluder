@@ -2,6 +2,8 @@ import { Show, For, createSignal, type Component } from 'solid-js'
 import { A } from '@solidjs/router'
 import { ReasoningStepForm } from './ReasoningStepForm'
 import type { TextSelection } from './StepContent'
+import { Button } from './ui/Button'
+import { EmptyState } from './ui/EmptyState'
 
 type Dep = { id: number; question: string; conclusion: string | null }
 type FormValues = { question: string; analysis: string; conclusion: string }
@@ -48,19 +50,20 @@ export const DepsTab: Component<Props> = (props) => {
                   Selected: "{sel().text.length > 80 ? sel().text.slice(0, 80) + '…' : sel().text}"
                 </p>
                 <Show when={getLinkedDepAtSelection(props.annotatedAnalysis, sel()) !== null}>
-                  <button
-                    class="shrink-0 px-2 py-1 text-xs rounded bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border border-red-300 dark:border-red-700 hover:bg-red-200 dark:hover:bg-red-800 cursor-pointer"
+                  <Button
+                    variant="badge"
+                    color="red"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => props.onRemoveLink()}
                   >
                     Remove link
-                  </button>
+                  </Button>
                 </Show>
               </div>
             )}
           </Show>
           <ul class="flex flex-col gap-3">
-            <For each={props.deps} fallback={<li class="text-gray-400 dark:text-gray-500">No sub-questions yet.</li>}>
+            <For each={props.deps} fallback={<EmptyState as="li" message="No sub-questions yet." />}>
               {dep => (
                 <li class="flex items-start gap-2">
                   <A
@@ -75,24 +78,22 @@ export const DepsTab: Component<Props> = (props) => {
                     </Show>
                   </A>
                   <Show when={props.selection}>
-                    <button
-                      class="shrink-0 px-2 py-1 text-xs rounded bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-300 dark:border-green-700 hover:bg-green-200 dark:hover:bg-green-800 cursor-pointer"
+                    <Button
+                      variant="badge"
+                      color="green"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => props.onLink(dep.id)}
                     >
                       Link
-                    </button>
+                    </Button>
                   </Show>
                 </li>
               )}
             </For>
           </ul>
-          <button
-            class="self-start px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-            onClick={() => setShowForm(true)}
-          >
+          <Button variant="secondary" size="sm" class="self-start" onClick={() => setShowForm(true)}>
             + Add sub-question
-          </button>
+          </Button>
         </div>
       }>
         <ReasoningStepForm

@@ -1,5 +1,8 @@
 import { createSignal, For, Show, type Component } from 'solid-js'
 import { trpc } from '../trpc'
+import { Button } from './ui/Button'
+import { EmptyState } from './ui/EmptyState'
+import { Textarea } from './ui/Textarea'
 
 type Message = {
   id: number
@@ -36,7 +39,7 @@ export const TalkTab: Component<Props> = (props) => {
     <div class="flex flex-col gap-4">
       <Show
         when={(props.messages?.length ?? 0) > 0}
-        fallback={<p class="text-sm text-gray-400 dark:text-gray-500">No messages yet. Be the first to say something.</p>}
+        fallback={<EmptyState size="sm" message="No messages yet. Be the first to say something." />}
       >
         <ul class="flex flex-col gap-3">
           <For each={props.messages}>
@@ -56,21 +59,22 @@ export const TalkTab: Component<Props> = (props) => {
       </Show>
 
       <form onSubmit={handleSubmit} class="flex flex-col gap-2">
-        <textarea
-          class="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-800"
+        <Textarea
+          class="text-sm resize-none focus:ring-2 focus:ring-green-500"
           rows={3}
           placeholder="Write a message…"
           value={body()}
           onInput={e => setBody(e.currentTarget.value)}
           disabled={sending()}
         />
-        <button
+        <Button
           type="submit"
+          size="sm"
           disabled={sending() || !body().trim()}
-          class="self-end px-4 py-1.5 text-sm rounded bg-green-600 dark:bg-green-500 text-white hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          class="self-end transition-colors"
         >
           {sending() ? 'Sending…' : 'Send'}
-        </button>
+        </Button>
       </form>
     </div>
   )

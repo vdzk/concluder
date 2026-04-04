@@ -1,5 +1,7 @@
 import { Show, type Component } from 'solid-js'
 import type { Version } from '../pages/ReasoningStepPage'
+import { Button } from './ui/Button'
+import { SectionHeading } from './ui/SectionHeading'
 
 type Props = {
   version: Version
@@ -29,25 +31,21 @@ export const VersionHistoryItem: Component<Props> = (props) => {
       <Show when={props.expanded}>
         <div class="border-t dark:border-gray-700 px-4 py-4 flex flex-col gap-4 bg-gray-50 dark:bg-gray-800">
           <section>
-            <h3 class="text-sm font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Question</h3>
+            <SectionHeading level={3}>Question</SectionHeading>
             <p class="text-gray-800 dark:text-gray-200">{props.version.question}</p>
           </section>
           <section>
-            <h3 class="text-sm font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Analysis</h3>
+            <SectionHeading level={3}>Analysis</SectionHeading>
             <p class="text-gray-800 dark:text-gray-200">{props.version.analysis}</p>
           </section>
           <section>
-            <h3 class="text-sm font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Conclusion</h3>
+            <SectionHeading level={3}>Conclusion</SectionHeading>
             <p class="text-gray-800 dark:text-gray-200">{props.version.conclusion}</p>
           </section>
           <Show when={props.isAdmin}>
-            <button
-              onClick={props.onRestore}
-              disabled={props.restoring}
-              class="self-start text-sm border dark:border-gray-600 rounded px-4 py-2 hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50"
-            >
+            <Button variant="secondary" onClick={props.onRestore} disabled={props.restoring}>
               {props.restoring ? 'Restoring…' : 'Restore this version'}
-            </button>
+            </Button>
           </Show>
         </div>
       </Show>

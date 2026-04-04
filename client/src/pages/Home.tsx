@@ -1,6 +1,10 @@
 import { createEffect, createResource, createSignal, For, Show, type Component } from 'solid-js';
 import { A, useSearchParams } from '@solidjs/router';
 import { trpc } from '../trpc';
+import { Button } from '../components/ui/Button';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Input } from '../components/ui/Input';
+import { TabButton } from '../components/ui/TabButton';
 
 function timeAgo(iso: string): string {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -50,41 +54,21 @@ export const Home: Component = () => {
           <div class="flex items-center gap-3">
             <h2 class="text-xl font-semibold">Questions</h2>
             <div class="flex gap-1">
-            <button
-              onClick={() => setTab('featured')}
-              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'featured' ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-            >
-              Top Level
-            </button>
-            <button
-              onClick={() => setTab('recent')}
-              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'recent' ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-            >
-              Recent
-            </button>
-            <button
-              onClick={() => setTab('messages')}
-              class={`px-3 py-1.5 rounded text-sm font-medium cursor-pointer ${tab() === 'messages' ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-            >
-              Messages
-            </button>
+              <TabButton active={tab() === 'featured'} onClick={() => setTab('featured')}>Top Level</TabButton>
+              <TabButton active={tab() === 'recent'} onClick={() => setTab('recent')}>Recent</TabButton>
+              <TabButton active={tab() === 'messages'} onClick={() => setTab('messages')}>Messages</TabButton>
             </div>
           </div>
           <Show when={tab() === 'featured'}>
-            <button
-              onClick={() => { setFormOpen(v => !v); setStatus('idle'); }}
-              class="w-9 h-9 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-2xl leading-none cursor-pointer"
-              title="Add question"
-            >
+            <Button variant="icon" onClick={() => { setFormOpen(v => !v); setStatus('idle'); }} title="Add question">
               +
-            </button>
+            </Button>
           </Show>
         </div>
 
         <Show when={tab() === 'featured' && formOpen()}>
           <form onSubmit={handleSubmit} class="flex flex-col gap-3">
-            <input
-              class="border dark:border-gray-600 rounded px-3 py-2 text-sm dark:bg-gray-800"
+            <Input
               value={question()}
               onInput={e => setQuestion(e.currentTarget.value)}
               placeholder="Your question…"
@@ -92,20 +76,12 @@ export const Home: Component = () => {
               autofocus
             />
             <div class="flex gap-2">
-              <button
-                type="submit"
-                disabled={status() === 'loading'}
-                class="bg-green-700 dark:bg-green-600 text-white px-4 py-1.5 rounded text-sm disabled:opacity-50"
-              >
+              <Button type="submit" size="sm" disabled={status() === 'loading'}>
                 {status() === 'loading' ? 'Submitting…' : 'Submit'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setFormOpen(false); setStatus('idle'); }}
-                class="px-4 py-1.5 rounded text-sm border dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
+              </Button>
+              <Button type="button" variant="secondary" size="sm" onClick={() => { setFormOpen(false); setStatus('idle'); }}>
                 Cancel
-              </button>
+              </Button>
             </div>
             {status() === 'error' && <p class="text-red-600 dark:text-red-400 text-sm">Something went wrong.</p>}
           </form>
@@ -113,7 +89,7 @@ export const Home: Component = () => {
 
         <Show when={tab() === 'featured'}>
           <ul class="flex flex-col gap-3">
-            <For each={featured()} fallback={<li class="text-gray-500 dark:text-gray-400">No featured questions yet.</li>}>
+            <For each={featured()} fallback={<EmptyState as="li" message="No featured questions yet." />}>
               {item => (
                 <li>
                   <A href={`/step/${item.id}`} class="block border dark:border-gray-700 rounded px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
@@ -130,7 +106,7 @@ export const Home: Component = () => {
 
         <Show when={tab() === 'recent'}>
           <ul class="flex flex-col gap-3">
-            <For each={recent()} fallback={<li class="text-gray-500 dark:text-gray-400">No recent questions yet.</li>}>
+            <For each={recent()} fallback={<EmptyState as="li" message="No recent questions yet." />}>
               {item => (
                 <li>
                   <A href={`/step/${item.id}`} class="block border dark:border-gray-700 rounded px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
@@ -147,7 +123,7 @@ export const Home: Component = () => {
 
         <Show when={tab() === 'messages'}>
           <ul class="flex flex-col gap-3">
-            <For each={recentMessages()} fallback={<li class="text-gray-500 dark:text-gray-400">No messages yet.</li>}>
+            <For each={recentMessages()} fallback={<EmptyState as="li" message="No messages yet." />}>
               {msg => (
                 <li>
                   <A href={`/step/${msg.reasoningStepId}?tab=talk`} class="block border dark:border-gray-700 rounded px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">

@@ -1,5 +1,6 @@
 import { Show, For, type Component } from 'solid-js'
 import { VersionHistoryItem } from './VersionHistoryItem'
+import { EmptyState } from './ui/EmptyState'
 import type { Version } from '../pages/ReasoningStepPage'
 
 type Props = {
@@ -20,7 +21,7 @@ export const HistoryTab: Component<Props> = (props) => {
       </Show>
       <Show
         when={(props.versions?.length ?? 0) > 0}
-        fallback={<p class="text-sm text-gray-400 dark:text-gray-500">No edit history yet.</p>}
+        fallback={<EmptyState size="sm" message="No edit history yet." />}
       >
         <ul class="flex flex-col gap-2">
           <For each={props.versions}>

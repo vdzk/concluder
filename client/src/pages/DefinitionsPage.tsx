@@ -2,6 +2,10 @@ import { createEffect, createResource, createSignal, For, Show, type Component }
 import { A } from '@solidjs/router'
 import { trpc } from '../trpc'
 import { DefinitionContent } from '../components/DefinitionContent'
+import { Button } from '../components/ui/Button'
+import { EmptyState } from '../components/ui/EmptyState'
+import { Input } from '../components/ui/Input'
+import { Textarea } from '../components/ui/Textarea'
 
 type Props = { initialId?: number };
 
@@ -49,17 +53,11 @@ export const DefinitionsPage: Component<Props> = (props) => {
           <div class="flex items-center gap-3">
             <h1 class="text-xl font-semibold">Definitions</h1>
           </div>
-          <button
-            onClick={openAdd}
-            class="w-9 h-9 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-2xl leading-none cursor-pointer"
-            title="Add definition"
-          >
-            +
-          </button>
+          <Button variant="icon" onClick={openAdd} title="Add definition">+</Button>
         </div>
 
         <div class="flex flex-col">
-          <For each={definitions()} fallback={<p class="text-gray-500 dark:text-gray-400">No definitions yet.</p>}>
+          <For each={definitions()} fallback={<EmptyState message="No definitions yet." />}>
             {def => (
               <button
                 onClick={() => selectDefinition(def.id)}
@@ -94,8 +92,7 @@ export const DefinitionsPage: Component<Props> = (props) => {
               <form onSubmit={handleSubmit} class="flex flex-col gap-4">
                 <label class="flex flex-col gap-1">
                   <span class="font-medium text-sm">Term</span>
-                  <input
-                    class="border dark:border-gray-600 rounded px-3 py-2 dark:bg-gray-800"
+                  <Input
                     value={term()}
                     onInput={e => setTerm(e.currentTarget.value)}
                     placeholder="e.g. Opportunity cost"
@@ -105,8 +102,8 @@ export const DefinitionsPage: Component<Props> = (props) => {
                 </label>
                 <label class="flex flex-col gap-1">
                   <span class="font-medium text-sm">Definition</span>
-                  <textarea
-                    class="border dark:border-gray-600 rounded px-3 py-2 min-h-20 resize-y dark:bg-gray-800"
+                  <Textarea
+                    class="min-h-20 resize-y"
                     value={text()}
                     onInput={e => setText(e.currentTarget.value)}
                     placeholder="What does this term mean?"
@@ -114,20 +111,12 @@ export const DefinitionsPage: Component<Props> = (props) => {
                   />
                 </label>
                 <div class="flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={status() === 'loading'}
-                    class="bg-amber-700 dark:bg-amber-600 text-white px-4 py-1.5 rounded text-sm disabled:opacity-50"
-                  >
+                  <Button type="submit" size="sm" color="amber" disabled={status() === 'loading'}>
                     {status() === 'loading' ? 'Adding…' : 'Add definition'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRightMode('none')}
-                    class="px-4 py-1.5 rounded text-sm border dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
+                  </Button>
+                  <Button type="button" variant="secondary" size="sm" onClick={() => setRightMode('none')}>
                     Cancel
-                  </button>
+                  </Button>
                 </div>
                 {status() === 'error' && <p class="text-red-600 dark:text-red-400 text-sm">Something went wrong.</p>}
               </form>
