@@ -7,7 +7,7 @@ const TAB_LABELS: Record<Tab, string> = {
   breadcrumbs: 'Breadcrumbs',
   history: 'History',
   deps: 'Sub-questions',
-  edit: 'Edit',
+  edit: '✏️ Edit',
   talk: 'Talk',
 }
 

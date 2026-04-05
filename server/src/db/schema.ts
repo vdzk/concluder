@@ -44,6 +44,7 @@ export const reasoningDependencyTable = pgTable('reasoning_dependency', {
 
 export const featuredTable = pgTable('featured', {
   id: integer('id').primaryKey().references(() => reasoningStepTable.id),
+  conclusion: text('conclusion'),
 })
 
 export const definitionTable = pgTable('definition', {

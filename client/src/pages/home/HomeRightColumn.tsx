@@ -4,7 +4,7 @@ import { Text, TextBlock } from '../../uiLib/Text';
 import { InlineLink } from '../../uiLib/InlineLink';
 
 
-const SECTIONS = [
+const SECTIONS: { heading: string; body: string | string[] }[] = [
   {
     heading: 'What is this?',
     body: "Concluder is a Wikipedia-style tool for collaborative reasoning. It focuses on controversial topics so it can also be seen as a new form of debate. It's at a very early stage of development. Browse questions on the left, or add your own to kick off a structured chain of thought. No registration is required for now.",
@@ -15,7 +15,11 @@ const SECTIONS = [
   },
   {
     heading: 'What are the rules for editing?',
-    body: "Naturally there are different opinions about how a particular question should be answered but only one answer will be shown on Concluder at any given time. So how is this conflict managed? The conclusion has to follow from the analysis. When editing an analysis of certain question the editor cannot just erase the points that they don't like. Instead the new version has to address them, it needs to explain why they are a weak or irrelevant. Entirely new arguements and reasoning can also be added to the analysis to justify the new conclusion. People from different perspectives iteratively edit the analysis, both collaboratively and adversarially. This process makes the analysis more comprehensive and refined, increasing the likelihood of reaching a correct conclusion. At least that's the idea.",
+    body: [
+      "Naturally there are different opinions about how a particular question should be answered but only one answer will be shown on Concluder at any given time. So how is this conflict managed?",
+      "The conclusion has to follow from the analysis. When editing an analysis of certain question the editor cannot just erase the points that they don't like. Instead the new version has to address them, it needs to explain why they are a weak or irrelevant. Entirely new arguments and reasoning can also be added to the analysis to justify the new conclusion.",
+      "People from different perspectives iteratively edit the analysis, both collaboratively and adversarially. This process makes the analysis more comprehensive and refined, increasing the likelihood of reaching a correct conclusion. At least that's the idea.",
+    ],
   },
   {
     heading: 'What if the analysis grows too large?',
@@ -38,7 +42,10 @@ export const HomeRightColumn: Component = () => {
       <div class="mt-5">
         <div>
           <Text size="lg" bold class="mb-1 block">{SECTIONS[index()].heading}</Text>
-          <TextBlock>{SECTIONS[index()].body}</TextBlock>
+          {Array.isArray(SECTIONS[index()].body)
+            ? (SECTIONS[index()].body as string[]).map(p => <TextBlock class="mb-2 last:mb-0">{p}</TextBlock>)
+            : <TextBlock>{SECTIONS[index()].body as string}</TextBlock>
+          }
         </div>
 
         <div class="flex mt-4">

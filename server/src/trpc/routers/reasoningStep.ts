@@ -7,6 +7,7 @@ import { t, sessionProcedure, adminProcedure } from '../trpc.ts'
 import { getStepById } from '../helpers/getStepById.ts'
 import { extractLinks, buildChunksFromLinks, stripDefinitions, preserveLinks, addLinkToChunks, removeLinkAtSelection } from '../helpers/links.ts'
 import { applyDefinitions } from '../helpers/definitions.ts'
+import { updateFeaturedConclusion } from '../helpers/updateFeaturedConclusion.ts'
 
 export const reasoningStepRouter = t.router({
   getById: t.procedure
@@ -55,6 +56,11 @@ export const reasoningStepRouter = t.router({
       newChunks = await applyDefinitions(newChunks);
 
       await db.update(reasoningStepTable).set({ ...fields, annotatedAnalysis: newChunks }).where(eq(reasoningStepTable.id, id));
+
+      if (fields.question !== current.question || fields.conclusion !== current.conclusion) {
+        await updateFeaturedConclusion(id, fields.question, fields.conclusion);
+      }
+
       return getStepById(id);
     }),
 
@@ -115,6 +121,11 @@ export const reasoningStepRouter = t.router({
         conclusion: ver.conclusion,
         annotatedAnalysis: newChunks,
       }).where(eq(reasoningStepTable.id, ver.reasoningStepId));
+
+      if (ver.question !== current.question || ver.conclusion !== current.conclusion) {
+        await updateFeaturedConclusion(ver.reasoningStepId, ver.question, ver.conclusion);
+      }
+
       return getStepById(ver.reasoningStepId);
     }),
 

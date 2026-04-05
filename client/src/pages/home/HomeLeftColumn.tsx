@@ -24,13 +24,11 @@ function timeAgo(iso: string): string {
 export const HomeLeftColumn: Component = () => {
   const [question, setQuestion] = createSignal('');
   const [status, setStatus] = createSignal<'idle' | 'loading' | 'error'>('idle');
-  const [formOpen, setFormOpen] = createSignal(false);
   const [searchParams, setSearchParams] = useSearchParams<{ tab?: string }>();
-  const tab = () => searchParams.tab === 'recent' ? 'recent' : searchParams.tab === 'messages' ? 'messages' : 'featured';
-  const setTab = (t: 'featured' | 'recent' | 'messages') => setSearchParams({ tab: t });
+  const tab = () => searchParams.tab === 'recent' ? 'recent' : searchParams.tab === 'new' ? 'new' : 'featured';
+  const setTab = (t: 'featured' | 'recent' | 'new') => setSearchParams({ tab: t });
   const [featured, { refetch }] = createResource(() => trpc.featured.list.query());
   const [recent] = createResource(() => trpc.recent.list.query());
-  const [recentMessages] = createResource(() => trpc.talkMessage.recent.query());
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
@@ -39,7 +37,7 @@ export const HomeLeftColumn: Component = () => {
       await trpc.featured.submit.mutate({ question: question() });
       setQuestion('');
       setStatus('idle');
-      setFormOpen(false);
+      setTab('featured');
       refetch();
     } catch {
       setStatus('error');
@@ -50,21 +48,15 @@ export const HomeLeftColumn: Component = () => {
     <>
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <h2 class="text-xl font-semibold">Questions</h2>
           <div class="flex gap-1">
-            <TabButton active={tab() === 'featured'} onClick={() => setTab('featured')}>Top Level</TabButton>
-            <TabButton active={tab() === 'recent'} onClick={() => setTab('recent')}>Recent</TabButton>
-            <TabButton active={tab() === 'messages'} onClick={() => setTab('messages')}>Messages</TabButton>
+            <TabButton active={tab() === 'featured'} onClick={() => setTab('featured')}>Conclusions</TabButton>
+            <TabButton active={tab() === 'recent'} onClick={() => setTab('recent')}>Recent edits</TabButton>
+            <TabButton active={tab() === 'new'} onClick={() => { setStatus('idle'); setTab('new'); }}>Start a new topic</TabButton>
           </div>
         </div>
-        <Show when={tab() === 'featured'}>
-          <Button variant="icon" onClick={() => { setFormOpen(v => !v); setStatus('idle'); }} title="Add question">
-            +
-          </Button>
-        </Show>
       </div>
 
-      <Show when={tab() === 'featured' && formOpen()}>
+      <Show when={tab() === 'new'}>
         <form onSubmit={handleSubmit} class="flex flex-col gap-3">
           <Input
             value={question()}
@@ -77,9 +69,6 @@ export const HomeLeftColumn: Component = () => {
             <Button type="submit" size="sm" disabled={status() === 'loading'}>
               {status() === 'loading' ? 'Submitting…' : 'Submit'}
             </Button>
-            <Button type="button" variant="secondary" size="sm" onClick={() => { setFormOpen(false); setStatus('idle'); }}>
-              Cancel
-            </Button>
           </div>
           {status() === 'error' && <p class="text-red-600 dark:text-red-400 text-sm">Something went wrong.</p>}
         </form>
@@ -91,10 +80,7 @@ export const HomeLeftColumn: Component = () => {
             {item => (
               <li>
                 <BlockItem href={`/step/${item.id}`}>
-                  <div><Text bold>Q:</Text> {item.question}</div>
-                  <Show when={item.conclusion}>
-                    <div class="mt-1"><Text bold>A:</Text> {item.conclusion}</div>
-                  </Show>
+                  {item.conclusion ?? item.question}
                 </BlockItem>
               </li>
             )}
@@ -112,22 +98,6 @@ export const HomeLeftColumn: Component = () => {
                   <TextBlock size="xs" color="muted" class="mt-1">
                     {item.wasEdited ? 'edited' : 'created'} {timeAgo(item.activityAt)} by {item.actorName}
                   </TextBlock>
-                </BlockItem>
-              </li>
-            )}
-          </For>
-        </ul>
-      </Show>
-
-      <Show when={tab() === 'messages'}>
-        <ul class="flex flex-col gap-2">
-          <For each={recentMessages()} fallback={<EmptyState as="li" message="No messages yet." />}>
-            {msg => (
-              <li>
-                <BlockItem href={`/step/${msg.reasoningStepId}?tab=talk`}>
-                  <TextBlock size="xs" color="muted" class="mb-1 truncate">{msg.stepQuestion}</TextBlock>
-                  <TextBlock class="line-clamp-2 whitespace-pre-wrap">{msg.body}</TextBlock>
-                  <TextBlock size="xs" color="muted" class="mt-1">{msg.userName} · {timeAgo(new Date(msg.createdAt).toISOString())}</TextBlock>
                 </BlockItem>
               </li>
             )}
