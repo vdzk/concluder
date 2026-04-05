@@ -52,8 +52,8 @@ export const Home: Component = () => {
     <TwoColumnLayout
       leftLabel="Questions"
       rightLabel="About"
-      leftClass="gap-6 px-10 py-10"
-      rightClass="justify-between gap-6 px-10 py-10"
+      leftClass="gap-6 px-4 py-6 lg:px-10 lg:py-10"
+      rightClass="justify-between gap-6 px-4 py-6 lg:px-10 lg:py-10"
       left={<>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">

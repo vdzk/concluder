@@ -72,7 +72,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
     <TwoColumnLayout
       leftLabel="Step"
       rightLabel="Sidebar"
-      leftClass="gap-6 px-10 py-10"
+      leftClass="gap-6 px-4 py-6 lg:px-10 lg:py-10"
       left={<>
         <Show when={step()} fallback={<TextBlock color="muted">{step.loading ? 'Loading…' : 'Not found.'}</TextBlock>}>
           {s => (
@@ -94,7 +94,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
         />
 
         {/* Tab content */}
-        <div class="flex flex-col gap-6 px-10 py-6">
+        <div class="flex flex-col gap-6 px-4 py-4 lg:px-10 lg:py-6">
         <Show when={activeTab() !== null}>
 
           {/* Breadcrumbs tab */}

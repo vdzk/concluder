@@ -57,7 +57,7 @@ export const DefinitionsPage: Component = () => {
     <TwoColumnLayout
       leftLabel="Definitions"
       rightLabel="Details"
-      leftClass="gap-6 px-10 py-10"
+      leftClass="gap-6 px-4 py-6 lg:px-10 lg:py-10"
       showRight={showRight()}
       onShowRightChange={setShowRight}
       left={<>
@@ -90,7 +90,7 @@ export const DefinitionsPage: Component = () => {
           <A href="/" class="px-3 py-2 text-sm border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 -mb-px transition-colors">Home</A>
         </div>
 
-        <div class="flex flex-col gap-6 px-10 py-10">
+        <div class="flex flex-col gap-6 px-4 py-6 lg:px-10 lg:py-10">
           <Show when={rightMode() === 'add'}>
             <div class="flex flex-col gap-4">
               <h2 class="text-xl font-semibold">Add a definition</h2>
