@@ -1,15 +1,15 @@
-import { createEffect, createResource, createSignal, Show, type Component } from 'solid-js'
+import { createEffect, createResource, createSignal, Match, Show, Switch, type Component } from 'solid-js'
 import { useParams, useSearchParams } from '@solidjs/router'
-import { trpc } from '../trpc'
-import { ReasoningStepForm } from '../components/ReasoningStepForm'
-import { StepContent, type TextSelection } from '../components/StepContent'
-import { HistoryTab } from '../components/HistoryTab'
-import { DepsTab } from '../components/DepsTab'
-import { BreadcrumbsTab } from '../components/BreadcrumbsTab'
-import { TabBar, type Tab } from '../components/TabBar'
-import { TalkTab } from '../components/TalkTab'
-import { TextBlock } from '../components/ui/Text'
-import { TwoColumnLayout } from '../components/ui/TwoColumnLayout'
+import { trpc } from '../../trpc'
+import { ReasoningStepForm } from './ReasoningStepForm'
+import { StepContent, type TextSelection } from './StepContent'
+import { HistoryTab } from './HistoryTab'
+import { DepsTab } from './DepsTab'
+import { BreadcrumbsTab } from './BreadcrumbsTab'
+import { TabBar, type Tab } from './TabBar'
+import { TalkTab } from './TalkTab'
+import { TextBlock } from '../../uiLib/Text'
+import { TwoColumnLayout } from '../../uiLib/TwoColumnLayout'
 
 export type Version = NonNullable<Awaited<ReturnType<typeof trpc.reasoningStep.versions.query>>>[number];
 
@@ -68,6 +68,55 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
     }
   };
 
+  const handleToggleTab = (tab: Tab) => setActiveTab(prev => prev === tab ? null : tab);
+
+  const handleTogglePreview = (id: number) => setPreviewVersionId(prev => prev === id ? null : id);
+
+  const handleAddDep: Parameters<typeof DepsTab>[0]['onAddDep'] = async (values) => {
+    await trpc.reasoningStep.addDependency.mutate({ sourceId: props.id, ...values });
+    refetchDeps();
+    refetchStep();
+  };
+
+  const handleLink = async (depId: number) => {
+    const sel = selection();
+    if (!sel) return;
+    const updated = await trpc.reasoningStep.linkAnnotation.mutate({
+      stepId: props.id,
+      dependencyId: depId,
+      startOffset: sel.start,
+      endOffset: sel.end,
+    });
+    mutate(updated);
+    setSelection(null);
+    window.getSelection()?.removeAllRanges();
+  };
+
+  const handleRemoveLink = async () => {
+    const sel = selection();
+    if (!sel) return;
+    const updated = await trpc.reasoningStep.removeAnnotationLink.mutate({
+      stepId: props.id,
+      startOffset: sel.start,
+      endOffset: sel.end,
+    });
+    mutate(updated);
+    setSelection(null);
+    window.getSelection()?.removeAllRanges();
+  };
+
+  const handleSend = async (body: string) => {
+    const msg = await trpc.talkMessage.send.mutate({ reasoningStepId: props.id, body });
+    mutateMessages(prev => [...(prev ?? []), msg]);
+  };
+
+  const handleSubmitEdit: Parameters<typeof ReasoningStepForm>[0]['onSubmit'] = async (values) => {
+    const updated = await trpc.reasoningStep.update.mutate({ id: props.id, ...values });
+    mutate(updated);
+    setActiveTab('history');
+    refetchVersions();
+  };
+
   return (
     <TwoColumnLayout
       leftLabel="Step"
@@ -87,114 +136,61 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
         </Show>
       </>}
       right={<>
-
         <TabBar
           activeTab={activeTab()}
-          onToggleTab={tab => setActiveTab(prev => prev === tab ? null : tab)}
+          onToggleTab={handleToggleTab}
         />
-
-        {/* Tab content */}
         <div class="flex flex-col gap-6 px-4 py-4 lg:px-10 lg:py-6">
-        <Show when={activeTab() !== null}>
-
-          {/* Breadcrumbs tab */}
-          <Show when={activeTab() === 'breadcrumbs'}>
-            <BreadcrumbsTab ancestors={breadcrumbs() ?? []} currentQuestion={step()?.question ?? ''} />
-          </Show>
-
-          {/* History tab */}
-          <Show when={activeTab() === 'history'}>
+        <Switch>
+          <Match when={activeTab() === 'breadcrumbs'}>
+            <BreadcrumbsTab
+              ancestors={breadcrumbs() ?? []}
+              currentQuestion={step()?.question ?? ''}
+            />
+          </Match>
+          <Match when={activeTab() === 'history'}>
             <HistoryTab
               createdByName={step()?.createdByName}
               versions={versions()}
               previewVersionId={previewVersionId()}
-              onTogglePreview={id => setPreviewVersionId(prev => prev === id ? null : id)}
+              onTogglePreview={handleTogglePreview}
               onRestore={handleRollback}
               rollingBack={rollingBack()}
               isAdmin={adminStatus()?.isAdmin ?? false}
             />
-          </Show>
-
-          {/* Dependencies tab */}
-          <Show when={activeTab() === 'deps'}>
+          </Match>
+          <Match when={activeTab() === 'deps'}>
             <DepsTab
               dependents={dependents()}
               deps={deps()}
-              onAddDep={async (values) => {
-                await trpc.reasoningStep.addDependency.mutate({
-                  sourceId: props.id,
-                  ...values,
-                });
-                refetchDeps();
-                refetchStep();
-              }}
+              onAddDep={handleAddDep}
               selection={selection()}
               annotatedAnalysis={step()?.annotatedAnalysis}
-              onLink={async (depId) => {
-                const sel = selection();
-                if (!sel) return;
-                const updated = await trpc.reasoningStep.linkAnnotation.mutate({
-                  stepId: props.id,
-                  dependencyId: depId,
-                  startOffset: sel.start,
-                  endOffset: sel.end,
-                });
-                mutate(updated);
-                setSelection(null);
-                window.getSelection()?.removeAllRanges();
-              }}
-              onRemoveLink={async () => {
-                const sel = selection();
-                if (!sel) return;
-                const updated = await trpc.reasoningStep.removeAnnotationLink.mutate({
-                  stepId: props.id,
-                  startOffset: sel.start,
-                  endOffset: sel.end,
-                });
-                mutate(updated);
-                setSelection(null);
-                window.getSelection()?.removeAllRanges();
-              }}
+              onLink={handleLink}
+              onRemoveLink={handleRemoveLink}
             />
-          </Show>
-
-          {/* Talk tab */}
-          <Show when={activeTab() === 'talk'}>
+          </Match>
+          <Match when={activeTab() === 'talk'}>
             <TalkTab
               messages={messages()}
               currentUserId={undefined}
-              onSend={async (body) => {
-                const msg = await trpc.talkMessage.send.mutate({
-                  reasoningStepId: props.id,
-                  body,
-                });
-                mutateMessages(prev => [...(prev ?? []), msg]);
-              }}
+              onSend={handleSend}
             />
-          </Show>
-
-          {/* Edit tab */}
-          <Show when={activeTab() === 'edit'}>
+          </Match>
+          <Match when={activeTab() === 'edit'}>
             <Show when={step()}>
               {s => (
                 <ReasoningStepForm
                   initialValues={s()}
                   submitLabel="Save"
                   depCount={deps()?.length ?? 0}
-                  onSubmit={async (values) => {
-                    const updated = await trpc.reasoningStep.update.mutate({ id: props.id, ...values });
-                    mutate(updated);
-                    setActiveTab('history');
-                    refetchVersions();
-                  }}
+                  onSubmit={handleSubmitEdit}
                   onCancel={() => setActiveTab(null)}
                 />
               )}
             </Show>
-          </Show>
-
-        </Show>
-
+          </Match>
+        </Switch>
         </div>
       </>}
     />

@@ -1,8 +1,8 @@
 import { createSignal, Show, type Component } from 'solid-js';
-import { trpc } from '../trpc';
-import { Button } from './ui/Button';
-import { Text, TextBlock } from './ui/Text';
-import { Textarea } from './ui/Textarea';
+import { trpc } from '../../trpc';
+import { Button } from '../../uiLib/Button';
+import { Text, TextBlock } from '../../uiLib/Text';
+import { Textarea } from '../../uiLib/Textarea';
 
 type Values = { question: string; analysis: string; conclusion: string };
 

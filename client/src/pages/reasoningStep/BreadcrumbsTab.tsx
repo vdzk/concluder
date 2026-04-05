@@ -1,6 +1,6 @@
 import { For, type Component } from 'solid-js'
-import { BlockItem } from './ui/BlockItem'
-import { Text } from './ui/Text'
+import { BlockItem } from '../../uiLib/BlockItem'
+import { Text } from '../../uiLib/Text'
 
 type BreadcrumbItem = { id: number; question: string }
 

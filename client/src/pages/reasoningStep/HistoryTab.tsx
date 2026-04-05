@@ -1,8 +1,8 @@
 import { Show, For, type Component } from 'solid-js'
 import { VersionHistoryItem } from './VersionHistoryItem'
-import { EmptyState } from './ui/EmptyState'
-import { TextBlock } from './ui/Text'
-import type { Version } from '../pages/ReasoningStepPage'
+import { EmptyState } from '../../uiLib/EmptyState'
+import { TextBlock } from '../../uiLib/Text'
+import type { Version } from './ReasoningStepPage'
 
 type Props = {
   createdByName: string | undefined

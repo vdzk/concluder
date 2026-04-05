@@ -1,8 +1,8 @@
 import { Show, type Component } from 'solid-js'
-import type { Version } from '../pages/ReasoningStepPage'
-import { Button } from './ui/Button'
-import { Text, TextBlock } from './ui/Text'
-import { StepSection } from './ui/StepSection'
+import type { Version } from './ReasoningStepPage'
+import { Button } from '../../uiLib/Button'
+import { Text, TextBlock } from '../../uiLib/Text'
+import { StepSection } from '../../uiLib/StepSection'
 
 type Props = {
   version: Version

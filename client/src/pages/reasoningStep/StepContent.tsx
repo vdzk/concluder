@@ -1,6 +1,6 @@
 import { type Component, type JSX, onCleanup } from 'solid-js'
-import { InlineLink } from './ui/InlineLink'
-import { StepSection } from './ui/StepSection'
+import { InlineLink } from '../../uiLib/InlineLink'
+import { StepSection } from '../../uiLib/StepSection'
 
 const URL_RE = /https?:\/\/[^\s<>"]+/g;
 

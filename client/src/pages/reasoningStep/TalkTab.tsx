@@ -1,9 +1,8 @@
 import { createSignal, For, Show, type Component } from 'solid-js'
-import { trpc } from '../trpc'
-import { Button } from './ui/Button'
-import { EmptyState } from './ui/EmptyState'
-import { Text, TextBlock } from './ui/Text'
-import { Textarea } from './ui/Textarea'
+import { Button } from '../../uiLib/Button'
+import { EmptyState } from '../../uiLib/EmptyState'
+import { Text, TextBlock } from '../../uiLib/Text'
+import { Textarea } from '../../uiLib/Textarea'
 
 type Message = {
   id: number

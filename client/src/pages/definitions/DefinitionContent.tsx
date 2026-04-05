@@ -1,6 +1,6 @@
 import { createResource, Show, type Component } from 'solid-js'
-import { trpc } from '../trpc'
-import { TextBlock } from './ui/Text'
+import { trpc } from '../../trpc'
+import { TextBlock } from '../../uiLib/Text'
 
 type Props = {
   id: number

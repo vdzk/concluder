@@ -1,10 +1,10 @@
 import { Show, For, createSignal, type Component } from 'solid-js'
 import { ReasoningStepForm } from './ReasoningStepForm'
-import { BlockItem } from './ui/BlockItem'
+import { BlockItem } from '../../uiLib/BlockItem'
 import type { TextSelection } from './StepContent'
-import { Button } from './ui/Button'
-import { EmptyState } from './ui/EmptyState'
-import { TextBlock } from './ui/Text'
+import { Button } from '../../uiLib/Button'
+import { EmptyState } from '../../uiLib/EmptyState'
+import { TextBlock } from '../../uiLib/Text'
 
 type Dep = { id: number; question: string; conclusion: string | null }
 type FormValues = { question: string; analysis: string; conclusion: string }

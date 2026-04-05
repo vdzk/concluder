@@ -1,14 +1,14 @@
 import { createEffect, createResource, createSignal, For, Show, type Component } from 'solid-js'
 import { A, useNavigate, useParams } from '@solidjs/router'
-import { trpc } from '../trpc'
-import { BlockItem } from '../components/ui/BlockItem'
-import { TwoColumnLayout } from '../components/ui/TwoColumnLayout'
-import { DefinitionContent } from '../components/DefinitionContent'
-import { Button } from '../components/ui/Button'
-import { EmptyState } from '../components/ui/EmptyState'
-import { Input } from '../components/ui/Input'
-import { Text, TextBlock } from '../components/ui/Text'
-import { Textarea } from '../components/ui/Textarea'
+import { trpc } from '../../trpc'
+import { BlockItem } from '../../uiLib/BlockItem'
+import { TwoColumnLayout } from '../../uiLib/TwoColumnLayout'
+import { DefinitionContent } from './DefinitionContent'
+import { Button } from '../../uiLib/Button'
+import { EmptyState } from '../../uiLib/EmptyState'
+import { Input } from '../../uiLib/Input'
+import { Text, TextBlock } from '../../uiLib/Text'
+import { Textarea } from '../../uiLib/Textarea'
 
 export const DefinitionsPage: Component = () => {
   const params = useParams<{ id?: string }>();
