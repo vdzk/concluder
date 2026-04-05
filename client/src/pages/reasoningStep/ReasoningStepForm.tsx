@@ -12,6 +12,7 @@ type Props = {
   submitLabel?: string;
   onCancel?: () => void;
   depCount?: number;
+  placeholders?: { question?: string; analysis?: string; conclusion?: string };
 };
 
 export const ReasoningStepForm: Component<Props> = (props) => {
@@ -53,17 +54,17 @@ export const ReasoningStepForm: Component<Props> = (props) => {
 
       <label class="flex flex-col gap-1">
         <Text bold>Question</Text>
-        <Textarea rows={2} value={question()} onInput={e => setQuestion(e.currentTarget.value)} required />
+        <Textarea rows={2} value={question()} onInput={e => setQuestion(e.currentTarget.value)} placeholder={props.placeholders?.question} required />
       </label>
 
       <label class="flex flex-col gap-1">
         <Text bold>Analysis</Text>
-        <Textarea class="min-h-24" rows={10} value={analysis()} onInput={e => setAnalysis(e.currentTarget.value)} required />
+        <Textarea class="min-h-24" rows={10} value={analysis()} onInput={e => setAnalysis(e.currentTarget.value)} placeholder={props.placeholders?.analysis} required />
       </label>
 
       <label class="flex flex-col gap-1">
         <Text bold>Conclusion</Text>
-        <Textarea rows={2} value={conclusion()} onInput={e => setConclusion(e.currentTarget.value)} required />
+        <Textarea rows={2} value={conclusion()} onInput={e => setConclusion(e.currentTarget.value)} placeholder={props.placeholders?.conclusion} required />
       </label>
 
       <div class="flex gap-3">

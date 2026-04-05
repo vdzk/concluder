@@ -7,7 +7,7 @@ import { InlineLink } from '../../uiLib/InlineLink';
 const SECTIONS: { heading: string; body: string | string[] }[] = [
   {
     heading: 'What is this?',
-    body: "Concluder is a Wikipedia-style tool for collaborative reasoning. It focuses on controversial topics so it can also be seen as a new form of debate. It's at a very early stage of development. Browse questions on the left, or add your own to kick off a structured chain of thought. No registration is required for now.",
+    body: "Concluder is a Wikipedia-style tool for collaborative reasoning. It focuses on controversial topics and can be seen as a new form of structured debate. It is still in an early stage of development. On the left, you can browse a list of conclusions, explore or edit the reasoning behind them, or start a new topic. No registration is required for now.",
   },
   {
     heading: 'How is it different from Wikipedia?',

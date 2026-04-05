@@ -11,7 +11,7 @@ type ButtonProps = BaseProps & { href?: never } & JSX.ButtonHTMLAttributes<HTMLB
 
 type Props = LinkProps | ButtonProps
 
-const BASE = 'block px-2 py-1.5 rounded border border-transparent border-l-black dark:border-l-white hover:border-black dark:hover:border-white'
+const BASE = 'block px-2 py-1.5 rounded border border-transparent border-l-black dark:border-l-white hover:bg-orange-200 dark:hover:bg-gray-700'
 const BUTTON_EXTRA = 'w-full text-left cursor-pointer'
 
 export const BlockItem: Component<Props> = (props) => {

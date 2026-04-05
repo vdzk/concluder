@@ -28,7 +28,7 @@ const SECONDARY_SIZE: Record<Size, string> = {
   sm: 'px-4 py-1.5 text-sm',
 }
 
-const SECONDARY_BASE = 'border dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
+const SECONDARY_BASE = 'border dark:border-gray-600 rounded hover:bg-orange-100 dark:hover:bg-gray-800 cursor-pointer'
 
 const ICON = 'w-9 h-9 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed'
 

@@ -1,12 +1,11 @@
-import { createResource, createSignal, For, Show, type Component } from 'solid-js';
+import { createResource, For, Show, type Component } from 'solid-js';
 import { useSearchParams } from '@solidjs/router';
 import { BlockItem } from '../../uiLib/BlockItem';
 import { trpc } from '../../trpc';
-import { Button } from '../../uiLib/Button';
 import { EmptyState } from '../../uiLib/EmptyState';
-import { Input } from '../../uiLib/Input';
 import { TabButton } from '../../uiLib/TabButton';
-import { Text, TextBlock } from '../../uiLib/Text';
+import { TextBlock } from '../../uiLib/Text';
+import { ReasoningStepForm } from '../reasoningStep/ReasoningStepForm';
 
 function timeAgo(iso: string): string {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -22,26 +21,16 @@ function timeAgo(iso: string): string {
 }
 
 export const HomeLeftColumn: Component = () => {
-  const [question, setQuestion] = createSignal('');
-  const [status, setStatus] = createSignal<'idle' | 'loading' | 'error'>('idle');
   const [searchParams, setSearchParams] = useSearchParams<{ tab?: string }>();
   const tab = () => searchParams.tab === 'recent' ? 'recent' : searchParams.tab === 'new' ? 'new' : 'featured';
   const setTab = (t: 'featured' | 'recent' | 'new') => setSearchParams({ tab: t });
   const [featured, { refetch }] = createResource(() => trpc.featured.list.query());
   const [recent] = createResource(() => trpc.recent.list.query());
 
-  const handleSubmit = async (e: SubmitEvent) => {
-    e.preventDefault();
-    setStatus('loading');
-    try {
-      await trpc.featured.submit.mutate({ question: question() });
-      setQuestion('');
-      setStatus('idle');
-      setTab('featured');
-      refetch();
-    } catch {
-      setStatus('error');
-    }
+  const handleNewSubmit = async (values: { question: string; analysis: string; conclusion: string }) => {
+    await trpc.reasoningStep.create.mutate({ ...values, featured: true });
+    setTab('featured');
+    refetch();
   };
 
   return (
@@ -51,27 +40,22 @@ export const HomeLeftColumn: Component = () => {
           <div class="flex gap-1">
             <TabButton active={tab() === 'featured'} onClick={() => setTab('featured')}>Conclusions</TabButton>
             <TabButton active={tab() === 'recent'} onClick={() => setTab('recent')}>Recent edits</TabButton>
-            <TabButton active={tab() === 'new'} onClick={() => { setStatus('idle'); setTab('new'); }}>Start a new topic</TabButton>
+            <TabButton active={tab() === 'new'} onClick={() => setTab('new')}>Start a new topic</TabButton>
           </div>
         </div>
       </div>
 
       <Show when={tab() === 'new'}>
-        <form onSubmit={handleSubmit} class="flex flex-col gap-3">
-          <Input
-            value={question()}
-            onInput={e => setQuestion(e.currentTarget.value)}
-            placeholder="Your question…"
-            required
-            autofocus
-          />
-          <div class="flex gap-2">
-            <Button type="submit" size="sm" disabled={status() === 'loading'}>
-              {status() === 'loading' ? 'Submitting…' : 'Submit'}
-            </Button>
-          </div>
-          {status() === 'error' && <p class="text-red-600 dark:text-red-400 text-sm">Something went wrong.</p>}
-        </form>
+        <ReasoningStepForm
+          onSubmit={handleNewSubmit}
+          submitLabel="Submit"
+          onCancel={() => setTab('featured')}
+          placeholders={{
+            question: 'What is the central question that you want to discuss?',
+            analysis: "What's your thinking about this question? You can start by adding just a single argument. You or others can build upon your reasoning later.",
+            conclusion: 'What conclusion follows from this analysis? It has to answer the original question.',
+          }}
+        />
       </Show>
 
       <Show when={tab() === 'featured'}>

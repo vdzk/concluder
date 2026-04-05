@@ -1,13 +1,14 @@
 import { z } from 'zod'
 import { eq, desc, and } from 'drizzle-orm'
 import { db } from '../../db/index.ts'
-import { reasoningStepTable, reasoningStepVersionTable, reasoningDependencyTable, userTable } from '../../db/schema.ts'
+import { reasoningStepTable, reasoningStepVersionTable, reasoningDependencyTable, userTable, featuredTable } from '../../db/schema.ts'
 import { type AnnotationChunk } from '../../lib/annotateAnalysis.ts'
 import { t, sessionProcedure, adminProcedure } from '../trpc.ts'
 import { getStepById } from '../helpers/getStepById.ts'
 import { extractLinks, buildChunksFromLinks, stripDefinitions, preserveLinks, addLinkToChunks, removeLinkAtSelection } from '../helpers/links.ts'
 import { applyDefinitions } from '../helpers/definitions.ts'
 import { updateFeaturedConclusion } from '../helpers/updateFeaturedConclusion.ts'
+import { generateFeaturedConclusion } from '../../lib/generateFeaturedConclusion.ts'
 
 export const reasoningStepRouter = t.router({
   getById: t.procedure
@@ -134,14 +135,20 @@ export const reasoningStepRouter = t.router({
       question: z.string().min(1),
       analysis: z.string().min(1),
       conclusion: z.string().min(1),
+      featured: z.boolean().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
-      const annotatedAnalysis = await applyDefinitions([{ type: 'text', text: input.analysis }]);
+      const { featured, ...fields } = input;
+      const annotatedAnalysis = await applyDefinitions([{ type: 'text', text: fields.analysis }]);
       const [row] = await db.insert(reasoningStepTable).values({
-        ...input,
+        ...fields,
         annotatedAnalysis,
         createdBy: ctx.userId,
       }).returning();
+      if (featured) {
+        const conclusion = await generateFeaturedConclusion(row.question, row.conclusion, null);
+        await db.insert(featuredTable).values({ id: row.id, conclusion });
+      }
       return row;
     }),
 
