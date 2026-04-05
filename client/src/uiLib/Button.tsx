@@ -30,7 +30,7 @@ const SECONDARY_SIZE: Record<Size, string> = {
 
 const SECONDARY_BASE = 'border dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
 
-const ICON = 'w-9 h-9 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
+const ICON = 'w-9 h-9 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed'
 
 const BADGE_COLOR: Record<Color, string> = {
   green: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-300 dark:border-green-700 hover:bg-green-200 dark:hover:bg-green-800',
