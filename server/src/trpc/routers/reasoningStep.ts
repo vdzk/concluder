@@ -44,7 +44,7 @@ export const reasoningStepRouter = t.router({
         analysis: current.analysis,
         annotatedAnalysis: current.annotatedAnalysis,
         conclusion: current.conclusion,
-        editedBy: ctx.userId,
+        createdBy: current.createdBy,
       });
 
       const oldChunks = (current.annotatedAnalysis as AnnotationChunk[] | null) ?? [];
@@ -56,7 +56,7 @@ export const reasoningStepRouter = t.router({
       }
       newChunks = await applyDefinitions(newChunks);
 
-      await db.update(reasoningStepTable).set({ ...fields, annotatedAnalysis: newChunks }).where(eq(reasoningStepTable.id, id));
+      await db.update(reasoningStepTable).set({ ...fields, annotatedAnalysis: newChunks, createdBy: ctx.userId }).where(eq(reasoningStepTable.id, id));
 
       if (fields.question !== current.question || fields.conclusion !== current.conclusion) {
         await updateFeaturedConclusion(id, fields.question, fields.conclusion);
@@ -76,12 +76,12 @@ export const reasoningStepRouter = t.router({
           question: reasoningStepVersionTable.question,
           analysis: reasoningStepVersionTable.analysis,
           conclusion: reasoningStepVersionTable.conclusion,
-          editedBy: reasoningStepVersionTable.editedBy,
-          editedAt: reasoningStepVersionTable.editedAt,
-          editedByName: userTable.name,
+          createdBy: reasoningStepVersionTable.createdBy,
+          createdAt: reasoningStepVersionTable.createdAt,
+          createdByName: userTable.name,
         })
         .from(reasoningStepVersionTable)
-        .innerJoin(userTable, eq(reasoningStepVersionTable.editedBy, userTable.id))
+        .innerJoin(userTable, eq(reasoningStepVersionTable.createdBy, userTable.id))
         .where(eq(reasoningStepVersionTable.reasoningStepId, input.reasoningStepId))
         .orderBy(desc(reasoningStepVersionTable.version));
     }),
@@ -109,7 +109,7 @@ export const reasoningStepRouter = t.router({
         analysis: current.analysis,
         annotatedAnalysis: current.annotatedAnalysis,
         conclusion: current.conclusion,
-        editedBy: ctx.userId,
+        createdBy: current.createdBy,
       });
 
       const oldChunks = (ver.annotatedAnalysis as AnnotationChunk[] | null) ?? [];
@@ -121,6 +121,7 @@ export const reasoningStepRouter = t.router({
         analysis: ver.analysis,
         conclusion: ver.conclusion,
         annotatedAnalysis: newChunks,
+        createdBy: ver.createdBy,
       }).where(eq(reasoningStepTable.id, ver.reasoningStepId));
 
       if (ver.question !== current.question || ver.conclusion !== current.conclusion) {

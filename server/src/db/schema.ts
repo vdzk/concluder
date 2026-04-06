@@ -32,8 +32,8 @@ export const reasoningStepVersionTable = pgTable('reasoning_step_version', {
   reasoningStepId: integer('reasoning_step_id').notNull().references(() => reasoningStepTable.id),
   version: integer('version').notNull(),
   ...reasoningStepColumns(false),
-  editedBy: integer('edited_by').notNull().references(() => userTable.id),
-  editedAt: timestamp('edited_at', { withTimezone: true }).notNull().defaultNow(),
+  createdBy: integer('created_by').notNull().references(() => userTable.id),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const reasoningDependencyTable = pgTable('reasoning_dependency', {

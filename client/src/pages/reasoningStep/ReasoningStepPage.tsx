@@ -151,6 +151,7 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
           <Match when={activeTab() === 'history'}>
             <HistoryTab
               createdByName={step()?.createdByName}
+              createdAt={step()?.createdAt}
               versions={versions()}
               previewVersionId={previewVersionId()}
               onTogglePreview={handleTogglePreview}

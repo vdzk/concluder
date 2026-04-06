@@ -32,8 +32,9 @@ const SECTIONS: { heading: string; body: string | string[] }[] = [
 ];
 
 export const HomeRightColumn: Component = () => {
-  const [searchParams] = useSearchParams<{ section?: string }>();
+  const [searchParams] = useSearchParams<{ section?: string; tab?: string }>();
   const index = () => Math.min(Math.max(parseInt(searchParams.section ?? '0') || 0, 0), SECTIONS.length - 1);
+  const tabParam = () => searchParams.tab ? `&tab=${searchParams.tab}` : '';
 
   return (
     <>
@@ -50,11 +51,11 @@ export const HomeRightColumn: Component = () => {
 
         <div class="flex mt-4">
           {index() > 0 && (
-            <InlineLink variant="nav" href={`/?section=${index() - 1}`}>Back</InlineLink>
+            <InlineLink variant="nav" href={`/?section=${index() - 1}${tabParam()}`}>Back</InlineLink>
           )}
           <div class="flex-1" />
           {index() < SECTIONS.length - 1 && (
-            <InlineLink variant="nav" href={`/?section=${index() + 1}`}>
+            <InlineLink variant="nav" href={`/?section=${index() + 1}${tabParam()}`}>
               {SECTIONS[index() + 1].heading}
             </InlineLink>
           )}

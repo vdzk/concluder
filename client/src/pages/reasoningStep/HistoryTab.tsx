@@ -6,6 +6,7 @@ import type { Version } from './ReasoningStepPage'
 
 type Props = {
   createdByName: string | undefined
+  createdAt: Date | string | undefined
   versions: Version[] | undefined
   previewVersionId: number | null
   onTogglePreview: (id: number) => void
@@ -18,7 +19,7 @@ export const HistoryTab: Component<Props> = (props) => {
   return (
     <div class="flex flex-col gap-4">
       <Show when={props.createdByName}>
-        <TextBlock color="muted">Current version created by: {props.createdByName}</TextBlock>
+        <TextBlock color="muted">Current version created by {props.createdByName} on {new Date(props.createdAt!).toISOString().slice(0, 16).replace('T', ' ')}</TextBlock>
       </Show>
       <Show
         when={(props.versions?.length ?? 0) > 0}

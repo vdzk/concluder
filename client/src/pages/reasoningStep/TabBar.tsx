@@ -23,7 +23,7 @@ const INACTIVE_TAB_CLASS = 'border-transparent text-gray-500 dark:text-gray-400 
 
 export const TabBar: Component<Props> = (props) => {
   return (
-    <div class="flex items-center gap-1 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex flex-wrap items-center gap-1 border-b border-gray-200 dark:border-gray-700">
       <A
         href="/"
         class={`${BASE_TAB_CLASS} ${INACTIVE_TAB_CLASS}`}

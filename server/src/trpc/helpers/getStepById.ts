@@ -12,6 +12,7 @@ export async function getStepById(id: number) {
       conclusion: reasoningStepTable.conclusion,
       createdBy: reasoningStepTable.createdBy,
       createdByName: userTable.name,
+      createdAt: reasoningStepTable.createdAt,
     })
     .from(reasoningStepTable)
     .innerJoin(userTable, eq(reasoningStepTable.createdBy, userTable.id))
