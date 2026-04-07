@@ -9,6 +9,7 @@ import { extractLinks, buildChunksFromLinks, stripDefinitions, preserveLinks, ad
 import { applyDefinitions } from '../helpers/definitions.ts'
 import { updateFeaturedConclusion } from '../helpers/updateFeaturedConclusion.ts'
 import { generateFeaturedConclusion } from '../../lib/generateFeaturedConclusion.ts'
+import { generateChangeSummary } from '../../lib/generateChangeSummary.ts'
 
 export const reasoningStepRouter = t.router({
   getById: t.procedure
@@ -44,6 +45,7 @@ export const reasoningStepRouter = t.router({
         analysis: current.analysis,
         annotatedAnalysis: current.annotatedAnalysis,
         conclusion: current.conclusion,
+        changeSummary: current.changeSummary,
         createdBy: current.createdBy,
       });
 
@@ -56,7 +58,13 @@ export const reasoningStepRouter = t.router({
       }
       newChunks = await applyDefinitions(newChunks);
 
-      await db.update(reasoningStepTable).set({ ...fields, annotatedAnalysis: newChunks, createdBy: ctx.userId }).where(eq(reasoningStepTable.id, id));
+      const changeSummary = await generateChangeSummary(fields, {
+        question: current.question,
+        analysis: current.analysis,
+        conclusion: current.conclusion,
+      });
+
+      await db.update(reasoningStepTable).set({ ...fields, annotatedAnalysis: newChunks, changeSummary, createdBy: ctx.userId }).where(eq(reasoningStepTable.id, id));
 
       if (fields.question !== current.question || fields.conclusion !== current.conclusion) {
         await updateFeaturedConclusion(id, fields.question, fields.conclusion);
@@ -76,6 +84,7 @@ export const reasoningStepRouter = t.router({
           question: reasoningStepVersionTable.question,
           analysis: reasoningStepVersionTable.analysis,
           conclusion: reasoningStepVersionTable.conclusion,
+          changeSummary: reasoningStepVersionTable.changeSummary,
           createdBy: reasoningStepVersionTable.createdBy,
           createdAt: reasoningStepVersionTable.createdAt,
           createdByName: userTable.name,
@@ -109,6 +118,7 @@ export const reasoningStepRouter = t.router({
         analysis: current.analysis,
         annotatedAnalysis: current.annotatedAnalysis,
         conclusion: current.conclusion,
+        changeSummary: current.changeSummary,
         createdBy: current.createdBy,
       });
 
@@ -116,11 +126,17 @@ export const reasoningStepRouter = t.router({
       const linkChunks = stripDefinitions(oldChunks);
       const newChunks = await applyDefinitions(linkChunks);
 
+      const changeSummary = await generateChangeSummary(
+        { question: ver.question, analysis: ver.analysis, conclusion: ver.conclusion },
+        { question: current.question, analysis: current.analysis, conclusion: current.conclusion },
+      );
+
       await db.update(reasoningStepTable).set({
         question: ver.question,
         analysis: ver.analysis,
         conclusion: ver.conclusion,
         annotatedAnalysis: newChunks,
+        changeSummary,
         createdBy: ver.createdBy,
       }).where(eq(reasoningStepTable.id, ver.reasoningStepId));
 
@@ -141,9 +157,11 @@ export const reasoningStepRouter = t.router({
     .mutation(async ({ input, ctx }) => {
       const { featured, ...fields } = input;
       const annotatedAnalysis = await applyDefinitions([{ type: 'text', text: fields.analysis }]);
+      const changeSummary = await generateChangeSummary(fields, null);
       const [row] = await db.insert(reasoningStepTable).values({
         ...fields,
         annotatedAnalysis,
+        changeSummary,
         createdBy: ctx.userId,
       }).returning();
       if (featured) {

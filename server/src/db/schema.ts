@@ -17,14 +17,15 @@ const reasoningStepColumns = (current: boolean) => {
     analysis: text('analysis').notNull(),
     annotatedAnalysis: jsonb('annotated_analysis'),
     conclusion: text('conclusion').notNull(),
+    changeSummary: text('change_summary'),
+    createdBy: integer('created_by').notNull().references(() => userTable.id),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   }
 }
 
 export const reasoningStepTable = pgTable('reasoning_step', {
   id: serial('id').primaryKey(),
   ...reasoningStepColumns(true),
-  createdBy: integer('created_by').notNull().references(() => userTable.id),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const reasoningStepVersionTable = pgTable('reasoning_step_version', {
@@ -32,8 +33,6 @@ export const reasoningStepVersionTable = pgTable('reasoning_step_version', {
   reasoningStepId: integer('reasoning_step_id').notNull().references(() => reasoningStepTable.id),
   version: integer('version').notNull(),
   ...reasoningStepColumns(false),
-  createdBy: integer('created_by').notNull().references(() => userTable.id),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const reasoningDependencyTable = pgTable('reasoning_dependency', {

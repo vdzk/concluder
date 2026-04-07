@@ -152,6 +152,10 @@ const ReasoningStepInner: Component<{ id: number }> = (props) => {
             <HistoryTab
               createdByName={step()?.createdByName}
               createdAt={step()?.createdAt}
+              currentQuestion={step()?.question}
+              currentAnalysis={step()?.analysis}
+              currentConclusion={step()?.conclusion}
+              currentChangeSummary={step()?.changeSummary}
               versions={versions()}
               previewVersionId={previewVersionId()}
               onTogglePreview={handleTogglePreview}

@@ -10,6 +10,7 @@ export async function getStepById(id: number) {
       analysis: reasoningStepTable.analysis,
       annotatedAnalysis: reasoningStepTable.annotatedAnalysis,
       conclusion: reasoningStepTable.conclusion,
+      changeSummary: reasoningStepTable.changeSummary,
       createdBy: reasoningStepTable.createdBy,
       createdByName: userTable.name,
       createdAt: reasoningStepTable.createdAt,

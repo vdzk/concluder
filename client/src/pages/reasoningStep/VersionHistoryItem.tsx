@@ -11,6 +11,7 @@ type Props = {
   onRestore: () => void
   restoring: boolean
   isAdmin: boolean
+  isCurrent?: boolean
 }
 
 export const VersionHistoryItem: Component<Props> = (props) => {
@@ -22,8 +23,11 @@ export const VersionHistoryItem: Component<Props> = (props) => {
       >
         <div class="min-w-0">
           <TextBlock color="muted">
-            Version {props.version.version} — {new Date(props.version.createdAt).toISOString().slice(0, 16).replace('T', ' ')} — {props.version.createdByName}
+            Version {props.version.version} — {new Date(props.version.createdAt).toISOString().slice(0, 16).replace('T', ' ')} — {props.version.createdByName}{props.isCurrent ? ' (current)' : ''}
           </TextBlock>
+          <Show when={props.version.changeSummary}>
+            <TextBlock>{props.version.changeSummary}</TextBlock>
+          </Show>
         </div>
         <Text color="muted" class="shrink-0">{props.expanded ? '▲' : '▼'}</Text>
       </button>
@@ -31,7 +35,7 @@ export const VersionHistoryItem: Component<Props> = (props) => {
       <Show when={props.expanded}>
         <div class="border-t dark:border-gray-700 px-4 py-4 flex flex-col gap-4 bg-gray-50 dark:bg-gray-800">
           <StepSection label="Question"><TextBlock>{props.version.question}</TextBlock></StepSection>
-          <StepSection label="Analysis"><TextBlock>{props.version.analysis}</TextBlock></StepSection>
+          <StepSection label="Analysis"><TextBlock class="whitespace-pre-line">{props.version.analysis}</TextBlock></StepSection>
           <StepSection label="Conclusion"><TextBlock>{props.version.conclusion}</TextBlock></StepSection>
           <Show when={props.isAdmin}>
             <Button variant="secondary" onClick={props.onRestore} disabled={props.restoring}>
