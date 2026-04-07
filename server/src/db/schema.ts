@@ -46,11 +46,24 @@ export const featuredTable = pgTable('featured', {
   conclusion: text('conclusion'),
 })
 
-export const definitionTable = pgTable('definition', {
-  id: serial('id').primaryKey(),
+const definitionColumns = () => ({
   term: text('term').notNull(),
   text: text('text').notNull(),
+  changeSummary: text('change_summary'),
   createdBy: integer('created_by').notNull().references(() => userTable.id),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+export const definitionTable = pgTable('definition', {
+  id: serial('id').primaryKey(),
+  ...definitionColumns(),
+})
+
+export const definitionVersionTable = pgTable('definition_version', {
+  id: serial('id').primaryKey(),
+  definitionId: integer('definition_id').notNull().references(() => definitionTable.id),
+  version: integer('version').notNull(),
+  ...definitionColumns(),
 })
 
 export const adminTable = pgTable('admin', {
