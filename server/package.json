@@ -1,5 +1,6 @@
 {
   "type": "module",
+  "license": "MIT",
   "scripts": {
     "start": "node src/index.ts",
     "dev": "node --watch src/index.ts",
